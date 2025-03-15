@@ -56,9 +56,9 @@ const StoreHeader = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 text-white p-3 md:p-8">
+      <div className="absolute bottom-0 left-0 right-0 text-white p-3 md:p-8 pb-6 md:pb-12">
         <div className="max-w-5xl mx-auto flex items-end justify-between">
-          <div className="flex items-end gap-3 md:gap-6">
+          <div className="flex items-end gap-3 md:gap-6 mt-6 md:mt-10">
             <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white">
               {store.logo ? (
                 <img 
