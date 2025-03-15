@@ -61,22 +61,22 @@ const ProductCard = ({ product }: ProductCardProps) => {
         {/* Out of stock overlay */}
         {!product.inStock && (
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-            <span className="bg-white text-oksale-800 px-3 py-1 rounded-md font-medium text-sm">
+            <span className="bg-white text-oksale-800 px-2 py-1 md:px-3 md:py-1 rounded-md font-medium text-xs md:text-sm">
               Out of Stock
             </span>
           </div>
         )}
       </div>
       
-      <div className="p-4">
-        <h3 className="font-medium text-lg line-clamp-1">{product.name}</h3>
-        <p className="text-oksale-600 text-sm mt-1 line-clamp-2">{product.description}</p>
-        <div className="mt-3 flex items-center justify-between">
-          <span className="font-semibold">{formattedPrice}</span>
+      <div className="p-3 md:p-4">
+        <h3 className="font-medium text-base md:text-lg line-clamp-1">{product.name}</h3>
+        <p className="text-oksale-600 text-xs md:text-sm mt-1 line-clamp-2">{product.description}</p>
+        <div className="mt-2 md:mt-3 flex items-center justify-between">
+          <span className="font-semibold text-sm md:text-base">{formattedPrice}</span>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="hover:bg-oksale-50 text-oksale-700"
+            className="hover:bg-oksale-50 text-oksale-700 text-xs md:text-sm"
             disabled={!product.inStock}
           >
             Details

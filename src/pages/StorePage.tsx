@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -131,12 +132,12 @@ const StorePage = () => {
       <main className="flex-grow">
         <StoreHeader store={store} />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mt-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h2 className="text-2xl font-bold text-neutral-800">Products</h2>
+        <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
+          <div className="mt-4 md:mt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 mb-5 md:mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-neutral-800">Products</h2>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <div className="relative flex-grow w-full sm:w-auto">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
                   <Input
@@ -144,14 +145,14 @@ const StorePage = () => {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 border-neutral-200 w-full"
+                    className="pl-10 border-neutral-200 w-full h-9 md:h-10"
                   />
                 </div>
                 
                 <Button 
                   variant="outline" 
                   size="icon"
-                  className="border-neutral-200" 
+                  className="border-neutral-200 h-9 w-9 md:h-10 md:w-10" 
                   onClick={() => setShowFilters(!showFilters)}
                 >
                   <Filter className="w-4 h-4" />
@@ -160,15 +161,27 @@ const StorePage = () => {
             </div>
             
             {showFilters && (
-              <div className="mb-6 p-4 bg-white rounded-xl shadow-sm animate-fade-in border border-neutral-100">
-                <h3 className="font-medium text-neutral-800 mb-3">Filters</h3>
-                <div className="flex flex-wrap gap-3">
+              <div className="mb-5 p-3 md:p-4 bg-white rounded-xl shadow-sm animate-fade-in border border-neutral-100">
+                <h3 className="font-medium text-neutral-800 mb-2 md:mb-3 text-sm md:text-base">Filters</h3>
+                <div className="flex flex-wrap gap-2 md:gap-3">
+                  <Button
+                    variant={selectedCategory === 'All' ? "default" : "outline"}
+                    size="sm"
+                    className={`h-7 md:h-8 text-xs ${
+                      selectedCategory === 'All'
+                        ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                        : "border-neutral-200"
+                    }`}
+                    onClick={() => setSelectedCategory('All')}
+                  >
+                    All
+                  </Button>
                   {store.categories.map((category) => (
                     <Button
                       key={category}
                       variant={selectedCategory === category ? "default" : "outline"}
                       size="sm"
-                      className={`h-8 text-xs ${
+                      className={`h-7 md:h-8 text-xs ${
                         selectedCategory === category
                           ? "bg-indigo-600 hover:bg-indigo-700 text-white"
                           : "border-neutral-200"
