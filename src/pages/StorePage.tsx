@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -20,10 +18,10 @@ import {
   Heart,
   Share2,
   Search,
-  Filter
+  Filter,
+  Home
 } from 'lucide-react';
 
-// Mock store data
 const storeData = {
   id: 1,
   name: 'Fashion Boutique',
@@ -45,7 +43,6 @@ const storeData = {
   }
 };
 
-// Mock products data
 const products = [
   {
     id: 1,
@@ -129,10 +126,8 @@ const StorePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   
-  // In a real app, you would fetch the store data based on the id
   const store = storeData;
   
-  // Filter products based on category and search query
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -141,7 +136,6 @@ const StorePage = () => {
   });
   
   useEffect(() => {
-    // Smooth scroll to top when component mounts
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
@@ -150,22 +144,40 @@ const StorePage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-oksale-50/30">
-      <Navbar />
+      <header className="bg-white shadow-sm py-3 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 text-oksale-800 hover:text-oksale-600 transition-colors">
+            <Home className="h-4 w-4" />
+            <span className="text-sm font-medium">Back to OKsale</span>
+          </Link>
+          
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" className="text-oksale-700">
+              <Heart className="h-4 w-4 mr-1" />
+              Save
+            </Button>
+            <Button variant="ghost" size="sm" className="text-oksale-700">
+              <Share2 className="h-4 w-4 mr-1" />
+              Share
+            </Button>
+          </div>
+        </div>
+      </header>
       
       <main className="flex-grow">
-        {/* Store header with cover image */}
         <div className="relative h-[40vh] overflow-hidden">
           <img
             src={store.coverImage}
             alt={`${store.name} cover`}
-            className={`w-full h-full object-cover transition-opacity duration-700 ${coverLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={cn(
+              "w-full h-full object-cover transition-opacity duration-700",
+              coverLoaded ? "opacity-100" : "opacity-0"
+            )}
             onLoad={() => setCoverLoaded(true)}
           />
           
-          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
           
-          {/* Store quick info */}
           <div className="absolute bottom-0 left-0 right-0 text-white p-8">
             <div className="max-w-7xl mx-auto flex items-end justify-between">
               <div className="flex items-end gap-6">
@@ -225,9 +237,7 @@ const StorePage = () => {
           </div>
         </div>
         
-        {/* Store main content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Store navigation and quick actions */}
           <div className="mb-8 bg-white shadow-sm rounded-xl p-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-3 md:gap-6 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
@@ -252,7 +262,6 @@ const StorePage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-            {/* About and highlights section */}
             <div className="md:col-span-2 space-y-8">
               <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h2 className="text-xl font-semibold mb-4 text-oksale-800 flex items-center">
@@ -321,7 +330,6 @@ const StorePage = () => {
               </div>
             </div>
             
-            {/* Categories and tags section */}
             <div className="space-y-8">
               <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h2 className="text-xl font-semibold mb-4 text-oksale-800">Categories</h2>
@@ -388,7 +396,6 @@ const StorePage = () => {
             </div>
           </div>
           
-          {/* Products Section */}
           <div className="mb-16">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-bold text-oksale-800">Products</h2>
