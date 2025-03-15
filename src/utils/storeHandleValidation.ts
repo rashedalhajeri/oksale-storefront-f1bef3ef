@@ -22,7 +22,7 @@ export const isHandleAvailable = async (handle: string): Promise<boolean> => {
     
     if (error) {
       console.error("خطأ في التحقق من توفر المعرّف:", error);
-      return false;
+      throw error;
     }
     
     // إذا لم يتم العثور على معرّف مطابق، فهو متاح

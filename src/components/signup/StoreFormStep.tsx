@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Check, X } from 'lucide-react';
+import { Loader2, Check, X, AlertCircle } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { SignUpValues } from '@/types/auth';
 import { isHandleAvailable } from '@/utils/storeHandleValidation';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface StoreFormStepProps {
   form: UseFormReturn<SignUpValues>;
@@ -67,6 +68,13 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
 
   return (
     <div className="space-y-4 pt-4">
+      <Alert variant="default" className="bg-blue-50 border-blue-200 mb-4">
+        <AlertCircle className="h-4 w-4 text-blue-500" />
+        <AlertDescription className="text-blue-700 text-sm">
+          بعد التسجيل سيمكنك الوصول إلى متجرك عبر الرابط: oksale.me/{storeHandle.replace('@', '')}
+        </AlertDescription>
+      </Alert>
+
       <FormField
         control={form.control}
         name="storeName"

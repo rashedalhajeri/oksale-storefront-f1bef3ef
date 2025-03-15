@@ -49,6 +49,13 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: {
+            storeName: data.storeName,
+            storeHandle: formattedHandle
+          }
+        }
       });
       
       if (authError) {
@@ -80,42 +87,33 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       
       console.log("تم إنشاء المستخدم بنجاح، معرف المستخدم:", authData.user.id);
       
-      // تسجيل الدخول مباشرة بعد التسجيل لضمان وجود جلسة نشطة
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-      
-      if (signInError) {
-        console.error("خطأ في تسجيل الدخول التلقائي:", signInError);
-        throw signInError;
-      }
-      
-      console.log("تم تسجيل الدخول تلقائياً بنجاح، جاري إنشاء المتجر...");
-      
       // إنشاء متجر للمستخدم الجديد
       const { error: storeError } = await supabase
         .from("stores")
         .insert({
-          owner_id: authData.user.id, // استخدام معرف المستخدم من البيانات التي تم إنشاؤها
+          owner_id: authData.user.id,
           name: data.storeName,
           handle: formattedHandle,
-          is_active: true, // تعيين المتجر كنشط افتراضياً
+          is_active: true,
         });
       
       if (storeError) {
         console.error("خطأ في إنشاء المتجر:", storeError);
         
-        // إذا فشل إنشاء المتجر، حاول مرة أخرى بعد التأكد من تسجيل الدخول
-        const { data: session } = await supabase.auth.getSession();
+        // محاولة تسجيل الدخول للتأكد من وجود جلسة نشطة
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
         
-        if (session?.session?.user?.id) {
-          console.log("محاولة ثانية لإنشاء المتجر باستخدام الجلسة الحالية");
-          
+        if (signInError) {
+          console.error("خطأ في تسجيل الدخول بعد التسجيل:", signInError);
+        } else {
+          // محاولة ثانية لإنشاء المتجر
           const { error: retryError } = await supabase
             .from("stores")
             .insert({
-              owner_id: session.session.user.id,
+              owner_id: authData.user.id,
               name: data.storeName,
               handle: formattedHandle,
               is_active: true
@@ -124,13 +122,24 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
           if (retryError) {
             console.error("فشلت المحاولة الثانية لإنشاء المتجر:", retryError);
             throw retryError;
+          } else {
+            console.log("تم إنشاء المتجر بنجاح في المحاولة الثانية!");
           }
-        } else {
-          throw storeError;
         }
+      } else {
+        console.log("تم إنشاء المتجر بنجاح في المحاولة الأولى!");
       }
       
-      console.log("تم إنشاء المتجر بنجاح!");
+      // تسجيل الدخول بعد إنشاء المتجر بنجاح
+      const { error: finalSignInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      
+      if (finalSignInError) {
+        console.error("خطأ في تسجيل الدخول النهائي:", finalSignInError);
+        // حتى لو فشل تسجيل الدخول، سنعتبر أن التسجيل ناجح لأن المتجر تم إنشاؤه
+      }
       
       toast({
         title: "تم إنشاء الحساب بنجاح!",

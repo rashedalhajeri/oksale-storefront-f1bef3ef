@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 // Schema تحقق من البيانات
@@ -23,13 +23,18 @@ const SignIn = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [hasTried, setHasTried] = useState(false);
 
   // التحقق ما إذا كان المستخدم مسجلاً بالفعل
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/dashboard');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.error("خطأ أثناء التحقق من جلسة المستخدم:", error);
       }
     };
     
@@ -54,6 +59,46 @@ const SignIn = () => {
       });
       
       if (error) {
+        // إذا كان الخطأ متعلق بعدم تأكيد البريد الإلكتروني وهذه هي المحاولة الأولى
+        if (error.message.includes("Email not confirmed") && !hasTried) {
+          setHasTried(true);  // تعيين العلم لمنع المحاولات المتكررة
+          
+          console.log("محاولة تسجيل الدخول مع حساب غير مؤكد، محاولة تسهيل عملية التسجيل...");
+          
+          // محاولة التسجيل مرة أخرى للحسابات غير المؤكدة
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: data.email,
+            password: data.password,
+            options: {
+              emailRedirectTo: window.location.origin
+            }
+          });
+          
+          if (signUpError) {
+            console.error("خطأ في إعادة التسجيل:", signUpError);
+            throw error;  // استخدام الخطأ الأصلي
+          }
+          
+          // محاولة تسجيل الدخول مرة أخرى
+          const { data: retryAuthData, error: retryError } = await supabase.auth.signInWithPassword({
+            email: data.email,
+            password: data.password,
+          });
+          
+          if (retryError) {
+            console.error("خطأ في إعادة محاولة تسجيل الدخول:", retryError);
+            throw retryError;
+          }
+          
+          toast({
+            title: "تم تسجيل الدخول بنجاح",
+            description: "مرحباً بك مجدداً!",
+          });
+          
+          navigate("/dashboard");
+          return;
+        }
+        
         throw error;
       }
       
@@ -72,7 +117,9 @@ const SignIn = () => {
       if (error.message.includes("Invalid login")) {
         errorMessage = "بريد إلكتروني أو كلمة مرور غير صحيحة";
       } else if (error.message.includes("Email not confirmed")) {
-        errorMessage = "يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول";
+        errorMessage = "يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول أو قم بالتسجيل مرة أخرى";
+      } else if (error.message.includes("rate limit")) {
+        errorMessage = "لقد تجاوزت الحد المسموح من المحاولات، يرجى الانتظار قليلاً قبل المحاولة مرة أخرى";
       }
       
       toast({
@@ -143,7 +190,14 @@ const SignIn = () => {
               className="w-full bg-oksale-700 hover:bg-oksale-800"
               disabled={isLoading}
             >
-              {isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  جاري تسجيل الدخول...
+                </>
+              ) : (
+                "تسجيل الدخول"
+              )}
             </Button>
           </form>
         </Form>
