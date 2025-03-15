@@ -19,7 +19,11 @@ import {
   Search,
   Filter,
   ShoppingBag,
-  Tag
+  Tag,
+  Sparkles,
+  Clock,
+  Bookmark,
+  Folder
 } from 'lucide-react';
 
 const StorePage = () => {
@@ -138,6 +142,21 @@ const StorePage = () => {
     });
   }, []);
 
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Women':
+        return <Sparkles className="w-4 h-4 mr-2" />;
+      case 'Men':
+        return <Bookmark className="w-4 h-4 mr-2" />;
+      case 'Accessories':
+        return <Tag className="w-4 h-4 mr-2" />;
+      case 'New Arrivals':
+        return <Clock className="w-4 h-4 mr-2" />;
+      default:
+        return <Folder className="w-4 h-4 mr-2" />;
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
       <main className="flex-grow">
@@ -147,65 +166,71 @@ const StorePage = () => {
           <div className="mt-4 md:mt-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 mb-5 md:mb-6">
               <h2 className="text-xl md:text-2xl font-bold text-neutral-800">Products</h2>
+            </div>
+            
+            <div className="mb-6">
+              <div className="mb-6">
+                <Tabs defaultValue="All" value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+                  <ScrollArea className="w-full">
+                    <div className="pb-4">
+                      <Carousel className="w-full max-w-screen-lg mx-auto">
+                        <CarouselContent className="-ml-1">
+                          <TabsList className="h-12 px-3 bg-white border border-neutral-200 rounded-xl inline-flex w-max gap-2 shadow-sm">
+                            <CarouselItem className="basis-auto pl-1 min-w-fit">
+                              <TabsTrigger 
+                                value="All" 
+                                className={`h-9 px-5 text-sm font-medium rounded-lg transition-all ${
+                                  selectedCategory === 'All' 
+                                    ? 'bg-indigo-600 text-white' 
+                                    : 'text-neutral-600 hover:bg-neutral-100'
+                                }`}
+                              >
+                                <ShoppingBag className="w-4 h-4 mr-2" />
+                                All Products
+                              </TabsTrigger>
+                            </CarouselItem>
+                            
+                            {store.categories.map((category) => (
+                              <CarouselItem key={category} className="basis-auto pl-1 min-w-fit">
+                                <TabsTrigger 
+                                  value={category} 
+                                  className={`h-9 px-5 text-sm font-medium rounded-lg transition-all ${
+                                    selectedCategory === category 
+                                      ? 'bg-indigo-600 text-white' 
+                                      : 'text-neutral-600 hover:bg-neutral-100'
+                                  }`}
+                                >
+                                  {getCategoryIcon(category)}
+                                  {category}
+                                </TabsTrigger>
+                              </CarouselItem>
+                            ))}
+                          </TabsList>
+                        </CarouselContent>
+                        <CarouselPrevious className="left-0 bg-white/80 border border-neutral-200" />
+                        <CarouselNext className="right-0 bg-white/80 border border-neutral-200" />
+                      </Carousel>
+                    </div>
+                  </ScrollArea>
+                </Tabs>
+              </div>
               
-              <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto">
-                <div className="relative flex-grow w-full sm:w-auto">
+              <div className="flex items-center gap-3 mb-6 bg-white p-3 rounded-xl border border-neutral-200 shadow-sm">
+                <div className="relative flex-grow">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
                   <Input
                     type="text"
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 border-neutral-200 w-full h-9 md:h-10"
+                    className="pl-10 border-neutral-200 w-full h-10"
                   />
                 </div>
+                <Button variant="outline" className="border-neutral-200 text-neutral-700 h-10">
+                  <Filter className="w-4 h-4 mr-1.5" />
+                  Filters
+                </Button>
               </div>
-            </div>
-            
-            <div className="mb-6">
-              <ScrollArea className="w-full mb-4">
-                <div className="pb-2">
-                  <Tabs defaultValue="All" value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-                    <Carousel className="w-full max-w-screen-lg mx-auto">
-                      <CarouselContent className="-ml-1">
-                        <TabsList className="h-11 px-2 bg-white border border-neutral-200 rounded-xl inline-flex w-max gap-1">
-                          <CarouselItem className="basis-auto pl-1 min-w-fit">
-                            <TabsTrigger 
-                              value="All" 
-                              className={`h-9 px-4 text-sm font-medium rounded-lg transition-all ${
-                                selectedCategory === 'All' 
-                                  ? 'bg-indigo-600 text-white' 
-                                  : 'text-neutral-600 hover:bg-neutral-100'
-                              }`}
-                            >
-                              <ShoppingBag className="w-4 h-4 mr-2" />
-                              All Products
-                            </TabsTrigger>
-                          </CarouselItem>
-                          
-                          {store.categories.map((category) => (
-                            <CarouselItem key={category} className="basis-auto pl-1 min-w-fit">
-                              <TabsTrigger 
-                                value={category} 
-                                className={`h-9 px-4 text-sm font-medium rounded-lg transition-all ${
-                                  selectedCategory === category 
-                                    ? 'bg-indigo-600 text-white' 
-                                    : 'text-neutral-600 hover:bg-neutral-100'
-                                }`}
-                              >
-                                <Tag className="w-4 h-4 mr-2" />
-                                {category}
-                              </TabsTrigger>
-                            </CarouselItem>
-                          ))}
-                        </TabsList>
-                      </CarouselContent>
-                      <CarouselPrevious className="left-0 bg-white/80 border border-neutral-200" />
-                      <CarouselNext className="right-0 bg-white/80 border border-neutral-200" />
-                    </Carousel>
-                  </Tabs>
-                </div>
-              </ScrollArea>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
