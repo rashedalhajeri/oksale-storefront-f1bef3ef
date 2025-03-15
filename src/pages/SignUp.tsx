@@ -16,6 +16,7 @@ const SignUp = () => {
       email: "",
       password: "",
     },
+    mode: "onChange",
   });
 
   const {

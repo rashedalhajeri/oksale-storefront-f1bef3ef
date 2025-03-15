@@ -4,11 +4,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-
-export interface SimpleSignUpValues {
-  email: string;
-  password: string;
-}
+import { SimpleSignUpValues } from '@/types/auth';
 
 export const useSimpleSignUp = (form: UseFormReturn<SimpleSignUpValues>) => {
   const navigate = useNavigate();

@@ -23,6 +23,7 @@ const StoreSetup = () => {
       country: "SA",
       description: "",
     },
+    mode: "onChange",
   });
 
   const {
