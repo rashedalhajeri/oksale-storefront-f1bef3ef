@@ -12,6 +12,7 @@ import {
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 import { useParams } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface StoreHeaderProps {
   store: {
@@ -39,10 +40,11 @@ const StoreHeader = ({
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
   const { id } = useParams<{ id: string }>();
+  const isMobile = useIsMobile();
   
   return (
     <div className="relative">
-      <div className="h-[35vh] md:h-[45vh] overflow-hidden">
+      <div className="h-[30vh] md:h-[45vh] overflow-hidden">
         <img 
           src={store.coverImage} 
           alt={`${store.name} cover`} 
@@ -54,10 +56,10 @@ const StoreHeader = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 text-white p-4 md:p-8">
+      <div className="absolute bottom-0 left-0 right-0 text-white p-3 md:p-8">
         <div className="max-w-5xl mx-auto flex items-end justify-between">
-          <div className="flex items-end gap-4 md:gap-6">
-            <div className="w-16 h-16 md:w-24 md:h-24 rounded-lg overflow-hidden border-3 border-white shadow-lg bg-white">
+          <div className="flex items-end gap-3 md:gap-6">
+            <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white">
               {store.logo ? (
                 <img 
                   src={store.logo} 
@@ -68,38 +70,38 @@ const StoreHeader = ({
                 />
               ) : (
                 <div className="w-full h-full bg-neutral-100 flex items-center justify-center">
-                  <ShoppingBag className="w-8 h-8 text-neutral-500" />
+                  <ShoppingBag className="w-6 h-6 md:w-8 md:h-8 text-neutral-500" />
                 </div>
               )}
             </div>
             <div className="mb-1">
-              <div className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden mb-1">
-                <h1 className="text-xl md:text-2xl font-bold truncate">{store.name}</h1>
+              <div className="flex items-center gap-1 md:gap-1.5 whitespace-nowrap overflow-hidden mb-0.5 md:mb-1 -mt-0.5">
+                <h1 className="text-lg md:text-2xl font-bold truncate">{store.name}</h1>
                 {store.featured && (
-                  <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex-shrink-0 flex items-center justify-center p-1 rounded-full border border-blue-400 h-4 w-4 md:h-5 md:w-5">
+                  <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex-shrink-0 flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5">
                     <CheckCircle className="w-2 h-2 md:w-3 md:h-3" />
                   </Badge>
                 )}
               </div>
               
-              <div className="flex items-center gap-1 text-blue-100 text-xs mt-0.5 whitespace-nowrap overflow-hidden">
-                <span className="text-white truncate">@Fashion</span>
+              <div className="flex items-center gap-1 text-blue-100 text-xs mt-0 whitespace-nowrap overflow-hidden">
+                <span className="text-white text-[10px] md:text-xs truncate">@Fashion</span>
               </div>
               
-              <div className="flex items-center gap-3 md:gap-4 mt-2">
+              <div className="flex items-center gap-2 md:gap-4 mt-1 md:mt-2">
                 {store.socialLinks?.instagram && (
                   <a href={store.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
-                    <Instagram className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    <Instagram className="w-3 h-3 md:w-4 md:h-4" />
                   </a>
                 )}
                 {store.socialLinks?.twitter && (
                   <a href={store.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
-                    <Twitter className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    <Twitter className="w-3 h-3 md:w-4 md:h-4" />
                   </a>
                 )}
                 {store.socialLinks?.facebook && (
                   <a href={store.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
-                    <Facebook className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    <Facebook className="w-3 h-3 md:w-4 md:h-4" />
                   </a>
                 )}
               </div>
