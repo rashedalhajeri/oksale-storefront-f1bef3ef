@@ -1,9 +1,17 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
+} from "@/components/ui/carousel";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import StoreHeader from '@/components/StoreHeader';
 import ProductsGrid from '@/components/ProductsGrid';
 import StoreSidebar from '@/components/StoreSidebar';
@@ -151,58 +159,54 @@ const StorePage = () => {
                     className="pl-10 border-neutral-200 w-full h-9 md:h-10"
                   />
                 </div>
-                
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-[140px] h-9 md:h-10 border-neutral-200 bg-white">
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-3.5 h-3.5 text-indigo-600" />
-                      <SelectValue placeholder="Category" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All">All Products</SelectItem>
-                    {store.categories.map((category) => (
-                      <SelectItem key={category} value={category}>{category}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
             
-            {showFilters && (
-              <div className="mb-5 p-3 md:p-4 bg-white rounded-xl shadow-sm animate-fade-in border border-neutral-100">
-                <h3 className="font-medium text-neutral-800 mb-2 md:mb-3 text-sm md:text-base">Filters</h3>
-                <div className="flex flex-wrap gap-2 md:gap-3">
-                  <Button
-                    variant={selectedCategory === 'All' ? "default" : "outline"}
-                    size="sm"
-                    className={`h-7 md:h-8 text-xs ${
-                      selectedCategory === 'All'
-                        ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-                        : "border-neutral-200"
-                    }`}
-                    onClick={() => setSelectedCategory('All')}
-                  >
-                    All
-                  </Button>
-                  {store.categories.map((category) => (
-                    <Button
-                      key={category}
-                      variant={selectedCategory === category ? "default" : "outline"}
-                      size="sm"
-                      className={`h-7 md:h-8 text-xs ${
-                        selectedCategory === category
-                          ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-                          : "border-neutral-200"
-                      }`}
-                      onClick={() => setSelectedCategory(category)}
-                    >
-                      {category}
-                    </Button>
-                  ))}
+            <div className="mb-6">
+              <ScrollArea className="w-full mb-4">
+                <div className="pb-2">
+                  <Tabs defaultValue="All" value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+                    <Carousel className="w-full max-w-screen-lg mx-auto">
+                      <CarouselContent className="-ml-1">
+                        <TabsList className="h-11 px-2 bg-white border border-neutral-200 rounded-xl inline-flex w-max gap-1">
+                          <CarouselItem className="basis-auto pl-1 min-w-fit">
+                            <TabsTrigger 
+                              value="All" 
+                              className={`h-9 px-4 text-sm font-medium rounded-lg transition-all ${
+                                selectedCategory === 'All' 
+                                  ? 'bg-indigo-600 text-white' 
+                                  : 'text-neutral-600 hover:bg-neutral-100'
+                              }`}
+                            >
+                              <ShoppingBag className="w-4 h-4 mr-2" />
+                              All Products
+                            </TabsTrigger>
+                          </CarouselItem>
+                          
+                          {store.categories.map((category) => (
+                            <CarouselItem key={category} className="basis-auto pl-1 min-w-fit">
+                              <TabsTrigger 
+                                value={category} 
+                                className={`h-9 px-4 text-sm font-medium rounded-lg transition-all ${
+                                  selectedCategory === category 
+                                    ? 'bg-indigo-600 text-white' 
+                                    : 'text-neutral-600 hover:bg-neutral-100'
+                                }`}
+                              >
+                                <Tag className="w-4 h-4 mr-2" />
+                                {category}
+                              </TabsTrigger>
+                            </CarouselItem>
+                          ))}
+                        </TabsList>
+                      </CarouselContent>
+                      <CarouselPrevious className="left-0 bg-white/80 border border-neutral-200" />
+                      <CarouselNext className="right-0 bg-white/80 border border-neutral-200" />
+                    </Carousel>
+                  </Tabs>
                 </div>
-              </div>
-            )}
+              </ScrollArea>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="hidden md:block">
