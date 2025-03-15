@@ -54,6 +54,9 @@ export const validateHandle = async (handle: string): Promise<boolean> => {
     return false;
   }
   
+  // تحويل المعرّف إلى أحرف صغيرة قبل التحقق من توفره
+  const formattedHandle = handle.toLowerCase();
+  
   // إذا كان المعرّف صحيحاً، تحقق من توفره
-  return await isHandleAvailable(handle);
+  return await isHandleAvailable(formattedHandle);
 };

@@ -25,8 +25,15 @@ export const useStoreSetup = (form: UseFormReturn<StoreSetupValues>) => {
       
       const userId = sessionData.session.user.id;
       
+      // تنسيق قيم المدخلات - تحويل المعرّف إلى أحرف صغيرة قبل التحقق
+      const formattedHandle = data.storeHandle.toLowerCase();
+      data = {
+        ...data,
+        storeHandle: formattedHandle
+      };
+      
       // التحقق من توفر معرّف المتجر
-      const isAvailable = await validateHandle(data.storeHandle);
+      const isAvailable = await validateHandle(formattedHandle);
       
       if (!isAvailable) {
         form.setError("storeHandle", { 
@@ -40,16 +47,13 @@ export const useStoreSetup = (form: UseFormReturn<StoreSetupValues>) => {
       console.log("بدء عملية إنشاء المتجر...");
       console.log("بيانات المتجر:", data);
       
-      // تنسيق قيم المدخلات
-      const formattedHandle = data.storeHandle.toLowerCase();
-      
       // إنشاء متجر للمستخدم
       const { error: storeError } = await supabase
         .from("stores")
         .insert({
           owner_id: userId,
           name: data.storeName,
-          handle: formattedHandle,
+          handle: formattedHandle,  // استخدام المعرّف المنسق (بأحرف صغيرة)
           description: data.description || null,
           currency: data.currency,
           country: data.country,
@@ -81,6 +85,8 @@ export const useStoreSetup = (form: UseFormReturn<StoreSetupValues>) => {
         errorMessage = "هذا المعرّف مستخدم بالفعل، يرجى اختيار معرّف آخر";
       } else if (error.message?.includes("row-level security policy")) {
         errorMessage = "خطأ في إنشاء المتجر، يرجى المحاولة مرة أخرى بعد قليل";
+      } else if (error.message?.includes("check constraint")) {
+        errorMessage = "معرّف المتجر يجب أن يحتوي فقط على أحرف إنجليزية صغيرة وأرقام وشرطات (-)";
       } else {
         // عرض الرسالة الأصلية للخطأ للمساعدة في التشخيص
         console.log("رسالة الخطأ الأصلية:", error.message);

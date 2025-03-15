@@ -71,7 +71,9 @@ const StoreFormStep = ({ form, isLoading }: StoreFormStepProps) => {
       
       setIsCheckingHandle(true);
       try {
-        const available = await isHandleAvailable(storeHandle);
+        // تحويل المعرّف إلى أحرف صغيرة قبل التحقق
+        const formattedHandle = storeHandle.toLowerCase();
+        const available = await isHandleAvailable(formattedHandle);
         setIsHandleValid(available);
         
         // إذا كان المعرف غير متاح، قم بإظهار رسالة خطأ
@@ -106,7 +108,7 @@ const StoreFormStep = ({ form, isLoading }: StoreFormStepProps) => {
       <Alert variant="default" className="bg-blue-50 border-blue-200 mb-4">
         <AlertCircle className="h-4 w-4 text-blue-500" />
         <AlertDescription className="text-blue-700 text-sm">
-          بعد إعداد المتجر سيمكنك الوصول إلى متجرك عبر الرابط: oksale.me/{storeHandle.replace('@', '')}
+          بعد إعداد المتجر سيمكنك الوصول إلى متجرك عبر الرابط: oksale.me/{storeHandle.replace('@', '').toLowerCase()}
         </AlertDescription>
       </Alert>
 
@@ -169,7 +171,7 @@ const StoreFormStep = ({ form, isLoading }: StoreFormStepProps) => {
               </div>
             </FormControl>
             <FormDescription className="text-xs">
-              معرّف فريد لمتجرك سيكون الرابط: oksale.me/{storeHandle.replace('@', '')} (يجب أن يبدأ بـ @ ويتكون من أحرف إنجليزية وأرقام وشرطات - فقط)
+              معرّف فريد لمتجرك سيكون الرابط: oksale.me/{storeHandle.replace('@', '').toLowerCase()} (يجب أن يبدأ بـ @ ويتكون من أحرف إنجليزية وأرقام وشرطات - فقط، وسيتم تحويل الأحرف الكبيرة إلى صغيرة)
             </FormDescription>
             {isHandleValid === false && !isCheckingHandle && storeHandle && storeHandle.length >= 3 && /^@[a-zA-Z0-9-]+$/.test(storeHandle) && (
               <div className="text-xs text-red-500 mt-1">
