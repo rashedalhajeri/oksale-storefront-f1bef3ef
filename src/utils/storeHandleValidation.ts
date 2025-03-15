@@ -29,7 +29,7 @@ export const validateHandle = async (handle: string): Promise<boolean> => {
   }
   
   // تحقق من صحة الصيغة أولاً
-  if (!/^@[a-zA-Z0-9_]+$/.test(handle)) {
+  if (!/^@[a-zA-Z0-9-]+$/.test(handle)) {
     return false;
   }
   

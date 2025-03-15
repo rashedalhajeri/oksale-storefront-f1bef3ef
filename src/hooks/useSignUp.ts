@@ -79,7 +79,7 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
         password: data.password,
       });
       
-      // توجيه المستخدم إلى متجره
+      // توجيه المستخدم إلى متجره (نستخدم المعرّف بدون الـ @)
       const handle = data.storeHandle.replace('@', '');
       navigate(`/store/${handle}`);
     } catch (error) {

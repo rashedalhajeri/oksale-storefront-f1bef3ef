@@ -45,7 +45,7 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
             <FormLabel className="text-oksale-700">معرّف المتجر</FormLabel>
             <FormControl>
               <Input
-                placeholder="@my_store"
+                placeholder="@my-store"
                 dir="ltr"
                 className="border-oksale-200"
                 {...field}
@@ -60,7 +60,7 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
               />
             </FormControl>
             <FormDescription className="text-xs">
-              معرّف فريد لمتجرك يجب أن يبدأ بـ @ ويتكون من أحرف إنجليزية وأرقام وشرطات سفلية فقط
+              معرّف فريد لمتجرك سيكون الرابط: oksale.me/store-name (يجب أن يبدأ بـ @ ويتكون من أحرف إنجليزية وأرقام وشرطات - فقط)
             </FormDescription>
             <FormMessage className="text-right" />
           </FormItem>
