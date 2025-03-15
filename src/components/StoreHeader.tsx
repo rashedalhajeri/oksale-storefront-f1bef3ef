@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, MapPin, Star, Calendar, Share2, ShoppingBag } from 'lucide-react';
+import { User, MapPin, Star, Calendar, Share2, ShoppingBag, CheckCircle } from 'lucide-react';
 interface StoreHeaderProps {
   store: {
     name: string;
@@ -40,7 +41,12 @@ const StoreHeader = ({
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-3xl md:text-4xl font-bold">{store.name}</h1>
-                {store.featured && <Badge className="bg-indigo-500 text-white">Featured</Badge>}
+                {store.featured && (
+                  <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-400">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>Verified</span>
+                  </Badge>
+                )}
               </div>
               
             </div>
