@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -47,7 +48,7 @@ const StoreHeader = ({
       </div>
       
       <div className="absolute top-10 md:top-16 left-0 right-0 text-white p-3 md:p-8 pb-6 md:pb-6">
-        <div className="max-w-5xl flex items-center justify-between px-0 mx-0 my-[87px]">
+        <div className="max-w-5xl flex items-center justify-between px-0 mx-0 my-[87px] md:my-[120px]">
           <div className="flex items-center gap-3 md:gap-6">
             <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white">
               {store.logo ? <img src={store.logo} alt={`${store.name} logo`} className={cn("w-full h-full object-cover transition-opacity duration-500", logoLoaded ? "opacity-100" : "opacity-0")} onLoad={() => setLogoLoaded(true)} /> : <div className="w-full h-full bg-neutral-100 flex items-center justify-center">
