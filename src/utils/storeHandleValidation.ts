@@ -13,19 +13,18 @@ export const isHandleAvailable = async (handle: string): Promise<boolean> => {
   // التحقق من توفر المعرّف عبر قاعدة البيانات
   try {
     console.log("التحقق من توفر المعرّف:", formattedHandle);
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
       .from("stores")
-      .select("handle")
-      .eq("handle", formattedHandle)
-      .single();
+      .select("handle", { count: 'exact' })
+      .eq("handle", formattedHandle);
     
-    if (error && error.code !== "PGRST116") {
+    if (error) {
       console.error("خطأ في التحقق من توفر المعرّف:", error);
       return false;
     }
     
     // إذا لم يتم العثور على معرّف مطابق، فهو متاح
-    const isAvailable = !data;
+    const isAvailable = !data || data.length === 0;
     console.log("نتيجة التحقق من توفر المعرّف:", isAvailable ? "متاح" : "غير متاح");
     return isAvailable;
   } catch (error) {

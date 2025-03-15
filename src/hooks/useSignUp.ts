@@ -2,14 +2,13 @@
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { validateHandle } from '@/utils/storeHandleValidation';
 import { SignUpValues } from '@/types/auth';
 
 export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -42,6 +41,9 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       
       console.log("بدء عملية تسجيل المستخدم...");
       
+      // تنسيق قيم المدخلات
+      const formattedHandle = data.storeHandle.toLowerCase();
+      
       // إنشاء المستخدم في Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
@@ -60,18 +62,36 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       }
       
       console.log("تم إنشاء المستخدم بنجاح، معرف المستخدم:", authData.user.id);
-      console.log("جاري إنشاء المتجر...");
       
-      // تأكد من تنسيق المعرّف بشكل صحيح (تحويله للأحرف الصغيرة)
-      const formattedHandle = data.storeHandle.toLowerCase();
+      // تسجيل الدخول مباشرة بعد التسجيل لضمان وجود جلسة نشطة
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      
+      if (signInError) {
+        console.error("خطأ في تسجيل الدخول التلقائي:", signInError);
+        throw signInError;
+      }
+      
+      console.log("تم تسجيل الدخول تلقائياً بنجاح، جاري إنشاء المتجر...");
+      
+      // استخدام معرف المستخدم من جلسة نشطة
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session?.user.id;
+      
+      if (!userId) {
+        throw new Error("لم يتم الحصول على معرف المستخدم من الجلسة");
+      }
       
       // إنشاء متجر للمستخدم الجديد
       const { error: storeError } = await supabase
         .from("stores")
         .insert({
-          owner_id: authData.user.id,
+          owner_id: userId,
           name: data.storeName,
           handle: formattedHandle,
+          is_active: true, // تعيين المتجر كنشط افتراضياً
         });
       
       if (storeError) {
@@ -86,27 +106,25 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
         description: `تم إنشاء متجرك ${data.storeName} بنجاح!`,
       });
       
-      // تسجيل الدخول تلقائياً بعد التسجيل
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
+      // توجيه المستخدم إلى لوحة التحكم
+      navigate('/dashboard');
       
-      if (signInError) {
-        console.error("تم إنشاء الحساب لكن فشل تسجيل الدخول التلقائي:", signInError);
-        navigate('/signin');
-        return;
+    } catch (error: any) {
+      console.error("خطأ في التسجيل:", error);
+      
+      // معالجة رسائل الخطأ بشكل أفضل
+      let errorMessage = "حدث خطأ أثناء إنشاء حسابك، يرجى المحاولة مرة أخرى.";
+      
+      if (error.message.includes("User already registered")) {
+        errorMessage = "البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول أو استخدام بريد إلكتروني آخر";
+      } else if (error.message.includes("row-level security policy")) {
+        errorMessage = "خطأ في إنشاء المتجر، يرجى المحاولة مرة أخرى بعد قليل";
       }
       
-      // توجيه المستخدم إلى متجره (نستخدم المعرّف بدون الـ @)
-      const handle = formattedHandle.replace('@', '');
-      navigate(`/store/${handle}`);
-    } catch (error) {
-      console.error("خطأ في التسجيل:", error);
       toast({
         variant: "destructive",
         title: "فشل إنشاء الحساب",
-        description: "حدث خطأ أثناء إنشاء حسابك، يرجى المحاولة مرة أخرى.",
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);

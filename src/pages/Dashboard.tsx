@@ -1,406 +1,581 @@
-
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShoppingBag, Package, Users, TrendingUp, Settings, PlusCircle, ChevronRight, BarChart3, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import Footer from '@/components/Footer';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, Routes, Route, useLocation } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import {
+  Home,
+  Package,
+  Users,
+  ShoppingCart,
+  Banknote,
+  Settings,
+  Plus,
+  Edit,
+  Trash2,
+  ChevronsLeft,
+} from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
-
-// نوع بيانات المتجر
-interface Store {
-  id: string;
-  name: string;
-  handle: string;
-  description?: string;
-  logo_url?: string;
-  cover_url?: string;
-  contact_email?: string;
-  contact_phone?: string;
-}
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const [isLoading, setIsLoading] = useState(true);
-  const [store, setStore] = useState<Store | null>(null);
-  const [stats, setStats] = useState({
-    productsCount: 0,
-    visitsToday: 0,
-    ordersToday: 0,
-    revenue: 0
-  });
+  const [storeData, setStoreData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isProductsOpen, setIsProductsOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [newProductName, setNewProductName] = useState('');
+  const [newProductDescription, setNewProductDescription] = useState('');
+  const [newProductPrice, setNewProductPrice] = useState('');
+  const [isProductActive, setIsProductActive] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
-  // التحقق من تسجيل الدخول وجلب بيانات المتجر
   useEffect(() => {
-    const checkAuth = async () => {
-      setIsLoading(true);
+    const fetchStoreData = async () => {
+      setLoading(true);
       try {
-        // التحقق من جلسة المستخدم
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Fetch the session to get the user ID
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
 
-        if (sessionError) {
-          throw sessionError;
-        }
-
-        // إذا لم يكن المستخدم مسجلاً، توجيهه إلى صفحة تسجيل الدخول
-        if (!session) {
-          navigate('/signin');
+        if (!userId) {
+          console.error("User ID not found in session");
+          navigate('/signin'); // Redirect to sign-in if no user ID
           return;
         }
 
-        // جلب بيانات المتجر
-        const { data: storeData, error: storeError } = await supabase
+        // Fetch store data based on the user ID
+        const { data: store, error: storeError } = await supabase
           .from('stores')
           .select('*')
-          .eq('owner_id', session.user.id)
+          .eq('owner_id', userId)
           .single();
 
         if (storeError) {
+          console.error("Error fetching store data:", storeError);
           throw storeError;
         }
 
-        setStore(storeData);
-
-        // جلب عدد المنتجات
-        const { count: productsCount, error: productsError } = await supabase
-          .from('products')
-          .select('id', { count: 'exact', head: true })
-          .eq('store_id', storeData.id);
-
-        if (productsError) {
-          throw productsError;
-        }
-
-        // جلب بيانات الطلبات والإيرادات اليوم
-        // نضيف DATE_TRUNC لتقييد التاريخ لليوم الحالي فقط
-        const today = new Date().toISOString().split('T')[0];
-        const { data: todayOrders, error: ordersError } = await supabase
-          .from('orders')
-          .select('id, total_amount')
-          .eq('store_id', storeData.id)
-          .gte('created_at', today);
-
-        if (ordersError) {
-          throw ordersError;
-        }
-
-        // حساب الإيرادات من الطلبات اليومية
-        const totalRevenue = todayOrders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
-
-        // تحديث الإحصائيات
-        setStats({
-          productsCount: productsCount || 0,
-          visitsToday: Math.floor(Math.random() * 200), // في الإصدار المستقبلي يمكن تتبع الزيارات الفعلية
-          ordersToday: todayOrders.length,
-          revenue: totalRevenue
-        });
-
+        setStoreData(store);
       } catch (error) {
-        console.error('خطأ في جلب بيانات لوحة التحكم:', error);
+        console.error("Failed to fetch store data:", error);
         toast({
           variant: "destructive",
-          title: "حدث خطأ",
-          description: "تعذر جلب بيانات المتجر، يرجى المحاولة مرة أخرى",
+          title: "فشل تحميل بيانات المتجر",
+          description: "حدث خطأ أثناء تحميل بيانات المتجر، يرجى المحاولة مرة أخرى.",
         });
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    checkAuth();
+    fetchStoreData();
   }, [navigate, toast]);
 
-  if (isLoading) {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (storeData?.id) {
+        try {
+          const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('store_id', storeData.id);
+
+          if (error) {
+            console.error("Error fetching products:", error);
+            throw error;
+          }
+
+          setProducts(data || []);
+        } catch (error) {
+          console.error("Failed to fetch products:", error);
+          toast({
+            variant: "destructive",
+            title: "فشل تحميل المنتجات",
+            description: "حدث خطأ أثناء تحميل المنتجات، يرجى المحاولة مرة أخرى.",
+          });
+        }
+      }
+    };
+
+    fetchProducts();
+  }, [storeData, toast]);
+
+  const handleSettingsToggle = () => {
+    setIsSettingsOpen(!isSettingsOpen);
+  };
+
+  const handleProductsToggle = () => {
+    setIsProductsOpen(!isProductsOpen);
+  };
+
+  const handleCreateProduct = async () => {
+    if (!newProductName || !newProductDescription || !newProductPrice) {
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "الرجاء ملء جميع الحقول.",
+      });
+      return;
+    }
+
+    const price = parseFloat(newProductPrice);
+    if (isNaN(price) || price <= 0) {
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "السعر يجب أن يكون رقمًا صالحًا وأكبر من الصفر.",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .insert([
+          {
+            store_id: storeData.id,
+            name: newProductName,
+            description: newProductDescription,
+            price: price,
+            is_active: isProductActive,
+          },
+        ]);
+
+      if (error) {
+        console.error("Error creating product:", error);
+        throw error;
+      }
+
+      setProducts([...products, ...data]);
+      setNewProductName('');
+      setNewProductDescription('');
+      setNewProductPrice('');
+      setIsProductActive(true);
+      toast({
+        title: "تم إنشاء المنتج بنجاح",
+        description: "تمت إضافة المنتج الجديد إلى متجرك.",
+      });
+    } catch (error) {
+      console.error("Failed to create product:", error);
+      toast({
+        variant: "destructive",
+        title: "فشل إنشاء المنتج",
+        description: "حدث خطأ أثناء إنشاء المنتج، يرجى المحاولة مرة أخرى.",
+      });
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    setSelectedProduct(product);
+    setIsEditing(true);
+    setNewProductName(product.name);
+    setNewProductDescription(product.description);
+    setNewProductPrice(product.price.toString());
+    setIsProductActive(product.is_active);
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!newProductName || !newProductDescription || !newProductPrice) {
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "الرجاء ملء جميع الحقول.",
+      });
+      return;
+    }
+
+    const price = parseFloat(newProductPrice);
+    if (isNaN(price) || price <= 0) {
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "السعر يجب أن يكون رقمًا صالحًا وأكبر من الصفر.",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .update({
+          name: newProductName,
+          description: newProductDescription,
+          price: price,
+          is_active: isProductActive,
+        })
+        .eq('id', selectedProduct.id);
+
+      if (error) {
+        console.error("Error updating product:", error);
+        throw error;
+      }
+
+      setProducts(products.map(product =>
+        product.id === selectedProduct.id ? { ...product, ...data[0] } : product
+      ));
+      setNewProductName('');
+      setNewProductDescription('');
+      setNewProductPrice('');
+      setIsProductActive(true);
+      setIsEditing(false);
+      setSelectedProduct(null);
+      toast({
+        title: "تم تحديث المنتج بنجاح",
+        description: "تم تحديث المنتج بنجاح في متجرك.",
+      });
+    } catch (error) {
+      console.error("Failed to update product:", error);
+      toast({
+        variant: "destructive",
+        title: "فشل تحديث المنتج",
+        description: "حدث خطأ أثناء تحديث المنتج، يرجى المحاولة مرة أخرى.",
+      });
+    }
+  };
+
+  const handleDeleteProduct = async (product) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', product.id);
+
+      if (error) {
+        console.error("Error deleting product:", error);
+        throw error;
+      }
+
+      setProducts(products.filter(p => p.id !== product.id));
+      toast({
+        title: "تم حذف المنتج بنجاح",
+        description: "تم حذف المنتج من متجرك.",
+      });
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      toast({
+        variant: "destructive",
+        title: "فشل حذف المنتج",
+        description: "حدث خطأ أثناء حذف المنتج، يرجى المحاولة مرة أخرى.",
+      });
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 pt-20 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin inline-block w-8 h-8 border-4 border-oksale-200 border-t-oksale-700 rounded-full mb-4"></div>
-          <p className="text-oksale-600">جاري تحميل بيانات المتجر...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-6 h-6 border-2 border-oksale-700 border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
-  if (!store) {
+  if (!storeData) {
     return (
-      <div className="min-h-screen bg-neutral-50 pt-20 flex items-center justify-center">
-        <div className="text-center max-w-md p-6">
-          <div className="bg-oksale-100 w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4">
-            <ShoppingBag className="h-8 w-8 text-oksale-700" />
-          </div>
-          <h1 className="text-2xl font-bold text-oksale-800 mb-2">لم يتم العثور على متجر</h1>
-          <p className="text-oksale-600 mb-6">يبدو أنه ليس لديك متجر بعد. قم بإنشاء متجر جديد للبدء.</p>
-          <Button 
-            className="bg-oksale-700 hover:bg-oksale-800 text-white w-full"
-            onClick={() => navigate('/signup')}
-          >
-            <PlusCircle className="h-4 w-4 mr-2" />
-            إنشاء متجر جديد
-          </Button>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Card>
+          <CardHeader>
+            <CardTitle>لا يوجد متجر</CardTitle>
+            <CardDescription>
+              لم يتم العثور على متجر مرتبط بحسابك. يرجى إنشاء متجر جديد.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => navigate('/signup')}>إنشاء متجر</Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // تنسيق يسير لعرض اسم المعرف بدون @ للعرض
-  const handleDisplay = store.handle.startsWith('@') ? store.handle.substring(1) : store.handle;
+  // Fix the error by converting numbers to strings in the statistics array
+  const statisticsData = [
+    {
+      name: "المنتجات",
+      value: storeData?.products_count ? storeData.products_count.toString() : "0",
+      icon: <Package className="h-5 w-5 text-oksale-600" />,
+      description: "إجمالي المنتجات",
+    },
+    {
+      name: "الزيارات",
+      value: storeData?.visits ? storeData.visits.toString() : "0",
+      icon: <Users className="h-5 w-5 text-oksale-600" />,
+      description: "زائر هذا الشهر",
+    },
+    {
+      name: "الطلبات",
+      value: storeData?.orders_count ? storeData.orders_count.toString() : "0",
+      icon: <ShoppingCart className="h-5 w-5 text-oksale-600" />,
+      description: "طلب هذا الشهر",
+    },
+    {
+      name: "الإيرادات",
+      value: storeData?.revenue ? `${storeData.revenue.toString()} ر.س` : "0 ر.س",
+      icon: <Banknote className="h-5 w-5 text-oksale-600" />,
+      description: "الإيرادات هذا الشهر",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-neutral-50 pt-20">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-oksale-800">مرحباً بك في لوحة تحكم متجرك</h1>
-            <p className="text-oksale-600 mt-1">إدارة وتخصيص {store.name}</p>
-          </div>
-          
-          <div className="mt-4 md:mt-0 flex flex-col sm:flex-row items-center gap-3">
-            <Button variant="outline" className="border-oksale-200 text-oksale-700 hover:bg-oksale-50 w-full sm:w-auto">
-              <Settings className="h-4 w-4 mr-2" />
-              إعدادات المتجر
-            </Button>
-            <Button 
-              className="bg-oksale-700 hover:bg-oksale-800 text-white w-full sm:w-auto"
-              asChild
-            >
-              <Link to="/dashboard/products/new">
-                <PlusCircle className="h-4 w-4 mr-2" />
-                إضافة منتج جديد
-              </Link>
-            </Button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="border-oksale-200 shadow-sm hover:shadow transition-all duration-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-oksale-600">المنتجات</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-end">
-                <div className="text-2xl font-bold">{stats.productsCount}</div>
-                <div className="p-2 bg-oksale-100 rounded-full">
-                  <Package className="h-6 w-6 text-oksale-700" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-oksale-200 shadow-sm hover:shadow transition-all duration-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-oksale-600">الزيارات اليوم</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-end">
-                <div className="text-2xl font-bold">{stats.visitsToday}</div>
-                <div className="p-2 bg-oksale-100 rounded-full">
-                  <Users className="h-6 w-6 text-oksale-700" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-oksale-200 shadow-sm hover:shadow transition-all duration-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-oksale-600">الطلبات اليوم</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-end">
-                <div className="text-2xl font-bold">{stats.ordersToday}</div>
-                <div className="p-2 bg-oksale-100 rounded-full">
-                  <ShoppingBag className="h-6 w-6 text-oksale-700" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-oksale-200 shadow-sm hover:shadow transition-all duration-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-oksale-600">الإيرادات (ر.س)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-end">
-                <div className="text-2xl font-bold">{stats.revenue.toFixed(2)}</div>
-                <div className="p-2 bg-oksale-100 rounded-full">
-                  <TrendingUp className="h-6 w-6 text-oksale-700" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="md:col-span-2 border-oksale-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-oksale-600" />
-                <span>نظرة عامة على متجرك</span>
-              </CardTitle>
-              <CardDescription>إدارة منتجاتك وطلباتك وإعدادات متجرك</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <Link to="/dashboard/products" className="flex items-center justify-between p-3 bg-white hover:bg-neutral-50 rounded-md border border-neutral-200 transition-colors">
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-oksale-100 flex items-center justify-center ml-3 rtl:mr-0 rtl:ml-3">
-                    <Package className="h-5 w-5 text-oksale-700" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">إدارة المنتجات</h3>
-                    <p className="text-sm text-oksale-600">إضافة وتعديل وحذف منتجاتك ({stats.productsCount})</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-oksale-400" />
-              </Link>
-              
-              <Link to="/dashboard/orders" className="flex items-center justify-between p-3 bg-white hover:bg-neutral-50 rounded-md border border-neutral-200 transition-colors">
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-oksale-100 flex items-center justify-center ml-3 rtl:mr-0 rtl:ml-3">
-                    <ShoppingBag className="h-5 w-5 text-oksale-700" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">الطلبات</h3>
-                    <p className="text-sm text-oksale-600">إدارة ومتابعة طلبات عملائك ({stats.ordersToday} اليوم)</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-oksale-400" />
-              </Link>
-              
-              <Link to="/dashboard/analytics" className="flex items-center justify-between p-3 bg-white hover:bg-neutral-50 rounded-md border border-neutral-200 transition-colors">
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-oksale-100 flex items-center justify-center ml-3 rtl:mr-0 rtl:ml-3">
-                    <BarChart3 className="h-5 w-5 text-oksale-700" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">التحليلات</h3>
-                    <p className="text-sm text-oksale-600">مراقبة أداء متجرك والإحصائيات</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-oksale-400" />
-              </Link>
-              
-              <Link to="/dashboard/settings" className="flex items-center justify-between p-3 bg-white hover:bg-neutral-50 rounded-md border border-neutral-200 transition-colors">
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-oksale-100 flex items-center justify-center ml-3 rtl:mr-0 rtl:ml-3">
-                    <Settings className="h-5 w-5 text-oksale-700" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">إعدادات المتجر</h3>
-                    <p className="text-sm text-oksale-600">تخصيص وتعديل إعدادات متجرك</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-oksale-400" />
-              </Link>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-oksale-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingBag className="h-5 w-5 text-oksale-600" />
-                <span>متجرك</span>
-              </CardTitle>
-              <CardDescription>رابط المتجر ومعلومات أساسية</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 bg-oksale-50 rounded-md border border-oksale-100">
-                <p className="text-sm text-oksale-700 mb-2">رابط متجرك:</p>
-                <div className="flex items-center gap-2">
-                  <code className="bg-white px-3 py-2 rounded border border-oksale-200 text-oksale-800 flex-grow text-sm overflow-x-auto whitespace-nowrap dir-ltr">{`OKsale.com/store/${handleDisplay}`}</code>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-oksale-200 text-oksale-700 shrink-0"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`OKsale.com/store/${handleDisplay}`);
-                      toast({
-                        title: "تم النسخ",
-                        description: "تم نسخ رابط المتجر بنجاح",
-                      });
-                    }}
-                  >
-                    نسخ
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between border-b border-oksale-100 pb-2">
-                  <span className="text-sm text-oksale-600">اسم المتجر:</span>
-                  <span className="text-sm font-medium">{store.name}</span>
-                </div>
-                <div className="flex justify-between border-b border-oksale-100 pb-2">
-                  <span className="text-sm text-oksale-600">معرّف المتجر:</span>
-                  <span className="text-sm font-medium dir-ltr">{store.handle}</span>
-                </div>
-                <div className="flex justify-between border-b border-oksale-100 pb-2">
-                  <span className="text-sm text-oksale-600">تاريخ الإنشاء:</span>
-                  <span className="text-sm font-medium">
-                    {new Date().toLocaleDateString('ar-SA', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
-                <div className="flex justify-between pb-2">
-                  <span className="text-sm text-oksale-600">الحالة:</span>
-                  <span className="text-sm font-medium flex items-center">
-                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
-                      <span className="w-2 h-2 bg-green-500 rounded-full inline-block mr-1.5"></span>
-                      نشط
-                    </span>
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="pt-0">
-              <Button asChild variant="ghost" className="w-full text-oksale-700 hover:bg-oksale-50 hover:text-oksale-800">
-                <Link to={`/store/${handleDisplay}`} target="_blank">
-                  زيارة المتجر
-                  <ChevronRight className="h-4 w-4 mr-1" />
-                </Link>
+    <div className="min-h-screen bg-gray-100">
+      <Drawer open={isProductsOpen} onOpenChange={setIsProductsOpen}>
+        <DrawerTrigger asChild>
+          <Button variant="outline">المنتجات</Button>
+        </DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>إدارة المنتجات</DrawerTitle>
+            <DrawerDescription>
+              إضافة وتعديل وحذف المنتجات في متجرك.
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="p-4">
+            <div className="mb-4">
+              <Label htmlFor="name">اسم المنتج</Label>
+              <Input
+                id="name"
+                placeholder="اسم المنتج"
+                value={newProductName}
+                onChange={(e) => setNewProductName(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="description">وصف المنتج</Label>
+              <Textarea
+                id="description"
+                placeholder="وصف المنتج"
+                value={newProductDescription}
+                onChange={(e) => setNewProductDescription(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="price">سعر المنتج</Label>
+              <Input
+                id="price"
+                placeholder="سعر المنتج"
+                type="number"
+                value={newProductPrice}
+                onChange={(e) => setNewProductPrice(e.target.value)}
+              />
+            </div>
+            <div className="mb-4 flex items-center space-x-2">
+              <Label htmlFor="active">نشط</Label>
+              <Switch
+                id="active"
+                checked={isProductActive}
+                onCheckedChange={(checked) => setIsProductActive(checked)}
+              />
+            </div>
+            <DrawerFooter>
+              <Button variant="outline" onClick={() => {
+                setIsProductsOpen(false);
+                setNewProductName('');
+                setNewProductDescription('');
+                setNewProductPrice('');
+                setIsProductActive(true);
+                setIsEditing(false);
+                setSelectedProduct(null);
+              }}>
+                إلغاء
               </Button>
-            </CardFooter>
-          </Card>
+              {isEditing ? (
+                <Button onClick={handleUpdateProduct}>تحديث المنتج</Button>
+              ) : (
+                <Button onClick={handleCreateProduct}>إنشاء المنتج</Button>
+              )}
+            </DrawerFooter>
+          </div>
+          <Separator />
+          <ScrollArea className="h-[50vh] w-full rounded-md border p-4">
+            <Table>
+              <TableCaption>قائمة المنتجات في متجرك.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>اسم المنتج</TableHead>
+                  <TableHead>السعر</TableHead>
+                  <TableHead>الحالة</TableHead>
+                  <TableHead className="text-right">الإجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>{product.name}</TableCell>
+                    <TableCell>{product.price} ر.س</TableCell>
+                    <TableCell>
+                      <Badge variant={product.is_active ? "default" : "secondary"}>
+                        {product.is_active ? "نشط" : "غير نشط"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditProduct(product)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        تعديل
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteProduct(product)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        حذف
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell colSpan={4}>
+                    <Button onClick={() => setIsProductsOpen(false)}>
+                      <ChevronsLeft className="h-4 w-4 mr-2" />
+                      إغلاق
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </ScrollArea>
+        </DrawerContent>
+      </Drawer>
+
+      <div className="flex flex-col md:flex-row">
+        {/* Sidebar */}
+        <div className="w-full md:w-64 bg-white shadow-md p-4">
+          <div className="flex items-center space-x-2 mb-4">
+            <Avatar>
+              <AvatarImage src="https://github.com/shadcn.png" alt="image" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-lg font-semibold">{storeData?.name}</h2>
+              <Link to={`/store/${storeData?.handle.replace('@', '')}`} className="text-sm text-gray-500 hover:text-gray-700">
+                {storeData?.handle}
+              </Link>
+            </div>
+          </div>
+          <Separator className="mb-4" />
+          <nav>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-oksale-700">
+                  <Home className="h-4 w-4" />
+                  <span>لوحة التحكم</span>
+                </Link>
+              </li>
+              <li>
+                <Button variant="ghost" className="flex items-center space-x-2 text-gray-700 hover:text-oksale-700 w-full justify-start">
+                  <Package className="h-4 w-4" />
+                  <span>المنتجات</span>
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="flex items-center space-x-2 text-gray-700 hover:text-oksale-700 w-full justify-start" onClick={handleSettingsToggle}>
+                  <Settings className="h-4 w-4" />
+                  <span>الإعدادات</span>
+                </Button>
+              </li>
+            </ul>
+          </nav>
         </div>
-        
-        <div className="mt-8 bg-white rounded-lg border border-oksale-200 p-4 shadow-sm">
-          <div className="flex items-center mb-4">
-            <Clock className="h-5 w-5 text-oksale-600 ml-2" />
-            <h3 className="font-medium text-oksale-800">آخر النشاطات</h3>
-          </div>
-          
-          <div className="space-y-3">
-            {stats.ordersToday > 0 ? (
-              <div className="p-3 bg-oksale-50 rounded-md border border-oksale-100">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-oksale-100 rounded-full ml-3">
-                      <ShoppingBag className="h-4 w-4 text-oksale-700" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">طلب جديد</p>
-                      <p className="text-xs text-oksale-600">قيمة الطلب: {stats.revenue > 0 ? (stats.revenue / stats.ordersToday).toFixed(2) : 0} ر.س</p>
-                    </div>
-                  </div>
-                  <span className="text-xs text-oksale-500">منذ {Math.floor(Math.random() * 50) + 5} دقيقة</span>
+
+        {/* Main Content */}
+        <div className="flex-1 p-4">
+          <Routes>
+            <Route path="/" element={
+              <div>
+                <h1 className="text-2xl font-semibold mb-4">إحصائيات المتجر</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {statisticsData.map((item, index) => (
+                    <Card key={index}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                          {item.icon}
+                          <span>{item.name}</span>
+                        </CardTitle>
+                        <CardDescription>{item.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-3xl font-bold">{item.value}</div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
+
+                <h2 className="text-xl font-semibold mt-8 mb-4">نظرة عامة على الأداء</h2>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>الزيارات حسب الموقع الجغرافي</CardTitle>
+                    <CardDescription>توزيع الزيارات من مختلف المناطق.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Progress value={75} />
+                  </CardContent>
+                </Card>
               </div>
-            ) : (
-              <div className="p-4 bg-neutral-50 border border-neutral-100 rounded-md text-center">
-                <p className="text-sm text-oksale-600">لا توجد نشاطات حديثة</p>
+            } />
+            <Route path="/settings" element={
+              <div className="space-y-4">
+                <h1 className="text-2xl font-semibold mb-4">إعدادات المتجر</h1>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>تعديل معلومات المتجر</CardTitle>
+                    <CardDescription>تحديث اسم المتجر ومعلومات الاتصال.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form className="space-y-4">
+                      <div>
+                        <Label htmlFor="storeName">اسم المتجر</Label>
+                        <Input type="text" id="storeName" defaultValue={storeData?.name} />
+                      </div>
+                      <div>
+                        <Label htmlFor="contactEmail">البريد الإلكتروني للتواصل</Label>
+                        <Input type="email" id="contactEmail" defaultValue="contact@example.com" />
+                      </div>
+                      <Button>حفظ التغييرات</Button>
+                    </form>
+                  </CardContent>
+                </Card>
               </div>
-            )}
-          </div>
+            } />
+          </Routes>
         </div>
       </div>
-      
-      <Footer />
     </div>
   );
 };
