@@ -56,10 +56,10 @@ const StoreHeader = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
       </div>
       
-      <div className="max-w-5xl mx-auto">
-        <div className="relative px-3 md:px-8 flex justify-between items-end mt-6 md:mt-8">
+      <div className="absolute bottom-0 left-0 right-0 text-white p-3 md:p-8">
+        <div className="max-w-5xl mx-auto flex items-end justify-between">
           <div className="flex items-end gap-3 md:gap-6">
-            <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white -mt-28 md:-mt-36">
+            <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white">
               {store.logo ? (
                 <img 
                   src={store.logo} 
@@ -76,7 +76,7 @@ const StoreHeader = ({
             </div>
             <div className="mb-1">
               <div className="flex items-center gap-1 md:gap-1.5 whitespace-nowrap overflow-hidden mb-0.5 md:mb-1 -mt-0.5">
-                <h1 className="text-lg md:text-2xl font-bold truncate text-neutral-800">{store.name}</h1>
+                <h1 className="text-lg md:text-2xl font-bold truncate">{store.name}</h1>
                 {store.featured && (
                   <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex-shrink-0 flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5">
                     <CheckCircle className="w-2 h-2 md:w-3 md:h-3" />
@@ -84,23 +84,23 @@ const StoreHeader = ({
                 )}
               </div>
               
-              <div className="flex items-center gap-1 text-neutral-500 text-xs mt-0 whitespace-nowrap overflow-hidden">
-                <span className="text-neutral-600 text-[10px] md:text-xs truncate">@Fashion</span>
+              <div className="flex items-center gap-1 text-blue-100 text-xs mt-0 whitespace-nowrap overflow-hidden">
+                <span className="text-white text-[10px] md:text-xs truncate">@Fashion</span>
               </div>
               
               <div className="flex items-center gap-2 md:gap-4 mt-1 md:mt-2">
                 {store.socialLinks?.instagram && (
-                  <a href={store.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:text-pink-600 transition-colors">
+                  <a href={store.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
                     <Instagram className="w-3 h-3 md:w-4 md:h-4" />
                   </a>
                 )}
                 {store.socialLinks?.twitter && (
-                  <a href={store.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-500 transition-colors">
+                  <a href={store.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
                     <Twitter className="w-3 h-3 md:w-4 md:h-4" />
                   </a>
                 )}
                 {store.socialLinks?.facebook && (
-                  <a href={store.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 transition-colors">
+                  <a href={store.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
                     <Facebook className="w-3 h-3 md:w-4 md:h-4" />
                   </a>
                 )}
@@ -109,7 +109,7 @@ const StoreHeader = ({
           </div>
           
           <div className="hidden md:flex gap-2">
-            <Button variant="outline" className="bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 text-xs py-1 px-3 h-8">
+            <Button variant="outline" className="bg-white/20 backdrop-blur-sm border-white/40 text-white hover:bg-white/30 text-xs py-1 px-3 h-8">
               <Share2 className="w-3 h-3 mr-1.5" />
               Share
             </Button>
