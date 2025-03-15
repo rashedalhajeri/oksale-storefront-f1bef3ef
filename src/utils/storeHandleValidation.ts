@@ -7,12 +7,16 @@ export const isHandleAvailable = async (handle: string): Promise<boolean> => {
     return false;
   }
   
+  // تحويل المعرّف إلى أحرف صغيرة
+  const formattedHandle = handle.toLowerCase();
+  
   // التحقق من توفر المعرّف عبر قاعدة البيانات
   try {
+    console.log("التحقق من توفر المعرّف:", formattedHandle);
     const { data, error } = await supabase
       .from("stores")
       .select("handle")
-      .eq("handle", handle.toLowerCase())
+      .eq("handle", formattedHandle)
       .single();
     
     if (error && error.code !== "PGRST116") {
@@ -21,7 +25,9 @@ export const isHandleAvailable = async (handle: string): Promise<boolean> => {
     }
     
     // إذا لم يتم العثور على معرّف مطابق، فهو متاح
-    return !data;
+    const isAvailable = !data;
+    console.log("نتيجة التحقق من توفر المعرّف:", isAvailable ? "متاح" : "غير متاح");
+    return isAvailable;
   } catch (error) {
     console.error("خطأ في التحقق من توفر المعرّف:", error);
     return false;
@@ -29,12 +35,16 @@ export const isHandleAvailable = async (handle: string): Promise<boolean> => {
 };
 
 export const validateHandle = async (handle: string): Promise<boolean> => {
+  console.log("التحقق من صحة المعرّف:", handle);
+  
   if (!handle.startsWith('@')) {
+    console.log("المعرّف يجب أن يبدأ بـ @");
     return false;
   }
   
   // تحقق من صحة الصيغة أولاً
   if (!/^@[a-zA-Z0-9-]+$/.test(handle)) {
+    console.log("صيغة المعرّف غير صالحة");
     return false;
   }
   

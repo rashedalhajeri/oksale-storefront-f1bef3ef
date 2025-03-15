@@ -40,6 +40,8 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
         return;
       }
       
+      console.log("بدء عملية تسجيل المستخدم...");
+      
       // إنشاء المستخدم في Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
@@ -47,13 +49,21 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       });
       
       if (authError) {
+        console.error("خطأ في إنشاء الحساب:", authError);
         throw authError;
       }
       
       // التأكد من أن لدينا معرف المستخدم
       if (!authData.user?.id) {
+        console.error("لم يتم الحصول على معرف المستخدم");
         throw new Error("فشل إنشاء الحساب، يرجى المحاولة مرة أخرى");
       }
+      
+      console.log("تم إنشاء المستخدم بنجاح، معرف المستخدم:", authData.user.id);
+      console.log("جاري إنشاء المتجر...");
+      
+      // تأكد من تنسيق المعرّف بشكل صحيح (تحويله للأحرف الصغيرة)
+      const formattedHandle = data.storeHandle.toLowerCase();
       
       // إنشاء متجر للمستخدم الجديد
       const { error: storeError } = await supabase
@@ -61,12 +71,15 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
         .insert({
           owner_id: authData.user.id,
           name: data.storeName,
-          handle: data.storeHandle,
+          handle: formattedHandle,
         });
       
       if (storeError) {
+        console.error("خطأ في إنشاء المتجر:", storeError);
         throw storeError;
       }
+      
+      console.log("تم إنشاء المتجر بنجاح!");
       
       toast({
         title: "تم إنشاء الحساب بنجاح!",
@@ -74,13 +87,19 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       });
       
       // تسجيل الدخول تلقائياً بعد التسجيل
-      await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
       
+      if (signInError) {
+        console.error("تم إنشاء الحساب لكن فشل تسجيل الدخول التلقائي:", signInError);
+        navigate('/signin');
+        return;
+      }
+      
       // توجيه المستخدم إلى متجره (نستخدم المعرّف بدون الـ @)
-      const handle = data.storeHandle.replace('@', '');
+      const handle = formattedHandle.replace('@', '');
       navigate(`/store/${handle}`);
     } catch (error) {
       console.error("خطأ في التسجيل:", error);
