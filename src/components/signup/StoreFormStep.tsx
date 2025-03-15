@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,7 @@ import { isHandleAvailable } from '@/utils/storeHandleValidation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import cn from 'classnames';
 
 interface StoreFormStepProps {
   form: UseFormReturn<StoreSetupValues>;
@@ -53,16 +53,14 @@ const countries = [
 const StoreFormStep = ({ form, isLoading }: StoreFormStepProps) => {
   const [isCheckingHandle, setIsCheckingHandle] = useState(false);
   const [isHandleValid, setIsHandleValid] = useState<boolean | null>(null);
-  const storeHandle = form.watch("storeHandle");
+  const [storeHandle, setStoreHandle] = useState(form.watch("storeHandle"));
   
   useEffect(() => {
-    // إعادة ضبط حالة التحقق عند تغيير المعرّف
     setIsHandleValid(null);
     
     const checkHandle = async () => {
       if (!storeHandle || storeHandle.length < 3) return;
       
-      // التحقق من تنسيق المعرّف أولاً
       const isValidFormat = /^@[a-zA-Z0-9-]+$/.test(storeHandle);
       if (!isValidFormat) {
         setIsHandleValid(false);
@@ -71,12 +69,10 @@ const StoreFormStep = ({ form, isLoading }: StoreFormStepProps) => {
       
       setIsCheckingHandle(true);
       try {
-        // تحويل المعرّف إلى أحرف صغيرة قبل التحقق
         const formattedHandle = storeHandle.toLowerCase();
         const available = await isHandleAvailable(formattedHandle);
         setIsHandleValid(available);
         
-        // إذا كان المعرف غير متاح، قم بإظهار رسالة خطأ
         if (!available) {
           form.setError("storeHandle", { 
             type: "manual", 
@@ -93,7 +89,6 @@ const StoreFormStep = ({ form, isLoading }: StoreFormStepProps) => {
       }
     };
     
-    // استخدام مؤقت للتأخير في التحقق حتى يتوقف المستخدم عن الكتابة
     const timer = setTimeout(() => {
       if (storeHandle && storeHandle.length >= 3) {
         checkHandle();
@@ -138,23 +133,21 @@ const StoreFormStep = ({ form, isLoading }: StoreFormStepProps) => {
         name="storeHandle"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-oksale-700">معرّف المتجر</FormLabel>
+            <FormLabel>معرّف المتجر</FormLabel>
             <FormControl>
               <div className="relative">
                 <Input
-                  placeholder="@my-store"
-                  dir="ltr"
-                  className="border-oksale-200 pr-10"
+                  placeholder="@mystore"
+                  autoComplete="off"
+                  className={cn(
+                    "pl-8 pr-10",
+                    isCheckingHandle && "pr-10",
+                    isHandleValid === true && !isCheckingHandle && storeHandle && storeHandle.length >= 3 && "border-green-500 focus-visible:ring-green-500"
+                  )}
                   {...field}
                   onChange={(e) => {
-                    let value = e.target.value;
-                    // تأكد من أن المعرّف يبدأ بـ @
-                    if (!value.startsWith('@')) {
-                      value = `@${value}`;
-                    }
-                    // تحويل أي حروف عربية أو خاصة إلى فراغات
-                    value = value.replace(/[^@a-zA-Z0-9-]/g, '');
-                    field.onChange(value);
+                    field.onChange(e);
+                    setStoreHandle(e.target.value);
                   }}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">

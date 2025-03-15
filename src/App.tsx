@@ -11,7 +11,7 @@ import StoreDiscovery from "./pages/StoreDiscovery";
 import StorePage from "./pages/StorePage";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import StoreSetup from "./pages/StoreSetup"; // إضافة صفحة إعداد المتجر
+import StoreSetup from "./pages/StoreSetup"; 
 import Dashboard from "./pages/Dashboard";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
@@ -59,14 +59,24 @@ const AppRoutes = () => {
   const location = useLocation();
   // لا نعرض القائمة العلوية في هذه المسارات
   const hideNavbarRoutes = [
-    '/store/',
     '/signin',
     '/signup',
-    '/store-setup',  // إضافة مسار إعداد المتجر
+    '/store-setup',
     '/dashboard'
   ];
   
-  const shouldHideNavbar = hideNavbarRoutes.some(route => location.pathname.startsWith(route));
+  // التحقق ما إذا كان المسار الحالي بدون "store/" هو مسار متجر
+  // عن طريق التحقق من عدم وجود slash إضافي في المسار بخلاف الأول
+  const isStorePath = 
+    !location.pathname.startsWith('/signin') && 
+    !location.pathname.startsWith('/signup') && 
+    !location.pathname.startsWith('/store-setup') && 
+    !location.pathname.startsWith('/dashboard') && 
+    !location.pathname.startsWith('/explore') && 
+    location.pathname !== '/' && 
+    !location.pathname.includes('/', 1); // لا يحتوي على / بعد الحرف الأول
+  
+  const shouldHideNavbar = hideNavbarRoutes.some(route => location.pathname.startsWith(route)) || isStorePath;
   
   return (
     <>
@@ -74,7 +84,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/explore" element={<StoreDiscovery />} />
-        <Route path="/store/:handle" element={<StorePage />} />
+        <Route path="/:handle" element={<StorePage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/store-setup" element={

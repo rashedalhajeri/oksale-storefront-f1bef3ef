@@ -79,7 +79,7 @@ const StoreCard = ({ store }: StoreCardProps) => {
           asChild
           className="w-full bg-oksale-700 hover:bg-oksale-800 text-white transition-colors gap-2"
         >
-          <Link to={`/store/${handleWithoutAt}`}>
+          <Link to={`/${handleWithoutAt}`}>
             Visit Store
             <ExternalLink className="h-4 w-4" />
           </Link>
