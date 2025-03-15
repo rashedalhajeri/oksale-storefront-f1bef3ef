@@ -63,17 +63,44 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				// Updated oksale colors to more neutral/professional palette
 				oksale: {
-					50: "#F7F9FC",
-					100: "#EDF2FA",
-					200: "#D9E2F5",
-					300: "#B8C7E0",
-					400: "#8EA3CA",
-					500: "#5C7AB0",
-					600: "#3D5A8F",
-					700: "#2D4570",
-					800: "#1E2E4A",
-					900: "#0F172A"
+					50: "#F9FAFB",
+					100: "#F3F4F6",
+					200: "#E5E7EB",
+					300: "#D1D5DB",
+					400: "#9CA3AF",
+					500: "#6B7280",
+					600: "#4B5563",
+					700: "#374151",
+					800: "#1F2937",
+					900: "#111827"
+				},
+				// New indigo color palette
+				indigo: {
+					50: "#EEF2FF",
+					100: "#E0E7FF",
+					200: "#C7D2FE",
+					300: "#A5B4FC",
+					400: "#818CF8",
+					500: "#6366F1",
+					600: "#4F46E5",
+					700: "#4338CA",
+					800: "#3730A3",
+					900: "#312E81"
+				},
+				// New neutral color palette for nice grays
+				neutral: {
+					50: "#FAFAFA",
+					100: "#F5F5F5",
+					200: "#E5E5E5",
+					300: "#D4D4D4",
+					400: "#A3A3A3",
+					500: "#737373",
+					600: "#525252",
+					700: "#404040",
+					800: "#262626",
+					900: "#171717"
 				},
 				blur: "rgba(255, 255, 255, 0.8)"
 			},
