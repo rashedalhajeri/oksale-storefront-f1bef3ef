@@ -135,10 +135,8 @@ const StorePage = () => {
         <StoreHeader store={store} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="space-y-8">
-            <StoreAbout store={store} />
-            <StoreHighlights />
-          </div>
+          <StoreAbout store={store} />
+          <StoreHighlights />
           
           <div className="mt-12">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
