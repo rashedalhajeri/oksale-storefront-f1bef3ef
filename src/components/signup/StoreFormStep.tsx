@@ -9,7 +9,7 @@ import { isHandleAvailable } from '@/utils/storeHandleValidation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import cn from 'classnames';
+import { cn } from '@/lib/utils';
 
 interface StoreFormStepProps {
   form: UseFormReturn<StoreSetupValues>;
