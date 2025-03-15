@@ -33,11 +33,7 @@ const StoreHeader = ({
 }: StoreHeaderProps) => {
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
-  const {
-    id
-  } = useParams<{
-    id: string;
-  }>();
+  const { handle } = useParams<{ handle: string }>();
   const isMobile = useIsMobile();
 
   return (
@@ -93,7 +89,7 @@ const StoreHeader = ({
                 </div>
                 
                 <div className="flex items-center gap-1 text-white text-xs md:text-sm">
-                  <span className="truncate">@Fashion</span>
+                  <span className="truncate">{store.handle}</span>
                 </div>
                 
                 {/* Social links with consistent spacing */}

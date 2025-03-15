@@ -20,6 +20,11 @@ interface StoreCardProps {
 
 const StoreCard = ({ store }: StoreCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // استخراج معرف المتجر بدون علامة @
+  const handleWithoutAt = store.handle.startsWith('@') 
+    ? store.handle.substring(1) 
+    : store.handle;
 
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group">
@@ -74,7 +79,7 @@ const StoreCard = ({ store }: StoreCardProps) => {
           asChild
           className="w-full bg-oksale-700 hover:bg-oksale-800 text-white transition-colors gap-2"
         >
-          <Link to={`/store/${store.id}`}>
+          <Link to={`/store/${handleWithoutAt}`}>
             Visit Store
             <ExternalLink className="h-4 w-4" />
           </Link>

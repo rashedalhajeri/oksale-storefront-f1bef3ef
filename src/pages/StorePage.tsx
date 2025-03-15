@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Carousel,
@@ -27,7 +26,7 @@ import {
 } from 'lucide-react';
 
 const StorePage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { handle } = useParams<{ handle: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
@@ -140,7 +139,9 @@ const StorePage = () => {
       top: 0,
       behavior: 'smooth'
     });
-  }, []);
+    
+    console.log(`Loading store data for handle: @${handle}`);
+  }, [handle]);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {

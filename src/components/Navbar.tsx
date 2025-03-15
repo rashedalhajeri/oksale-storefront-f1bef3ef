@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, User } from 'lucide-react';
+import { ShoppingBag, User, LogIn } from 'lucide-react';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState('ar'); // نبدأ باللغة العربية
+  const navigate = useNavigate();
 
   // Detect scroll to add shadow to navbar
   useEffect(() => {
@@ -76,13 +77,15 @@ const Navbar = () => {
           <Button 
             variant="outline" 
             className="hidden sm:flex items-center space-x-2 border border-oksale-300 bg-transparent hover:bg-oksale-50 transition-colors"
+            onClick={() => navigate('/signin')}
           >
-            <User className="h-4 w-4" />
+            <LogIn className="h-4 w-4" />
             <span>{language === 'en' ? 'Sign In' : 'تسجيل الدخول'}</span>
           </Button>
           
           <Button 
             className="bg-oksale-800 hover:bg-oksale-900 text-white flex items-center space-x-2 transition-all btn-animation"
+            onClick={() => navigate('/signup')}
           >
             <span>{language === 'en' ? 'Create Store' : 'إنشاء متجر'}</span>
           </Button>

@@ -9,21 +9,35 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import StoreDiscovery from "./pages/StoreDiscovery";
 import StorePage from "./pages/StorePage";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
 // Component to conditionally render navbar based on route
 const AppRoutes = () => {
   const location = useLocation();
-  const isStoreRoute = location.pathname.startsWith('/store/');
+  // لا نعرض القائمة العلوية في هذه المسارات
+  const hideNavbarRoutes = [
+    '/store/',
+    '/signin',
+    '/signup',
+    '/dashboard'
+  ];
+  
+  const shouldHideNavbar = hideNavbarRoutes.some(route => location.pathname.startsWith(route));
   
   return (
     <>
-      {!isStoreRoute && <Navbar />}
+      {!shouldHideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/explore" element={<StoreDiscovery />} />
-        <Route path="/store/:id" element={<StorePage />} />
+        <Route path="/store/:handle" element={<StorePage />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
