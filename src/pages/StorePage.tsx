@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,9 @@ import {
   Bookmark,
   Folder
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
 
 const StorePage = () => {
   const { handle } = useParams<{ handle: string }>();
@@ -31,27 +35,42 @@ const StorePage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
   
-  const store = {
-    id: 1,
-    name: 'Fashion Boutique',
-    owner: 'Sarah Johnson',
-    coverImage: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80',
-    logo: 'https://images.unsplash.com/photo-1589985270958-b90dewe1e358?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-    handle: '@fashionboutique',
-    description: 'Curated collection of modern, sustainable fashion for the conscious consumer. We focus on quality, ethical production, and timeless style.',
-    categories: ['Women', 'Men', 'Accessories', 'New Arrivals'],
-    location: 'New York, USA',
-    foundedYear: 2018,
-    rating: 4.8,
-    reviewCount: 256,
-    featured: true,
-    socialLinks: {
-      instagram: 'https://instagram.com',
-      twitter: 'https://twitter.com',
-      facebook: 'https://facebook.com'
+  // جلب بيانات المتجر من Supabase
+  const { data: storeData, isLoading, error } = useQuery({
+    queryKey: ['store', handle],
+    queryFn: async () => {
+      if (!handle) throw new Error('معرف المتجر غير موجود');
+      
+      // بحث عن المتجر بالمعرف (بدون @ إذا كانت موجودة)
+      const formattedHandle = handle.startsWith('@') ? handle : `@${handle}`;
+      
+      const { data, error } = await supabase
+        .from('stores')
+        .select('*, profiles(full_name, email)')
+        .eq('handle', formattedHandle)
+        .single();
+      
+      if (error) {
+        console.error('خطأ في جلب بيانات المتجر:', error);
+        throw new Error('فشل في جلب بيانات المتجر');
+      }
+      
+      if (!data) {
+        throw new Error('المتجر غير موجود');
+      }
+      
+      return data;
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "حدث خطأ",
+        description: error.message || "فشل في تحميل بيانات المتجر"
+      });
     }
-  };
+  });
   
+  // بيانات المنتجات (ثابتة كما طلبت)
   const products = [
     {
       id: 1,
@@ -127,6 +146,10 @@ const StorePage = () => {
     }
   ];
   
+  // تحديد فئات المنتجات (ثابتة)
+  const categories = ['Women', 'Men', 'Accessories', 'New Arrivals'];
+  
+  // الفلترة حسب البحث والفئة
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -155,6 +178,57 @@ const StorePage = () => {
         return <Clock className="w-4 h-4 mr-2" />;
       default:
         return <Folder className="w-4 h-4 mr-2" />;
+    }
+  };
+
+  // عرض رسالة تحميل أثناء جلب بيانات المتجر
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+          <p className="mt-4 text-gray-600">جاري تحميل بيانات المتجر...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // عرض رسالة خطأ إذا فشل جلب البيانات
+  if (error || !storeData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-sm">
+          <h2 className="text-xl font-bold text-red-600 mb-2">تعذر تحميل المتجر</h2>
+          <p className="text-gray-600">
+            {error instanceof Error ? error.message : "حدث خطأ أثناء محاولة تحميل بيانات المتجر. يرجى المحاولة مرة أخرى."}
+          </p>
+          <Button className="mt-4" onClick={() => window.location.href = '/'}>
+            العودة للصفحة الرئيسية
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ترتيب بيانات المتجر بالشكل المناسب للكومبوننت
+  const store = {
+    id: storeData.id,
+    name: storeData.name,
+    owner: storeData.profiles?.full_name || 'صاحب المتجر',
+    coverImage: storeData.cover_url || 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80',
+    logo: storeData.logo_url || 'https://images.unsplash.com/photo-1589985270958-b90dewe1e358?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
+    handle: storeData.handle,
+    description: storeData.description || 'متجر يقدم منتجات عالية الجودة.',
+    categories: categories, // استخدام الفئات الثابتة
+    location: storeData.country || 'غير محدد',
+    foundedYear: new Date(storeData.created_at).getFullYear(),
+    rating: 4.8, // قيمة ثابتة
+    reviewCount: 256, // قيمة ثابتة
+    featured: storeData.is_active,
+    socialLinks: {
+      instagram: 'https://instagram.com',
+      twitter: 'https://twitter.com',
+      facebook: 'https://facebook.com'
     }
   };
 
@@ -191,7 +265,7 @@ const StorePage = () => {
                               </TabsTrigger>
                             </CarouselItem>
                             
-                            {store.categories.map((category) => (
+                            {categories.map((category) => (
                               <CarouselItem key={category} className="basis-auto pl-1 min-w-fit">
                                 <TabsTrigger 
                                   value={category} 

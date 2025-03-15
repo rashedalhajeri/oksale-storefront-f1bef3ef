@@ -36,6 +36,11 @@ const StoreHeader = ({
   const { handle } = useParams<{ handle: string }>();
   const isMobile = useIsMobile();
 
+  // استخراج المعرف بدون علامة @ للعرض
+  const displayHandle = store.handle.startsWith('@') 
+    ? store.handle
+    : `@${store.handle}`;
+
   return (
     <div className="relative">
       {/* Cover image container with fixed height */}
@@ -89,7 +94,7 @@ const StoreHeader = ({
                 </div>
                 
                 <div className="flex items-center gap-1 text-white text-xs md:text-sm">
-                  <span className="truncate">{store.handle}</span>
+                  <span className="truncate">{displayHandle}</span>
                 </div>
                 
                 {/* Social links with consistent spacing */}
