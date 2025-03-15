@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, Routes, Route, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -46,12 +47,18 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 
+// Updated interface to match the actual database schema
 interface Product {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   price: number;
-  is_active: boolean;
+  in_stock: boolean;
+  store_id: string;
+  created_at: string;
+  updated_at: string;
+  image_url: string | null;
+  category_id: string | null;
 }
 
 const Dashboard = () => {
@@ -124,6 +131,7 @@ const Dashboard = () => {
             throw error;
           }
 
+          // No type conversion needed as the interface now matches the database schema
           setProducts(data || []);
         } catch (error) {
           console.error("Failed to fetch products:", error);
@@ -176,7 +184,7 @@ const Dashboard = () => {
             name: newProductName,
             description: newProductDescription,
             price: price,
-            is_active: isProductActive,
+            in_stock: isProductActive, // Changed from is_active to in_stock
           },
         ])
         .select();
@@ -209,9 +217,9 @@ const Dashboard = () => {
     setSelectedProduct(product);
     setIsEditing(true);
     setNewProductName(product.name);
-    setNewProductDescription(product.description);
+    setNewProductDescription(product.description || '');
     setNewProductPrice(product.price.toString());
-    setIsProductActive(product.is_active);
+    setIsProductActive(product.in_stock); // Changed from is_active to in_stock
   };
 
   const handleUpdateProduct = async () => {
@@ -246,7 +254,7 @@ const Dashboard = () => {
           name: newProductName,
           description: newProductDescription,
           price: price,
-          is_active: isProductActive,
+          in_stock: isProductActive, // Changed from is_active to in_stock
         })
         .eq('id', selectedProduct.id)
         .select();
@@ -449,8 +457,8 @@ const Dashboard = () => {
                     <TableCell>{product.name}</TableCell>
                     <TableCell>{product.price} ر.س</TableCell>
                     <TableCell>
-                      <Badge variant={product.is_active ? "default" : "secondary"}>
-                        {product.is_active ? "نشط" : "غير نشط"}
+                      <Badge variant={product.in_stock ? "default" : "secondary"}>
+                        {product.in_stock ? "نشط" : "غير نشط"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -594,4 +602,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
