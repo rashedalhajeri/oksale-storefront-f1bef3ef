@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check, X } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { SignUpValues } from '@/types/auth';
+import { isHandleAvailable } from '@/utils/storeHandleValidation';
 
 interface StoreFormStepProps {
   form: UseFormReturn<SignUpValues>;
@@ -14,6 +15,46 @@ interface StoreFormStepProps {
 }
 
 const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
+  const [isCheckingHandle, setIsCheckingHandle] = useState(false);
+  const [isHandleValid, setIsHandleValid] = useState<boolean | null>(null);
+  const storeHandle = form.watch("storeHandle");
+  
+  useEffect(() => {
+    // إعادة ضبط حالة التحقق عند تغيير المعرّف
+    setIsHandleValid(null);
+    
+    const checkHandle = async () => {
+      if (!storeHandle || storeHandle.length < 3) return;
+      
+      // التحقق من تنسيق المعرّف أولاً
+      const isValidFormat = /^@[a-zA-Z0-9-]+$/.test(storeHandle);
+      if (!isValidFormat) {
+        setIsHandleValid(false);
+        return;
+      }
+      
+      setIsCheckingHandle(true);
+      try {
+        const available = await isHandleAvailable(storeHandle);
+        setIsHandleValid(available);
+      } catch (error) {
+        console.error("خطأ في التحقق من المعرّف:", error);
+        setIsHandleValid(false);
+      } finally {
+        setIsCheckingHandle(false);
+      }
+    };
+    
+    // استخدام مؤقت للتأخير في التحقق حتى يتوقف المستخدم عن الكتابة
+    const timer = setTimeout(() => {
+      if (storeHandle && storeHandle.length >= 3) {
+        checkHandle();
+      }
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [storeHandle]);
+
   return (
     <div className="space-y-4 pt-4">
       <FormField
@@ -44,24 +85,49 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
           <FormItem>
             <FormLabel className="text-oksale-700">معرّف المتجر</FormLabel>
             <FormControl>
-              <Input
-                placeholder="@my-store"
-                dir="ltr"
-                className="border-oksale-200"
-                {...field}
-                onChange={(e) => {
-                  let value = e.target.value;
-                  // تأكد من أن المعرّف يبدأ بـ @
-                  if (!value.startsWith('@')) {
-                    value = `@${value}`;
-                  }
-                  field.onChange(value);
-                }}
-              />
+              <div className="relative">
+                <Input
+                  placeholder="@my-store"
+                  dir="ltr"
+                  className="border-oksale-200 pr-10"
+                  {...field}
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    // تأكد من أن المعرّف يبدأ بـ @
+                    if (!value.startsWith('@')) {
+                      value = `@${value}`;
+                    }
+                    // تحويل أي حروف عربية أو خاصة إلى فراغات
+                    value = value.replace(/[^@a-zA-Z0-9-]/g, '');
+                    field.onChange(value);
+                  }}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  {isCheckingHandle && (
+                    <Loader2 className="h-4 w-4 animate-spin text-oksale-400" />
+                  )}
+                  {!isCheckingHandle && isHandleValid === true && (
+                    <Check className="h-4 w-4 text-green-500" />
+                  )}
+                  {!isCheckingHandle && isHandleValid === false && (
+                    <X className="h-4 w-4 text-red-500" />
+                  )}
+                </div>
+              </div>
             </FormControl>
             <FormDescription className="text-xs">
               معرّف فريد لمتجرك سيكون الرابط: oksale.me/store-name (يجب أن يبدأ بـ @ ويتكون من أحرف إنجليزية وأرقام وشرطات - فقط)
             </FormDescription>
+            {isHandleValid === false && !isCheckingHandle && storeHandle && storeHandle.length >= 3 && /^@[a-zA-Z0-9-]+$/.test(storeHandle) && (
+              <div className="text-xs text-red-500 mt-1">
+                هذا المعرّف غير متاح، يرجى اختيار معرّف آخر
+              </div>
+            )}
+            {isHandleValid === true && !isCheckingHandle && (
+              <div className="text-xs text-green-500 mt-1">
+                هذا المعرّف متاح ويمكنك استخدامه
+              </div>
+            )}
             <FormMessage className="text-right" />
           </FormItem>
         )}
@@ -79,7 +145,7 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
         <Button
           type="submit"
           className="flex-1 bg-oksale-700 hover:bg-oksale-800"
-          disabled={isLoading}
+          disabled={isLoading || isHandleValid === false || isCheckingHandle}
         >
           {isLoading ? (
             <>
