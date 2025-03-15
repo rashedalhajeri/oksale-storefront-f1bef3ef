@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
 
 // Schema تحقق من البيانات
 const signUpSchema = z.object({
@@ -43,15 +44,26 @@ const SignUp = () => {
     },
   });
 
-  const isHandleAvailable = (handle: string) => {
-    // هذه دالة وهمية، في الواقع ستتحقق من توفر المعرّف من خلال API
-    return new Promise<boolean>((resolve) => {
-      setTimeout(() => {
-        // تحقق بسيط للمثال فقط
-        const notAvailable = ["@oksale", "@admin", "@test"];
-        resolve(!notAvailable.includes(handle));
-      }, 500);
-    });
+  const isHandleAvailable = async (handle: string): Promise<boolean> => {
+    // التحقق من توفر المعرّف عبر قاعدة البيانات
+    try {
+      const { data, error } = await supabase
+        .from("stores")
+        .select("handle")
+        .eq("handle", handle)
+        .single();
+      
+      if (error && error.code !== "PGRST116") {
+        console.error("خطأ في التحقق من توفر المعرّف:", error);
+        return false;
+      }
+      
+      // إذا لم يتم العثور على معرّف مطابق، فهو متاح
+      return !data;
+    } catch (error) {
+      console.error("خطأ في التحقق من توفر المعرّف:", error);
+      return false;
+    }
   };
 
   const validateHandle = async (handle: string) => {
@@ -95,27 +107,56 @@ const SignUp = () => {
         return;
       }
       
-      // في الوضع الحقيقي نقوم بإرسال بيانات المستخدم للخادم
-      console.log("بيانات التسجيل:", data);
+      // إنشاء المستخدم في Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
       
-      // محاكاة نجاح التسجيل (بدون خادم حقيقي الآن)
-      setTimeout(() => {
-        toast({
-          title: "تم إنشاء الحساب بنجاح!",
-          description: `تم إنشاء متجرك ${data.storeName} بنجاح!`,
+      if (authError) {
+        throw authError;
+      }
+      
+      // التأكد من أن لدينا معرف المستخدم
+      if (!authData.user?.id) {
+        throw new Error("فشل إنشاء الحساب، يرجى المحاولة مرة أخرى");
+      }
+      
+      // إنشاء متجر للمستخدم الجديد
+      const { error: storeError } = await supabase
+        .from("stores")
+        .insert({
+          owner_id: authData.user.id,
+          name: data.storeName,
+          handle: data.storeHandle,
         });
-        
-        // سيتم توجيه المستخدم إلى متجره
-        const handle = data.storeHandle.replace('@', '');
-        navigate(`/store/${handle}`);
-        setIsLoading(false);
-      }, 1500);
+      
+      if (storeError) {
+        throw storeError;
+      }
+      
+      toast({
+        title: "تم إنشاء الحساب بنجاح!",
+        description: `تم إنشاء متجرك ${data.storeName} بنجاح!`,
+      });
+      
+      // تسجيل الدخول تلقائياً بعد التسجيل
+      await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      
+      // توجيه المستخدم إلى متجره
+      const handle = data.storeHandle.replace('@', '');
+      navigate(`/store/${handle}`);
     } catch (error) {
+      console.error("خطأ في التسجيل:", error);
       toast({
         variant: "destructive",
         title: "فشل إنشاء الحساب",
         description: "حدث خطأ أثناء إنشاء حسابك، يرجى المحاولة مرة أخرى.",
       });
+    } finally {
       setIsLoading(false);
     }
   };
