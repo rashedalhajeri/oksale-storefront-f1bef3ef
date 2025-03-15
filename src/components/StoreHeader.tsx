@@ -56,8 +56,8 @@ const StoreHeader = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
       </div>
       
-      {/* Store info container with consistent positioning */}
-      <div className="absolute top-0 left-0 right-0 h-full flex items-center text-white">
+      {/* Store info container with improved positioning */}
+      <div className="absolute bottom-0 left-0 right-0 pb-5 md:pb-8 flex items-end text-white">
         <div className="w-full max-w-5xl mx-auto px-3 md:px-8">
           <div className="flex items-center justify-between">
             {/* Store logo and info */}
