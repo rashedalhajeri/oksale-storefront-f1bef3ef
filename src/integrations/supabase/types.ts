@@ -198,8 +198,10 @@ export type Database = {
         Row: {
           contact_email: string | null
           contact_phone: string | null
+          country: string | null
           cover_url: string | null
           created_at: string
+          currency: string | null
           description: string | null
           handle: string
           id: string
@@ -212,8 +214,10 @@ export type Database = {
         Insert: {
           contact_email?: string | null
           contact_phone?: string | null
+          country?: string | null
           cover_url?: string | null
           created_at?: string
+          currency?: string | null
           description?: string | null
           handle: string
           id?: string
@@ -226,8 +230,10 @@ export type Database = {
         Update: {
           contact_email?: string | null
           contact_phone?: string | null
+          country?: string | null
           cover_url?: string | null
           created_at?: string
+          currency?: string | null
           description?: string | null
           handle?: string
           id?: string

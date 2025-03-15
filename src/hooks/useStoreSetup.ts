@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -37,6 +38,7 @@ export const useStoreSetup = (form: UseFormReturn<StoreSetupValues>) => {
       }
       
       console.log("بدء عملية إنشاء المتجر...");
+      console.log("بيانات المتجر:", data);
       
       // تنسيق قيم المدخلات
       const formattedHandle = data.storeHandle.toLowerCase();
@@ -51,7 +53,6 @@ export const useStoreSetup = (form: UseFormReturn<StoreSetupValues>) => {
           description: data.description || null,
           currency: data.currency,
           country: data.country,
-          setup_completed: true,
           is_active: true,
         });
       
@@ -80,6 +81,9 @@ export const useStoreSetup = (form: UseFormReturn<StoreSetupValues>) => {
         errorMessage = "هذا المعرّف مستخدم بالفعل، يرجى اختيار معرّف آخر";
       } else if (error.message?.includes("row-level security policy")) {
         errorMessage = "خطأ في إنشاء المتجر، يرجى المحاولة مرة أخرى بعد قليل";
+      } else {
+        // عرض الرسالة الأصلية للخطأ للمساعدة في التشخيص
+        console.log("رسالة الخطأ الأصلية:", error.message);
       }
       
       toast({
