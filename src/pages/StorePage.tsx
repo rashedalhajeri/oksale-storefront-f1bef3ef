@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { useParams } from 'react-router-dom';
 import Footer from '@/components/Footer';
-import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StoreHeader from '@/components/StoreHeader';
 import StoreAbout from '@/components/StoreAbout';
 import StoreHighlights from '@/components/StoreHighlights';
@@ -15,7 +11,6 @@ import ProductsGrid from '@/components/ProductsGrid';
 import { 
   Search,
   Filter,
-  ArrowLeft,
   ShoppingBag
 } from 'lucide-react';
 
@@ -111,7 +106,7 @@ const StorePage = () => {
       id: 6,
       name: 'Leather Wallet',
       price: 79.99,
-      image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       description: 'Minimalist leather wallet with card slots.',
       inStock: true,
       category: 'Accessories',
@@ -137,119 +132,81 @@ const StorePage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
-      <div className="sticky top-0 z-50 bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-neutral-700 hover:text-neutral-900 transition-colors">
-            <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm font-medium">Back to OKsale</span>
-          </Link>
-        </div>
-      </div>
-      
       <main className="flex-grow">
         <StoreHeader store={store} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8 bg-white shadow-sm rounded-xl p-4 border border-neutral-200">
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="bg-neutral-50 h-11 p-1">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-white">Overview</TabsTrigger>
-                <TabsTrigger value="products" className="data-[state=active]:bg-white">Products</TabsTrigger>
-                <TabsTrigger value="reviews" className="data-[state=active]:bg-white">Reviews</TabsTrigger>
-                <TabsTrigger value="shipping" className="data-[state=active]:bg-white">Shipping</TabsTrigger>
-                <TabsTrigger value="contact" className="data-[state=active]:bg-white">Contact</TabsTrigger>
-              </TabsList>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 space-y-8">
+              <StoreAbout store={store} />
+              <StoreHighlights />
+            </div>
+            
+            <StoreSidebar 
+              store={store} 
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              productCount={products.length}
+            />
+          </div>
+          
+          <div className="mt-12">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <h2 className="text-2xl font-bold text-neutral-800">Products</h2>
               
-              <TabsContent value="overview" className="mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="md:col-span-2 space-y-8">
-                    <StoreAbout store={store} />
-                    <StoreHighlights />
-                  </div>
-                  
-                  <StoreSidebar 
-                    store={store} 
-                    selectedCategory={selectedCategory}
-                    setSelectedCategory={setSelectedCategory}
-                    productCount={products.length}
+              <div className="flex items-center gap-3">
+                <div className="relative flex-grow w-full sm:w-auto">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 border-neutral-200 w-full"
                   />
                 </div>
-              </TabsContent>
-              
-              <TabsContent value="products" className="mt-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <h2 className="text-2xl font-bold text-neutral-800">Products</h2>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="relative flex-grow w-full sm:w-auto">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
-                      <Input
-                        type="text"
-                        placeholder="Search products..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 border-neutral-200 w-full"
-                      />
-                    </div>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="icon"
-                      className="border-neutral-200" 
-                      onClick={() => setShowFilters(!showFilters)}
-                    >
-                      <Filter className="w-4 h-4" />
-                    </Button>
-                  </div>
+                
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="border-neutral-200" 
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {showFilters && (
+              <div className="mb-6 p-4 bg-white rounded-xl shadow-sm animate-fade-in border border-neutral-100">
+                <h3 className="font-medium text-neutral-800 mb-3">Filters</h3>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
+                    Price: Low to High
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
+                    Price: High to Low
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
+                    Newest First
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
+                    Most Popular
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
+                    On Sale
+                  </Button>
                 </div>
-                
-                {showFilters && (
-                  <div className="mb-6 p-4 bg-white rounded-xl shadow-sm animate-fade-in border border-neutral-100">
-                    <h3 className="font-medium text-neutral-800 mb-3">Filters</h3>
-                    <div className="flex flex-wrap gap-3">
-                      <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                        Price: Low to High
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                        Price: High to Low
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                        Newest First
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                        Most Popular
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                        On Sale
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                
-                <ProductsGrid 
-                  products={filteredProducts} 
-                  selectedCategory={selectedCategory}
-                  setSelectedCategory={setSelectedCategory}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                />
-              </TabsContent>
-              
-              <TabsContent value="reviews" className="mt-6 p-8 text-center">
-                <h3 className="text-xl font-medium mb-2">Customer Reviews</h3>
-                <p className="text-neutral-600">Reviews coming soon!</p>
-              </TabsContent>
-              
-              <TabsContent value="shipping" className="mt-6 p-8 text-center">
-                <h3 className="text-xl font-medium mb-2">Shipping Information</h3>
-                <p className="text-neutral-600">Shipping details coming soon!</p>
-              </TabsContent>
-              
-              <TabsContent value="contact" className="mt-6 p-8 text-center">
-                <h3 className="text-xl font-medium mb-2">Contact The Store</h3>
-                <p className="text-neutral-600">Contact form coming soon!</p>
-              </TabsContent>
-            </Tabs>
+              </div>
+            )}
+            
+            <ProductsGrid 
+              products={filteredProducts} 
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+            />
           </div>
         </div>
       </main>

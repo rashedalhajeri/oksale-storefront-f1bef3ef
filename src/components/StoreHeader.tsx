@@ -8,7 +8,6 @@ import {
   MapPin, 
   Star, 
   Calendar, 
-  Heart,
   Share2,
   ShoppingBag
 } from 'lucide-react';
@@ -97,10 +96,6 @@ const StoreHeader = ({ store }: StoreHeaderProps) => {
           </div>
           
           <div className="hidden md:flex gap-2">
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-              <Heart className="w-4 h-4 mr-2" />
-              Follow
-            </Button>
             <Button variant="outline" className="bg-white/20 backdrop-blur-sm border-white/40 text-white hover:bg-white/30">
               <Share2 className="w-4 h-4 mr-2" />
               Share
