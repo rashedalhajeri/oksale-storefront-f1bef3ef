@@ -2,7 +2,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tag, Package, Sparkles, Clock } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowRight, Tag, Package, Sparkles, Clock } from 'lucide-react';
 
 interface StoreSidebarProps {
   store: {
@@ -78,6 +79,23 @@ const StoreSidebar = ({
               {tag}
             </Badge>
           ))}
+        </div>
+      </div>
+      
+      <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-4 rounded-xl shadow-sm text-white">
+        <h2 className="text-sm font-semibold mb-2">Join Our Newsletter</h2>
+        <p className="text-white/80 text-xs mb-2">Stay updated with our latest products and offers.</p>
+        
+        <div className="space-y-1.5">
+          <Input 
+            type="email" 
+            placeholder="Your email address" 
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white h-8 text-xs"
+          />
+          <Button className="w-full bg-white text-indigo-800 hover:bg-white/90 h-8 text-xs">
+            Subscribe
+            <ArrowRight className="w-3 h-3 ml-1.5" />
+          </Button>
         </div>
       </div>
     </div>
