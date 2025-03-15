@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import StoreHeader from '@/components/StoreHeader';
-import StoreAbout from '@/components/StoreAbout';
-import StoreHighlights from '@/components/StoreHighlights';
 import ProductsGrid from '@/components/ProductsGrid';
 import { 
   Search,
@@ -135,10 +132,7 @@ const StorePage = () => {
         <StoreHeader store={store} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <StoreAbout store={store} />
-          <StoreHighlights />
-          
-          <div className="mt-12">
+          <div className="mt-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-bold text-neutral-800">Products</h2>
               
@@ -198,8 +192,6 @@ const StorePage = () => {
           </div>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 };
