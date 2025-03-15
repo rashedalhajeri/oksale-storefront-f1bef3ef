@@ -46,19 +46,19 @@ const ProductCard = ({ product }: ProductCardProps) => {
         )}
       </div>
       
-      <div className="p-3 flex items-center justify-between">
-        <div>
-          <h3 className="font-medium text-base line-clamp-1">{product.name}</h3>
-          <span className="font-semibold text-sm text-oksale-700">{formattedPrice}</span>
+      <div className="p-3 flex flex-col">
+        <div className="flex justify-between items-start mb-1">
+          <h3 className="font-medium text-base line-clamp-2 h-[40px]">{product.name}</h3>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="hover:bg-oksale-50 text-oksale-700 ml-1 mt-[-4px]"
+            disabled={!product.inStock}
+          >
+            <ShoppingBag className="h-5 w-5" />
+          </Button>
         </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="hover:bg-oksale-50 text-oksale-700"
-          disabled={!product.inStock}
-        >
-          <ShoppingBag className="h-5 w-5" />
-        </Button>
+        <span className="font-semibold text-sm text-oksale-700">{formattedPrice}</span>
       </div>
     </div>
   );
