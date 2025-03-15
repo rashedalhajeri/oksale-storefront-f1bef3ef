@@ -83,10 +83,7 @@ const StoreHeader = ({
               </div>
               
               <div className="flex items-center gap-1 text-blue-100 text-xs md:text-sm mt-1 md:mt-2 whitespace-nowrap overflow-hidden">
-                <Navigation className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0" />
-                <span>/</span>
-                <span>store/</span>
-                <span className="text-white truncate">{id}</span>
+                <span className="text-white truncate">@Fashion</span>
               </div>
               
               <div className="flex items-center gap-4 md:gap-5 mt-3 md:mt-4">
