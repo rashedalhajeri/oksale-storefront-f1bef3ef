@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -60,7 +59,7 @@ const StoreHeader = ({
                   </Badge>}
               </div>
               
-              <div className="flex items-center gap-1 text-blue-100 text-xs mt-0 whitespace-nowrap overflow-hidden">
+              <div className="flex items-center gap-1 text-blue-100 text-xs mt-0 whitespace-nowrap overflow-hidden rounded-md">
                 <span className="text-white text-[10px] md:text-xs truncate">@Fashion</span>
               </div>
               
