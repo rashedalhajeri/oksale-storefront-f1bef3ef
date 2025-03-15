@@ -6,6 +6,7 @@ import { User, MapPin, Star, Calendar, Share2, ShoppingBag, CheckCircle, Instagr
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+
 interface StoreHeaderProps {
   store: {
     name: string;
@@ -25,6 +26,7 @@ interface StoreHeaderProps {
     };
   };
 }
+
 const StoreHeader = ({
   store
 }: StoreHeaderProps) => {
@@ -36,6 +38,7 @@ const StoreHeader = ({
     id: string;
   }>();
   const isMobile = useIsMobile();
+
   return <div className="relative">
       <div className="h-[30vh] md:h-[45vh] overflow-hidden">
         <img src={store.coverImage} alt={`${store.name} cover`} className={cn("w-full h-full object-cover transition-opacity duration-700", coverLoaded ? "opacity-100" : "opacity-0")} onLoad={() => setCoverLoaded(true)} />
@@ -60,18 +63,18 @@ const StoreHeader = ({
               </div>
               
               <div className="flex items-center gap-1 text-blue-100 text-xs mt-0 whitespace-nowrap overflow-hidden">
-                <span className="text-white text-[10px] truncate md:text-2xl">@Fashion</span>
+                <span className="text-white text-xs md:text-2xl truncate">@Fashion</span>
               </div>
               
-              <div className="flex items-center gap-2 md:gap-4 mt-1 md:mt-2 rounded-lg">
+              <div className="flex items-center gap-3 md:gap-4 mt-2 md:mt-2 rounded-lg">
                 {store.socialLinks?.instagram && <a href={store.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
-                    <Instagram className="w-3 h-3 md:w-4 md:h-4" />
+                    <Instagram className="w-4 h-4 md:w-4 md:h-4" />
                   </a>}
                 {store.socialLinks?.twitter && <a href={store.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
-                    <Twitter className="w-3 h-3 md:w-4 md:h-4" />
+                    <Twitter className="w-4 h-4 md:w-4 md:h-4" />
                   </a>}
                 {store.socialLinks?.facebook && <a href={store.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
-                    <Facebook className="w-3 h-3 md:w-4 md:h-4" />
+                    <Facebook className="w-4 h-4 md:w-4 md:h-4" />
                   </a>}
               </div>
             </div>
@@ -87,4 +90,5 @@ const StoreHeader = ({
       </div>
     </div>;
 };
+
 export default StoreHeader;
