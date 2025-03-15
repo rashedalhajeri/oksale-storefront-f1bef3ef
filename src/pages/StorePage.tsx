@@ -3,12 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StoreHeader from '@/components/StoreHeader';
 import ProductsGrid from '@/components/ProductsGrid';
+import StoreSidebar from '@/components/StoreSidebar';
 import { 
   Search,
   Filter,
-  ShoppingBag
+  ShoppingBag,
+  Tag
 } from 'lucide-react';
 
 const StorePage = () => {
@@ -137,7 +140,7 @@ const StorePage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 mb-5 md:mb-6">
               <h2 className="text-xl md:text-2xl font-bold text-neutral-800">Products</h2>
               
-              <div className="flex items-center gap-2 md:gap-3">
+              <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto">
                 <div className="relative flex-grow w-full sm:w-auto">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
                   <Input
@@ -149,14 +152,20 @@ const StorePage = () => {
                   />
                 </div>
                 
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="border-neutral-200 h-9 w-9 md:h-10 md:w-10" 
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <Filter className="w-4 h-4" />
-                </Button>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="w-[140px] h-9 md:h-10 border-neutral-200 bg-white">
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-3.5 h-3.5 text-indigo-600" />
+                      <SelectValue placeholder="Category" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Products</SelectItem>
+                    {store.categories.map((category) => (
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             
@@ -195,13 +204,26 @@ const StorePage = () => {
               </div>
             )}
             
-            <ProductsGrid 
-              products={filteredProducts} 
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="hidden md:block">
+                <StoreSidebar 
+                  store={store} 
+                  selectedCategory={selectedCategory} 
+                  setSelectedCategory={setSelectedCategory}
+                  productCount={filteredProducts.length}
+                />
+              </div>
+              
+              <div className="md:col-span-3">
+                <ProductsGrid 
+                  products={filteredProducts} 
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={setSelectedCategory}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </main>
