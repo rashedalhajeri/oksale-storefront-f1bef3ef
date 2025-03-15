@@ -57,9 +57,9 @@ const StoreHeader = ({
       </div>
       
       <div className="max-w-5xl mx-auto">
-        <div className="relative -mt-14 md:-mt-20 px-3 md:px-8 flex justify-between items-end">
+        <div className="relative px-3 md:px-8 flex justify-between items-end mt-6 md:mt-8">
           <div className="flex items-end gap-3 md:gap-6">
-            <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white">
+            <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white -mt-28 md:-mt-36">
               {store.logo ? (
                 <img 
                   src={store.logo} 
