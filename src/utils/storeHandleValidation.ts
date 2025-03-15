@@ -2,12 +2,17 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const isHandleAvailable = async (handle: string): Promise<boolean> => {
+  // التحقق من صحة الصيغة أولاً
+  if (!handle || !handle.startsWith('@') || !/^@[a-zA-Z0-9-]+$/.test(handle)) {
+    return false;
+  }
+  
   // التحقق من توفر المعرّف عبر قاعدة البيانات
   try {
     const { data, error } = await supabase
       .from("stores")
       .select("handle")
-      .eq("handle", handle)
+      .eq("handle", handle.toLowerCase())
       .single();
     
     if (error && error.code !== "PGRST116") {

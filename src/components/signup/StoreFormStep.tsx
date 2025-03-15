@@ -37,6 +37,16 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
       try {
         const available = await isHandleAvailable(storeHandle);
         setIsHandleValid(available);
+        
+        // إذا كان المعرف غير متاح، قم بإظهار رسالة خطأ
+        if (!available) {
+          form.setError("storeHandle", { 
+            type: "manual", 
+            message: "هذا المعرّف غير متاح، يرجى اختيار معرّف آخر" 
+          });
+        } else {
+          form.clearErrors("storeHandle");
+        }
       } catch (error) {
         console.error("خطأ في التحقق من المعرّف:", error);
         setIsHandleValid(false);
@@ -53,7 +63,7 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [storeHandle]);
+  }, [storeHandle, form]);
 
   return (
     <div className="space-y-4 pt-4">
@@ -116,7 +126,7 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
               </div>
             </FormControl>
             <FormDescription className="text-xs">
-              معرّف فريد لمتجرك سيكون الرابط: oksale.me/store-name (يجب أن يبدأ بـ @ ويتكون من أحرف إنجليزية وأرقام وشرطات - فقط)
+              معرّف فريد لمتجرك سيكون الرابط: oksale.me/{storeHandle.replace('@', '')} (يجب أن يبدأ بـ @ ويتكون من أحرف إنجليزية وأرقام وشرطات - فقط)
             </FormDescription>
             {isHandleValid === false && !isCheckingHandle && storeHandle && storeHandle.length >= 3 && /^@[a-zA-Z0-9-]+$/.test(storeHandle) && (
               <div className="text-xs text-red-500 mt-1">
