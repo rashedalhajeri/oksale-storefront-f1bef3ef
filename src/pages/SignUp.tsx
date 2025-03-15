@@ -1,39 +1,17 @@
 
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
-import { ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
-
-// Schema تحقق من البيانات
-const signUpSchema = z.object({
-  email: z.string().email({ message: "يرجى إدخال بريد إلكتروني صحيح" }),
-  password: z.string().min(6, { message: "كلمة المرور يجب أن تكون على الأقل 6 أحرف" }),
-  storeName: z.string().min(3, { message: "اسم المتجر يجب أن يكون على الأقل 3 أحرف" }),
-  storeHandle: z
-    .string()
-    .min(3, { message: "معرّف المتجر يجب أن يكون على الأقل 3 أحرف" })
-    .max(30, { message: "معرّف المتجر يجب ألا يتجاوز 30 حرف" })
-    .regex(/^@[a-zA-Z0-9_]+$/, { 
-      message: "معرّف المتجر يجب أن يبدأ بـ @ ويحتوي فقط على أحرف إنجليزية وأرقام وشرطات سفلية" 
-    }),
-});
-
-type SignUpValues = z.infer<typeof signUpSchema>;
+import { signUpSchema, SignUpValues } from '@/types/auth';
+import { useSignUp } from '@/hooks/useSignUp';
+import AccountFormStep from '@/components/signup/AccountFormStep';
+import StoreFormStep from '@/components/signup/StoreFormStep';
 
 const SignUp = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -44,127 +22,18 @@ const SignUp = () => {
     },
   });
 
-  const isHandleAvailable = async (handle: string): Promise<boolean> => {
-    // التحقق من توفر المعرّف عبر قاعدة البيانات
-    try {
-      const { data, error } = await supabase
-        .from("stores")
-        .select("handle")
-        .eq("handle", handle)
-        .single();
-      
-      if (error && error.code !== "PGRST116") {
-        console.error("خطأ في التحقق من توفر المعرّف:", error);
-        return false;
-      }
-      
-      // إذا لم يتم العثور على معرّف مطابق، فهو متاح
-      return !data;
-    } catch (error) {
-      console.error("خطأ في التحقق من توفر المعرّف:", error);
-      return false;
-    }
-  };
-
-  const validateHandle = async (handle: string) => {
-    if (!handle.startsWith('@')) {
-      return false;
-    }
-    
-    // تحقق من صحة الصيغة أولاً
-    if (!/^@[a-zA-Z0-9_]+$/.test(handle)) {
-      return false;
-    }
-    
-    // إذا كان المعرّف صحيحاً، تحقق من توفره
-    return await isHandleAvailable(handle);
-  };
-
-  const handleNextStep = async () => {
-    // التحقق من صحة البيانات في الخطوة الحالية
-    if (currentStep === 0) {
-      const isValid = await form.trigger(['email', 'password']);
-      if (isValid) setCurrentStep(1);
-    }
-  };
-
-  const handlePrevStep = () => {
-    setCurrentStep(0);
-  };
-
-  const onSubmit = async (data: SignUpValues) => {
-    setIsLoading(true);
-    try {
-      // التحقق من توفر معرّف المتجر
-      const isAvailable = await validateHandle(data.storeHandle);
-      
-      if (!isAvailable) {
-        form.setError("storeHandle", { 
-          type: "manual", 
-          message: "هذا المعرّف غير متاح، يرجى اختيار معرّف آخر" 
-        });
-        setIsLoading(false);
-        return;
-      }
-      
-      // إنشاء المستخدم في Supabase
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      
-      if (authError) {
-        throw authError;
-      }
-      
-      // التأكد من أن لدينا معرف المستخدم
-      if (!authData.user?.id) {
-        throw new Error("فشل إنشاء الحساب، يرجى المحاولة مرة أخرى");
-      }
-      
-      // إنشاء متجر للمستخدم الجديد
-      const { error: storeError } = await supabase
-        .from("stores")
-        .insert({
-          owner_id: authData.user.id,
-          name: data.storeName,
-          handle: data.storeHandle,
-        });
-      
-      if (storeError) {
-        throw storeError;
-      }
-      
-      toast({
-        title: "تم إنشاء الحساب بنجاح!",
-        description: `تم إنشاء متجرك ${data.storeName} بنجاح!`,
-      });
-      
-      // تسجيل الدخول تلقائياً بعد التسجيل
-      await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-      
-      // توجيه المستخدم إلى متجره
-      const handle = data.storeHandle.replace('@', '');
-      navigate(`/store/${handle}`);
-    } catch (error) {
-      console.error("خطأ في التسجيل:", error);
-      toast({
-        variant: "destructive",
-        title: "فشل إنشاء الحساب",
-        description: "حدث خطأ أثناء إنشاء حسابك، يرجى المحاولة مرة أخرى.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    isLoading,
+    currentStep,
+    handleNextStep,
+    handlePrevStep,
+    onSubmit
+  } = useSignUp(form);
 
   const watchStoreHandle = form.watch("storeHandle");
   
   // تأكد من أن معرّف المتجر يبدأ دائماً بـ @
-  React.useEffect(() => {
+  useEffect(() => {
     if (watchStoreHandle && !watchStoreHandle.startsWith('@')) {
       form.setValue("storeHandle", `@${watchStoreHandle}`);
     }
@@ -193,133 +62,16 @@ const SignUp = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="account" className="space-y-4 pt-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-oksale-700">البريد الإلكتروني</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="أدخل بريدك الإلكتروني"
-                          type="email"
-                          dir="ltr"
-                          className="border-oksale-200"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-right" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-oksale-700">كلمة المرور</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="أدخل كلمة المرور"
-                          type="password"
-                          dir="ltr"
-                          className="border-oksale-200"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-right" />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="button"
-                  className="w-full bg-oksale-700 hover:bg-oksale-800"
-                  onClick={handleNextStep}
-                >
-                  التالي
-                  <ArrowRight className="mr-2 h-4 w-4" />
-                </Button>
+              <TabsContent value="account">
+                <AccountFormStep form={form} onNext={handleNextStep} />
               </TabsContent>
 
-              <TabsContent value="store" className="space-y-4 pt-4">
-                <FormField
-                  control={form.control}
-                  name="storeName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-oksale-700">اسم المتجر</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="مثال: متجر الأناقة"
-                          className="border-oksale-200"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        هذا هو الاسم الذي سيظهر للزوار عند زيارة متجرك
-                      </FormDescription>
-                      <FormMessage className="text-right" />
-                    </FormItem>
-                  )}
+              <TabsContent value="store">
+                <StoreFormStep 
+                  form={form} 
+                  onPrevious={handlePrevStep} 
+                  isLoading={isLoading} 
                 />
-
-                <FormField
-                  control={form.control}
-                  name="storeHandle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-oksale-700">معرّف المتجر</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="@my_store"
-                          dir="ltr"
-                          className="border-oksale-200"
-                          {...field}
-                          onChange={(e) => {
-                            let value = e.target.value;
-                            // تأكد من أن المعرّف يبدأ بـ @
-                            if (!value.startsWith('@')) {
-                              value = `@${value}`;
-                            }
-                            field.onChange(value);
-                          }}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        معرّف فريد لمتجرك يجب أن يبدأ بـ @ ويتكون من أحرف إنجليزية وأرقام وشرطات سفلية فقط
-                      </FormDescription>
-                      <FormMessage className="text-right" />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex space-x-2 space-x-reverse">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1 border-oksale-200"
-                    onClick={handlePrevStep}
-                  >
-                    السابق
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1 bg-oksale-700 hover:bg-oksale-800"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        جاري إنشاء المتجر...
-                      </>
-                    ) : (
-                      "إنشاء الحساب والمتجر"
-                    )}
-                  </Button>
-                </div>
               </TabsContent>
             </Tabs>
           </form>
