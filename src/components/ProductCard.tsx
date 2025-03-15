@@ -24,13 +24,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
   }).format(product.price);
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all">
-      <div className="relative aspect-square overflow-hidden bg-oksale-50">
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+      <div className="relative aspect-square overflow-hidden">
         <img
           src={product.image}
           alt={product.name}
           className={cn(
-            "w-full h-full object-cover transition-all duration-700",
+            "w-full h-full object-cover transition-all duration-700 hover:scale-105",
             imageLoaded ? "loaded" : ""
           )}
           onLoad={() => setImageLoaded(true)}
@@ -39,26 +39,41 @@ const ProductCard = ({ product }: ProductCardProps) => {
         {/* Out of stock overlay */}
         {!product.inStock && (
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-            <span className="bg-white text-oksale-800 px-2 py-1 rounded-md font-medium text-xs">
+            <span className="bg-white text-oksale-800 px-3 py-1 rounded-md font-medium text-xs">
               Out of Stock
             </span>
           </div>
         )}
+        
+        {/* Add to cart button overlay on hover */}
+        <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300">
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            className="bg-white hover:bg-oksale-50 text-oksale-700"
+            disabled={!product.inStock}
+          >
+            <ShoppingBag className="h-4 w-4 mr-1" />
+            Add to Cart
+          </Button>
+        </div>
       </div>
       
-      <div className="p-3 flex flex-col">
-        <div className="flex justify-between items-start mb-1">
-          <h3 className="font-medium text-base line-clamp-2 h-[40px]">{product.name}</h3>
+      <div className="p-4">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-medium text-oksale-800 text-base line-clamp-2 h-[48px] leading-tight">{product.name}</h3>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-oksale-700">{formattedPrice}</span>
           <Button 
             variant="ghost" 
             size="icon" 
-            className="hover:bg-oksale-50 text-oksale-700 ml-1 mt-[-4px]"
+            className="hover:bg-oksale-50 text-oksale-700 h-8 w-8"
             disabled={!product.inStock}
           >
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingBag className="h-4 w-4" />
           </Button>
         </div>
-        <span className="font-semibold text-sm text-oksale-700">{formattedPrice}</span>
       </div>
     </div>
   );
