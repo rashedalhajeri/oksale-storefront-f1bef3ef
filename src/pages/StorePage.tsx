@@ -23,7 +23,9 @@ import {
   Sparkles,
   Clock,
   Bookmark,
-  Folder
+  Folder,
+  User,
+  Edit
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,14 +36,52 @@ const StorePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
+  const [isOwnStore, setIsOwnStore] = useState(false);
   
-  // جلب بيانات المتجر من Supabase
+  // جلب بيانات المستخدم الحالي إذا كان مسجل دخول
+  const { data: session } = useQuery({
+    queryKey: ['auth-session'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getSession();
+      return data.session;
+    },
+  });
+  
+  // جلب متجر المستخدم الحالي إذا كان مسجل دخول
+  const { data: userStore, isLoading: isLoadingUserStore } = useQuery({
+    queryKey: ['user-store', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('stores')
+        .select('*, profiles(full_name, email)')
+        .eq('owner_id', session.user.id)
+        .maybeSingle();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('خطأ في جلب بيانات متجر المستخدم:', error);
+        throw error;
+      }
+      
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+  
+  // جلب بيانات المتجر من الرابط
   const { data: storeData, isLoading, error } = useQuery({
     queryKey: ['store', handle],
     queryFn: async () => {
-      if (!handle) throw new Error('معرف المتجر غير موجود');
+      if (!handle) {
+        // إذا لم يكن هناك معرف في الرابط وكان المستخدم مسجل دخول ولديه متجر، نستخدم متجره
+        if (userStore) {
+          return userStore;
+        }
+        throw new Error('معرف المتجر غير موجود');
+      }
       
-      // بحث عن المتجر بالمعرف (بدون @ إذا كانت موجودة)
+      // بحث عن المتجر بالمعرف (إضافة @ إذا لم تكن موجودة)
       const cleanHandle = handle.startsWith('@') ? handle : `@${handle}`;
       
       const { data, error } = await supabase
@@ -61,6 +101,7 @@ const StorePage = () => {
       
       return data;
     },
+    enabled: !(!handle && !!userStore),
     meta: {
       onError: (error: Error) => {
         toast({
@@ -71,6 +112,17 @@ const StorePage = () => {
       }
     }
   });
+  
+  // التحقق مما إذا كان المتجر الذي نعرضه هو متجر المستخدم الحالي
+  useEffect(() => {
+    if (userStore && storeData) {
+      setIsOwnStore(userStore.id === storeData.id);
+    } else if (!handle && userStore) {
+      setIsOwnStore(true);
+    } else {
+      setIsOwnStore(false);
+    }
+  }, [userStore, storeData, handle]);
   
   // بيانات المنتجات (ثابتة كما طلبت)
   const products = [
@@ -165,7 +217,7 @@ const StorePage = () => {
       behavior: 'smooth'
     });
     
-    console.log(`Loading store data for handle: ${handle}`);
+    console.log(`Loading store data for handle: ${handle || 'current user'}`);
   }, [handle]);
 
   const getCategoryIcon = (category: string) => {
@@ -184,7 +236,7 @@ const StorePage = () => {
   };
 
   // عرض رسالة تحميل أثناء جلب بيانات المتجر
-  if (isLoading) {
+  if ((isLoading || isLoadingUserStore) && (!storeData && !userStore)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center">
@@ -195,8 +247,8 @@ const StorePage = () => {
     );
   }
 
-  // عرض رسالة خطأ إذا فشل جلب البيانات
-  if (error || !storeData) {
+  // عرض رسالة خطأ إذا فشل جلب البيانات ولم يكن لدينا بيانات متجر المستخدم
+  if (error && !userStore) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-sm">
@@ -212,21 +264,40 @@ const StorePage = () => {
     );
   }
 
+  // اختيار المتجر المناسب للعرض (إما متجر من الرابط أو متجر المستخدم الحالي)
+  const activeStore = storeData || userStore;
+  
+  if (!activeStore) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-sm">
+          <h2 className="text-xl font-bold text-red-600 mb-2">لا يوجد متجر</h2>
+          <p className="text-gray-600">
+            لم يتم العثور على متجر. يرجى التأكد من المعرف أو إنشاء متجر جديد.
+          </p>
+          <Button className="mt-4" onClick={() => window.location.href = '/'}>
+            العودة للصفحة الرئيسية
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // ترتيب بيانات المتجر بالشكل المناسب للكومبوننت
   const store = {
-    id: storeData.id,
-    name: storeData.name,
-    owner: storeData.profiles?.full_name || 'صاحب المتجر',
-    coverImage: storeData.cover_url || 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80',
-    logo: storeData.logo_url || 'https://images.unsplash.com/photo-1589985270958-b90dewe1e358?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-    handle: storeData.handle,
-    description: storeData.description || 'متجر يقدم منتجات عالية الجودة.',
+    id: activeStore.id,
+    name: activeStore.name,
+    owner: activeStore.profiles?.full_name || 'صاحب المتجر',
+    coverImage: activeStore.cover_url || 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80',
+    logo: activeStore.logo_url || 'https://images.unsplash.com/photo-1589985270958-b90dewe1e358?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
+    handle: activeStore.handle,
+    description: activeStore.description || 'متجر يقدم منتجات عالية الجودة.',
     categories: categories, // استخدام الفئات الثابتة
-    location: storeData.country || 'غير محدد',
-    foundedYear: new Date(storeData.created_at).getFullYear(),
+    location: activeStore.country || 'غير محدد',
+    foundedYear: new Date(activeStore.created_at).getFullYear(),
     rating: 4.8, // قيمة ثابتة
     reviewCount: 256, // قيمة ثابتة
-    featured: storeData.is_active,
+    featured: activeStore.is_active,
     socialLinks: {
       instagram: 'https://instagram.com',
       twitter: 'https://twitter.com',
@@ -238,6 +309,23 @@ const StorePage = () => {
     <div className="min-h-screen flex flex-col bg-neutral-50">
       <main className="flex-grow">
         <StoreHeader store={store} />
+        
+        {isOwnStore && (
+          <div className="max-w-5xl mx-auto px-4 py-2 mt-4">
+            <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 text-indigo-800">
+              <User className="w-5 h-5 text-indigo-500" />
+              <span className="flex-grow">أنت تشاهد متجرك الخاص. يمكنك تعديل معلومات المتجر من لوحة التحكم.</span>
+              <Button 
+                variant="default" 
+                className="bg-indigo-600 hover:bg-indigo-700"
+                onClick={() => window.location.href = '/dashboard'}
+              >
+                <Edit className="mr-1 h-4 w-4" />
+                إدارة المتجر
+              </Button>
+            </div>
+          </div>
+        )}
         
         <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
           <div className="mt-4 md:mt-6">
