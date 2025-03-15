@@ -82,14 +82,14 @@ const StoreHeader = ({
                 )}
               </div>
               
-              <div className="flex items-center gap-1 text-blue-100 text-sm mt-1">
+              <div className="flex items-center gap-1 text-blue-100 text-sm mt-2">
                 <Navigation className="w-3.5 h-3.5" />
                 <span>/</span>
                 <span>store/</span>
                 <span className="text-white">{id}</span>
               </div>
               
-              <div className="flex items-center gap-4 mt-3">
+              <div className="flex items-center gap-5 mt-4">
                 {store.socialLinks?.instagram && (
                   <a href={store.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-200 transition-colors">
                     <Instagram className="w-5 h-5" />
