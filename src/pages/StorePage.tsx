@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Carousel,
   CarouselContent,
@@ -15,22 +15,23 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import StoreHeader from '@/components/StoreHeader';
 import ProductsGrid from '@/components/ProductsGrid';
 import StoreSidebar from '@/components/StoreSidebar';
+import Footer from '@/components/Footer';
 import { 
   Search,
   Filter,
   ShoppingBag,
-  Tag,
   Sparkles,
   Clock,
-  Bookmark,
-  Folder
+  Tag,
+  Bookmark
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const StorePage = () => {
   const { id } = useParams<{ id: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [showFilters, setShowFilters] = useState(false);
+  const isMobile = useIsMobile();
   
   const store = {
     id: 1,
@@ -153,7 +154,7 @@ const StorePage = () => {
       case 'New Arrivals':
         return <Clock className="w-4 h-4 mr-2" />;
       default:
-        return <Folder className="w-4 h-4 mr-2" />;
+        return <ShoppingBag className="w-4 h-4 mr-2" />;
     }
   };
 
@@ -168,24 +169,25 @@ const StorePage = () => {
               <h2 className="text-xl md:text-2xl font-bold text-neutral-800">Products</h2>
             </div>
             
+            {/* Desktop & Mobile Categories */}
             <div className="mb-6">
-              <div className="mb-6">
+              <div className="mb-4">
                 <Tabs defaultValue="All" value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
                   <ScrollArea className="w-full">
-                    <div className="pb-4">
-                      <Carousel className="w-full max-w-screen-lg mx-auto">
+                    <div className="pb-3">
+                      <Carousel className="w-full max-w-full mx-auto">
                         <CarouselContent className="-ml-1">
-                          <TabsList className="h-12 px-3 bg-white border border-neutral-200 rounded-xl inline-flex w-max gap-2 shadow-sm">
+                          <TabsList className="h-10 md:h-12 px-2 bg-white border border-neutral-200 rounded-xl inline-flex w-max gap-1 shadow-sm">
                             <CarouselItem className="basis-auto pl-1 min-w-fit">
                               <TabsTrigger 
                                 value="All" 
-                                className={`h-9 px-5 text-sm font-medium rounded-lg transition-all ${
+                                className={`h-8 md:h-9 px-3 md:px-5 text-xs md:text-sm font-medium rounded-lg transition-all ${
                                   selectedCategory === 'All' 
                                     ? 'bg-indigo-600 text-white' 
                                     : 'text-neutral-600 hover:bg-neutral-100'
                                 }`}
                               >
-                                <ShoppingBag className="w-4 h-4 mr-2" />
+                                <ShoppingBag className="w-3.5 h-3.5 mr-1.5" />
                                 All Products
                               </TabsTrigger>
                             </CarouselItem>
@@ -194,7 +196,7 @@ const StorePage = () => {
                               <CarouselItem key={category} className="basis-auto pl-1 min-w-fit">
                                 <TabsTrigger 
                                   value={category} 
-                                  className={`h-9 px-5 text-sm font-medium rounded-lg transition-all ${
+                                  className={`h-8 md:h-9 px-3 md:px-5 text-xs md:text-sm font-medium rounded-lg transition-all ${
                                     selectedCategory === category 
                                       ? 'bg-indigo-600 text-white' 
                                       : 'text-neutral-600 hover:bg-neutral-100'
@@ -207,15 +209,20 @@ const StorePage = () => {
                             ))}
                           </TabsList>
                         </CarouselContent>
-                        <CarouselPrevious className="left-0 bg-white/80 border border-neutral-200" />
-                        <CarouselNext className="right-0 bg-white/80 border border-neutral-200" />
+                        {!isMobile && (
+                          <>
+                            <CarouselPrevious className="left-0 bg-white/80 border border-neutral-200 h-8 w-8" />
+                            <CarouselNext className="right-0 bg-white/80 border border-neutral-200 h-8 w-8" />
+                          </>
+                        )}
                       </Carousel>
                     </div>
                   </ScrollArea>
                 </Tabs>
               </div>
               
-              <div className="flex items-center gap-3 mb-6 bg-white p-3 rounded-xl border border-neutral-200 shadow-sm">
+              {/* Search Bar */}
+              <div className="flex items-center gap-3 mb-6 bg-white p-2.5 md:p-3 rounded-xl border border-neutral-200 shadow-sm">
                 <div className="relative flex-grow">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
                   <Input
@@ -223,17 +230,18 @@ const StorePage = () => {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 border-neutral-200 w-full h-10"
+                    className="pl-10 border-neutral-200 w-full h-9 md:h-10"
                   />
                 </div>
-                <Button variant="outline" className="border-neutral-200 text-neutral-700 h-10">
-                  <Filter className="w-4 h-4 mr-1.5" />
-                  Filters
+                <Button variant="outline" className="border-neutral-200 text-neutral-700 h-9 md:h-10 px-3 md:px-4 text-xs md:text-sm">
+                  <Filter className="w-3.5 h-3.5 mr-1.5" />
+                  {!isMobile && "Filters"}
                 </Button>
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Desktop Sidebar - Hidden on Mobile */}
               <div className="hidden md:block">
                 <StoreSidebar 
                   store={store} 
@@ -243,6 +251,7 @@ const StorePage = () => {
                 />
               </div>
               
+              {/* Products Grid */}
               <div className="md:col-span-3">
                 <ProductsGrid 
                   products={filteredProducts} 
@@ -256,6 +265,7 @@ const StorePage = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };
