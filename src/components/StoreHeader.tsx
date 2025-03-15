@@ -3,7 +3,15 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, MapPin, Star, Calendar, Share2, ShoppingBag, CheckCircle, Instagram, Twitter, Facebook } from 'lucide-react';
+import { User, MapPin, Star, Calendar, Share2, ShoppingBag, CheckCircle, Instagram, Twitter, Facebook, Navigation } from 'lucide-react';
+import { 
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+import { useParams } from 'react-router-dom';
 
 interface StoreHeaderProps {
   store: {
@@ -30,6 +38,7 @@ const StoreHeader = ({
 }: StoreHeaderProps) => {
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
+  const { id } = useParams<{ id: string }>();
   
   return (
     <div className="relative">
@@ -71,6 +80,13 @@ const StoreHeader = ({
                     <CheckCircle className="w-4 h-4" />
                   </Badge>
                 )}
+              </div>
+              
+              <div className="flex items-center gap-1 text-blue-100 text-sm mt-1">
+                <Navigation className="w-3.5 h-3.5" />
+                <span>/</span>
+                <span>store/</span>
+                <span className="text-white">{id}</span>
               </div>
               
               <div className="flex items-center gap-4 mt-3">
