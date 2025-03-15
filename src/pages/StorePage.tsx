@@ -42,12 +42,12 @@ const StorePage = () => {
       if (!handle) throw new Error('معرف المتجر غير موجود');
       
       // بحث عن المتجر بالمعرف (بدون @ إذا كانت موجودة)
-      const formattedHandle = handle.startsWith('@') ? handle : `@${handle}`;
+      const cleanHandle = handle.startsWith('@') ? handle : `@${handle}`;
       
       const { data, error } = await supabase
         .from('stores')
         .select('*, profiles(full_name, email)')
-        .eq('handle', formattedHandle)
+        .eq('handle', cleanHandle)
         .single();
       
       if (error) {
@@ -61,12 +61,14 @@ const StorePage = () => {
       
       return data;
     },
-    onError: (error: Error) => {
-      toast({
-        variant: "destructive",
-        title: "حدث خطأ",
-        description: error.message || "فشل في تحميل بيانات المتجر"
-      });
+    meta: {
+      onError: (error: Error) => {
+        toast({
+          variant: "destructive",
+          title: "حدث خطأ",
+          description: error.message || "فشل في تحميل بيانات المتجر"
+        });
+      }
     }
   });
   
@@ -163,7 +165,7 @@ const StorePage = () => {
       behavior: 'smooth'
     });
     
-    console.log(`Loading store data for handle: @${handle}`);
+    console.log(`Loading store data for handle: ${handle}`);
   }, [handle]);
 
   const getCategoryIcon = (category: string) => {
