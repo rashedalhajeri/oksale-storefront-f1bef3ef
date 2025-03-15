@@ -26,6 +26,7 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
 
   const onSubmit = async (data: SignUpValues) => {
     setIsLoading(true);
+    
     try {
       // التحقق من توفر معرّف المتجر
       const isAvailable = await validateHandle(data.storeHandle);
@@ -52,7 +53,23 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       
       if (authError) {
         console.error("خطأ في إنشاء الحساب:", authError);
-        throw authError;
+        
+        let errorMsg = "حدث خطأ أثناء إنشاء حسابك، يرجى المحاولة مرة أخرى.";
+        
+        if (authError.message.includes("User already registered")) {
+          errorMsg = "البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول أو استخدام بريد إلكتروني آخر";
+        } else if (authError.message.includes("rate limit")) {
+          errorMsg = "لقد تجاوزت الحد المسموح من المحاولات، يرجى الانتظار قليلاً قبل المحاولة مرة أخرى";
+        }
+        
+        toast({
+          variant: "destructive",
+          title: "فشل إنشاء الحساب",
+          description: errorMsg,
+        });
+        
+        setIsLoading(false);
+        return;
       }
       
       // التأكد من أن لدينا معرف المستخدم
@@ -76,19 +93,11 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       
       console.log("تم تسجيل الدخول تلقائياً بنجاح، جاري إنشاء المتجر...");
       
-      // استخدام معرف المستخدم من جلسة نشطة
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData.session?.user.id;
-      
-      if (!userId) {
-        throw new Error("لم يتم الحصول على معرف المستخدم من الجلسة");
-      }
-      
       // إنشاء متجر للمستخدم الجديد
       const { error: storeError } = await supabase
         .from("stores")
         .insert({
-          owner_id: userId,
+          owner_id: authData.user.id, // استخدام معرف المستخدم من البيانات التي تم إنشاؤها
           name: data.storeName,
           handle: formattedHandle,
           is_active: true, // تعيين المتجر كنشط افتراضياً
@@ -96,7 +105,29 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       
       if (storeError) {
         console.error("خطأ في إنشاء المتجر:", storeError);
-        throw storeError;
+        
+        // إذا فشل إنشاء المتجر، حاول مرة أخرى بعد التأكد من تسجيل الدخول
+        const { data: session } = await supabase.auth.getSession();
+        
+        if (session?.session?.user?.id) {
+          console.log("محاولة ثانية لإنشاء المتجر باستخدام الجلسة الحالية");
+          
+          const { error: retryError } = await supabase
+            .from("stores")
+            .insert({
+              owner_id: session.session.user.id,
+              name: data.storeName,
+              handle: formattedHandle,
+              is_active: true
+            });
+            
+          if (retryError) {
+            console.error("فشلت المحاولة الثانية لإنشاء المتجر:", retryError);
+            throw retryError;
+          }
+        } else {
+          throw storeError;
+        }
       }
       
       console.log("تم إنشاء المتجر بنجاح!");
@@ -115,10 +146,12 @@ export const useSignUp = (form: UseFormReturn<SignUpValues>) => {
       // معالجة رسائل الخطأ بشكل أفضل
       let errorMessage = "حدث خطأ أثناء إنشاء حسابك، يرجى المحاولة مرة أخرى.";
       
-      if (error.message.includes("User already registered")) {
+      if (error.message?.includes("User already registered")) {
         errorMessage = "البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول أو استخدام بريد إلكتروني آخر";
-      } else if (error.message.includes("row-level security policy")) {
+      } else if (error.message?.includes("row-level security policy")) {
         errorMessage = "خطأ في إنشاء المتجر، يرجى المحاولة مرة أخرى بعد قليل";
+      } else if (error.message?.includes("rate limit")) {
+        errorMessage = "لقد تجاوزت الحد المسموح من المحاولات، يرجى الانتظار قليلاً قبل المحاولة مرة أخرى";
       }
       
       toast({
