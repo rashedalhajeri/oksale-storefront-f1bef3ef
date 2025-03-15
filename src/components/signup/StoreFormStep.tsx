@@ -5,17 +5,52 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check, X, AlertCircle } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
-import { SignUpValues } from '@/types/auth';
+import { StoreSetupValues } from '@/types/auth';
 import { isHandleAvailable } from '@/utils/storeHandleValidation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface StoreFormStepProps {
-  form: UseFormReturn<SignUpValues>;
-  onPrevious: () => void;
+  form: UseFormReturn<StoreSetupValues>;
   isLoading: boolean;
 }
 
-const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
+const currencies = [
+  { value: "SAR", label: "ريال سعودي (SAR)" },
+  { value: "AED", label: "درهم إماراتي (AED)" },
+  { value: "USD", label: "دولار أمريكي (USD)" },
+  { value: "EUR", label: "يورو (EUR)" },
+  { value: "KWD", label: "دينار كويتي (KWD)" },
+  { value: "BHD", label: "دينار بحريني (BHD)" },
+  { value: "QAR", label: "ريال قطري (QAR)" },
+  { value: "OMR", label: "ريال عماني (OMR)" },
+  { value: "EGP", label: "جنيه مصري (EGP)" },
+  { value: "JOD", label: "دينار أردني (JOD)" },
+];
+
+const countries = [
+  { value: "SA", label: "المملكة العربية السعودية" },
+  { value: "AE", label: "الإمارات العربية المتحدة" },
+  { value: "KW", label: "الكويت" },
+  { value: "BH", label: "البحرين" },
+  { value: "QA", label: "قطر" },
+  { value: "OM", label: "عمان" },
+  { value: "EG", label: "مصر" },
+  { value: "JO", label: "الأردن" },
+  { value: "IQ", label: "العراق" },
+  { value: "YE", label: "اليمن" },
+  { value: "LB", label: "لبنان" },
+  { value: "PS", label: "فلسطين" },
+  { value: "SY", label: "سوريا" },
+  { value: "SD", label: "السودان" },
+  { value: "LY", label: "ليبيا" },
+  { value: "TN", label: "تونس" },
+  { value: "DZ", label: "الجزائر" },
+  { value: "MA", label: "المغرب" },
+];
+
+const StoreFormStep = ({ form, isLoading }: StoreFormStepProps) => {
   const [isCheckingHandle, setIsCheckingHandle] = useState(false);
   const [isHandleValid, setIsHandleValid] = useState<boolean | null>(null);
   const storeHandle = form.watch("storeHandle");
@@ -71,7 +106,7 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
       <Alert variant="default" className="bg-blue-50 border-blue-200 mb-4">
         <AlertCircle className="h-4 w-4 text-blue-500" />
         <AlertDescription className="text-blue-700 text-sm">
-          بعد التسجيل سيمكنك الوصول إلى متجرك عبر الرابط: oksale.me/{storeHandle.replace('@', '')}
+          بعد إعداد المتجر سيمكنك الوصول إلى متجرك عبر الرابط: oksale.me/{storeHandle.replace('@', '')}
         </AlertDescription>
       </Alert>
 
@@ -151,30 +186,93 @@ const StoreFormStep = ({ form, onPrevious, isLoading }: StoreFormStepProps) => {
         )}
       />
 
-      <div className="flex space-x-2 space-x-reverse">
-        <Button
-          type="button"
-          variant="outline"
-          className="flex-1 border-oksale-200"
-          onClick={onPrevious}
-        >
-          السابق
-        </Button>
-        <Button
-          type="submit"
-          className="flex-1 bg-oksale-700 hover:bg-oksale-800"
-          disabled={isLoading || isHandleValid === false || isCheckingHandle}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              جاري إنشاء المتجر...
-            </>
-          ) : (
-            "إنشاء الحساب والمتجر"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="currency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-oksale-700">عملة المتجر</FormLabel>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger className="border-oksale-200">
+                    <SelectValue placeholder="اختر العملة" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {currencies.map((currency) => (
+                    <SelectItem key={currency.value} value={currency.value}>
+                      {currency.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage className="text-right" />
+            </FormItem>
           )}
-        </Button>
+        />
+
+        <FormField
+          control={form.control}
+          name="country"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-oksale-700">دولة المتجر</FormLabel>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger className="border-oksale-200">
+                    <SelectValue placeholder="اختر الدولة" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country.value} value={country.value}>
+                      {country.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage className="text-right" />
+            </FormItem>
+          )}
+        />
       </div>
+
+      <FormField
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-oksale-700">وصف المتجر (اختياري)</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="وصف موجز لمتجرك وما يقدمه للعملاء"
+                className="border-oksale-200 min-h-[80px]"
+                {...field}
+              />
+            </FormControl>
+            <FormDescription className="text-xs">
+              وصف مختصر يظهر للزوار ويعرفهم بمتجرك
+            </FormDescription>
+            <FormMessage className="text-right" />
+          </FormItem>
+        )}
+      />
+
+      <Button
+        type="submit"
+        className="w-full bg-oksale-700 hover:bg-oksale-800"
+        disabled={isLoading || isHandleValid === false || isCheckingHandle}
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            جاري إنشاء المتجر...
+          </>
+        ) : (
+          "إنشاء المتجر"
+        )}
+      </Button>
     </div>
   );
 };

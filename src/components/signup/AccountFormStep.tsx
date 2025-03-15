@@ -3,16 +3,17 @@ import React from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
-import { SignUpValues } from '@/types/auth';
+import { SimpleSignUpValues } from '@/types/auth';
 
 interface AccountFormStepProps {
-  form: UseFormReturn<SignUpValues>;
-  onNext: () => void;
+  form: UseFormReturn<SimpleSignUpValues>;
+  submitButtonText: string;
+  isLoading: boolean;
 }
 
-const AccountFormStep = ({ form, onNext }: AccountFormStepProps) => {
+const AccountFormStep = ({ form, submitButtonText, isLoading }: AccountFormStepProps) => {
   return (
     <div className="space-y-4 pt-4">
       <FormField
@@ -56,12 +57,18 @@ const AccountFormStep = ({ form, onNext }: AccountFormStepProps) => {
       />
 
       <Button
-        type="button"
+        type="submit"
         className="w-full bg-oksale-700 hover:bg-oksale-800"
-        onClick={onNext}
+        disabled={isLoading}
       >
-        التالي
-        <ArrowRight className="mr-2 h-4 w-4" />
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            جاري إنشاء الحساب...
+          </>
+        ) : (
+          submitButtonText
+        )}
       </Button>
     </div>
   );

@@ -11,6 +11,7 @@ import StoreDiscovery from "./pages/StoreDiscovery";
 import StorePage from "./pages/StorePage";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import StoreSetup from "./pages/StoreSetup"; // إضافة صفحة إعداد المتجر
 import Dashboard from "./pages/Dashboard";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
@@ -61,6 +62,7 @@ const AppRoutes = () => {
     '/store/',
     '/signin',
     '/signup',
+    '/store-setup',  // إضافة مسار إعداد المتجر
     '/dashboard'
   ];
   
@@ -75,6 +77,11 @@ const AppRoutes = () => {
         <Route path="/store/:handle" element={<StorePage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/store-setup" element={
+          <ProtectedRoute>
+            <StoreSetup />
+          </ProtectedRoute>
+        } />
         <Route path="/dashboard/*" element={
           <ProtectedRoute>
             <Dashboard />
