@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import StoreHeader from '@/components/StoreHeader';
 import StoreAbout from '@/components/StoreAbout';
 import StoreHighlights from '@/components/StoreHighlights';
-import StoreSidebar from '@/components/StoreSidebar';
 import ProductsGrid from '@/components/ProductsGrid';
 import { 
   Search,
@@ -136,18 +135,11 @@ const StorePage = () => {
         <StoreHeader store={store} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-2 space-y-8">
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <StoreAbout store={store} />
               <StoreHighlights />
             </div>
-            
-            <StoreSidebar 
-              store={store} 
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              productCount={products.length}
-            />
           </div>
           
           <div className="mt-12">
@@ -181,21 +173,21 @@ const StorePage = () => {
               <div className="mb-6 p-4 bg-white rounded-xl shadow-sm animate-fade-in border border-neutral-100">
                 <h3 className="font-medium text-neutral-800 mb-3">Filters</h3>
                 <div className="flex flex-wrap gap-3">
-                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                    Price: Low to High
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                    Price: High to Low
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                    Newest First
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                    Most Popular
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-8 text-xs border-neutral-200">
-                    On Sale
-                  </Button>
+                  {store.categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      size="sm"
+                      className={`h-8 text-xs ${
+                        selectedCategory === category
+                          ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                          : "border-neutral-200"
+                      }`}
+                      onClick={() => setSelectedCategory(category)}
+                    >
+                      {category}
+                    </Button>
+                  ))}
                 </div>
               </div>
             )}
