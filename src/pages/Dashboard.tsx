@@ -46,6 +46,14 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  is_active: boolean;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,29 +62,27 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [newProductName, setNewProductName] = useState('');
   const [newProductDescription, setNewProductDescription] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
   const [isProductActive, setIsProductActive] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const fetchStoreData = async () => {
       setLoading(true);
       try {
-        // Fetch the session to get the user ID
         const { data: { session } } = await supabase.auth.getSession();
         const userId = session?.user?.id;
 
         if (!userId) {
           console.error("User ID not found in session");
-          navigate('/signin'); // Redirect to sign-in if no user ID
+          navigate('/signin');
           return;
         }
 
-        // Fetch store data based on the user ID
         const { data: store, error: storeError } = await supabase
           .from('stores')
           .select('*')
@@ -162,7 +168,7 @@ const Dashboard = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data: newData, error } = await supabase
         .from('products')
         .insert([
           {
@@ -172,14 +178,15 @@ const Dashboard = () => {
             price: price,
             is_active: isProductActive,
           },
-        ]);
+        ])
+        .select();
 
       if (error) {
         console.error("Error creating product:", error);
         throw error;
       }
 
-      setProducts([...products, ...data]);
+      setProducts([...products, ...(newData || [])]);
       setNewProductName('');
       setNewProductDescription('');
       setNewProductPrice('');
@@ -198,7 +205,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleEditProduct = (product) => {
+  const handleEditProduct = (product: Product) => {
     setSelectedProduct(product);
     setIsEditing(true);
     setNewProductName(product.name);
@@ -228,7 +235,12 @@ const Dashboard = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      if (!selectedProduct) {
+        console.error("No product selected for update");
+        return;
+      }
+
+      const { data: updatedData, error } = await supabase
         .from('products')
         .update({
           name: newProductName,
@@ -236,7 +248,8 @@ const Dashboard = () => {
           price: price,
           is_active: isProductActive,
         })
-        .eq('id', selectedProduct.id);
+        .eq('id', selectedProduct.id)
+        .select();
 
       if (error) {
         console.error("Error updating product:", error);
@@ -244,8 +257,11 @@ const Dashboard = () => {
       }
 
       setProducts(products.map(product =>
-        product.id === selectedProduct.id ? { ...product, ...data[0] } : product
+        product.id === selectedProduct.id 
+          ? (updatedData && updatedData[0] ? updatedData[0] : product) 
+          : product
       ));
+      
       setNewProductName('');
       setNewProductDescription('');
       setNewProductPrice('');
@@ -319,7 +335,6 @@ const Dashboard = () => {
     );
   }
 
-  // Fix the error by converting numbers to strings in the statistics array
   const statisticsData = [
     {
       name: "المنتجات",
@@ -475,7 +490,6 @@ const Dashboard = () => {
       </Drawer>
 
       <div className="flex flex-col md:flex-row">
-        {/* Sidebar */}
         <div className="w-full md:w-64 bg-white shadow-md p-4">
           <div className="flex items-center space-x-2 mb-4">
             <Avatar>
@@ -514,7 +528,6 @@ const Dashboard = () => {
           </nav>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 p-4">
           <Routes>
             <Route path="/" element={
@@ -581,3 +594,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
