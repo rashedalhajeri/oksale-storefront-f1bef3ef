@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Form } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ShoppingBag } from 'lucide-react';
 import { storeSetupSchema, StoreSetupValues } from '@/types/auth';
@@ -26,15 +26,16 @@ const StoreSetup = () => {
     mode: "onChange",
   });
 
+  const typedForm = form as UseFormReturn<StoreSetupValues>;
+
   const {
     isLoading: isSubmitting,
     onSubmit
-  } = useStoreSetup(form);
+  } = useStoreSetup(typedForm);
   
   const watchStoreHandle = form.watch("storeHandle");
   
   useEffect(() => {
-    // التحقق من حالة المصادقة
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
@@ -43,13 +44,11 @@ const StoreSetup = () => {
     
     checkAuth();
     
-    // تأكد من أن معرّف المتجر يبدأ دائماً بـ @
     if (watchStoreHandle && !watchStoreHandle.startsWith('@')) {
       form.setValue("storeHandle", `@${watchStoreHandle}`);
     }
   }, [watchStoreHandle, form]);
   
-  // إذا لم يتم تسجيل الدخول، قم بالتوجيه إلى صفحة تسجيل الدخول
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
@@ -75,7 +74,7 @@ const StoreSetup = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <StoreFormStep form={form} isLoading={isSubmitting} />
+            <StoreFormStep form={typedForm} isLoading={isSubmitting} />
           </form>
         </Form>
       </div>

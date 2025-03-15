@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Form } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ShoppingBag } from 'lucide-react';
 import { simpleSignUpSchema, SimpleSignUpValues } from '@/types/auth';
@@ -19,10 +19,13 @@ const SignUp = () => {
     mode: "onChange",
   });
 
+  // Force TypeScript to recognize the form as having the correct type
+  const typedForm = form as UseFormReturn<SimpleSignUpValues>;
+
   const {
     isLoading,
     onSubmit
-  } = useSimpleSignUp(form);
+  } = useSimpleSignUp(typedForm);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 to-oksale-50">
@@ -37,7 +40,7 @@ const SignUp = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <AccountFormStep form={form} submitButtonText="إنشاء الحساب" isLoading={isLoading} />
+            <AccountFormStep form={typedForm} submitButtonText="إنشاء الحساب" isLoading={isLoading} />
           </form>
         </Form>
 

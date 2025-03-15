@@ -1,18 +1,10 @@
-
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { validateHandle } from '@/utils/storeHandleValidation';
-
-export interface StoreSetupValues {
-  storeName: string;
-  storeHandle: string;
-  currency: string;
-  country: string;
-  description?: string;
-}
+import { StoreSetupValues } from '@/types/auth';
 
 export const useStoreSetup = (form: UseFormReturn<StoreSetupValues>) => {
   const navigate = useNavigate();
