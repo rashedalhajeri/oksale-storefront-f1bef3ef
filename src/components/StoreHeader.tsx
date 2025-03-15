@@ -56,7 +56,7 @@ const StoreHeader = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
       </div>
       
-      <div className="absolute top-10 md:top-16 left-0 right-0 text-white p-3 md:p-8">
+      <div className="absolute top-10 md:top-16 left-0 right-0 text-white p-3 md:p-8 pb-6 md:pb-6">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 md:gap-6">
             <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white">
