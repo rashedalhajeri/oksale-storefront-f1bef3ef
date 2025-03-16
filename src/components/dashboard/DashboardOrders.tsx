@@ -422,7 +422,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               <TabsTrigger value="cancelled" className="flex-shrink-0">ملغي</TabsTrigger>
             </TabsList>
             
-            {/* Important: Move TabsContent inside the Tabs component */}
+            {/* TabsContent must be inside the Tabs component */}
             <TabsContent value={tabValue}>
               {renderOrderContent()}
             </TabsContent>
@@ -430,11 +430,23 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         </>
       )}
 
-      {/* Mobile order content - not using TabsContent */}
+      {/* Mobile view - wrap content in a Tabs component */}
       {isMobile && (
-        <div className="mb-4">
-          {renderOrderContent()}
-        </div>
+        <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
+          {/* Hidden TabsList for mobile - the actual UI is in OrderFilterSheet */}
+          <TabsList className="hidden">
+            <TabsTrigger value="all">الكل</TabsTrigger>
+            <TabsTrigger value="pending">قيد الانتظار</TabsTrigger>
+            <TabsTrigger value="processing">قيد التجهيز</TabsTrigger>
+            <TabsTrigger value="completed">مكتمل</TabsTrigger>
+            <TabsTrigger value="cancelled">ملغي</TabsTrigger>
+          </TabsList>
+          
+          {/* TabsContent for mobile */}
+          <TabsContent value={tabValue}>
+            {renderOrderContent()}
+          </TabsContent>
+        </Tabs>
       )}
 
       {/* Order details sheet */}
