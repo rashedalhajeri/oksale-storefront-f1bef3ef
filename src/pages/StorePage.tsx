@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import StoreHeader, { DEFAULT_COVER_IMAGE } from '@/components/StoreHeader';
 import ProductsGrid from '@/components/ProductsGrid';
 import StoreSidebar from '@/components/StoreSidebar';
+import MobileNavigation from '@/components/MobileNavigation';
 import { Search, Filter, ShoppingBag, Tag, Sparkles, Clock, Bookmark, Folder, User, Edit, Menu, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +27,7 @@ const StorePage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [isOwnStore, setIsOwnStore] = useState(false);
   const isMobile = useIsMobile();
+  
   const {
     data: session
   } = useQuery({
@@ -37,6 +39,7 @@ const StorePage = () => {
       return data.session;
     }
   });
+  
   const {
     data: userStore,
     isLoading: isLoadingUserStore
@@ -56,6 +59,7 @@ const StorePage = () => {
     },
     enabled: !!session?.user?.id
   });
+  
   const {
     data: storeData,
     isLoading,
@@ -94,6 +98,7 @@ const StorePage = () => {
       }
     }
   });
+  
   useEffect(() => {
     if (userStore && storeData) {
       setIsOwnStore(userStore.id === storeData.id);
@@ -103,6 +108,7 @@ const StorePage = () => {
       setIsOwnStore(false);
     }
   }, [userStore, storeData, handle]);
+  
   const products = [{
     id: 1,
     name: 'Classic White Shirt',
@@ -170,12 +176,15 @@ const StorePage = () => {
     discount: null,
     rating: 4.4
   }];
+  
   const categories = ['Women', 'Men', 'Accessories', 'New Arrivals'];
+  
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+  
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -183,6 +192,7 @@ const StorePage = () => {
     });
     console.log(`Loading store data for handle: ${handle || 'current user'}`);
   }, [handle]);
+  
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'Women':
@@ -197,6 +207,7 @@ const StorePage = () => {
         return <Folder className="w-4 h-4 mr-2" />;
     }
   };
+  
   const renderMobileCategories = () => {
     return (
       <div className="md:hidden mb-4">
@@ -205,7 +216,7 @@ const StorePage = () => {
             <Button
               variant={selectedCategory === 'All' ? "default" : "outline"}
               size="sm"
-              className={`shrink-0 ${selectedCategory === 'All' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'border-neutral-200 text-neutral-700'}`}
+              className={`shrink-0 ${selectedCategory === 'All' ? 'bg-neutral-900 hover:bg-neutral-800 text-white' : 'border-neutral-200 text-neutral-700'}`}
               onClick={() => setSelectedCategory('All')}
             >
               <ShoppingBag className="mr-1.5 h-4 w-4" />
@@ -217,7 +228,7 @@ const StorePage = () => {
                 key={index}
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
-                className={`shrink-0 ${selectedCategory === category ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'border-neutral-200 text-neutral-700'}`}
+                className={`shrink-0 ${selectedCategory === category ? 'bg-neutral-900 hover:bg-neutral-800 text-white' : 'border-neutral-200 text-neutral-700'}`}
                 onClick={() => setSelectedCategory(category)}
               >
                 {getCategoryIcon(category)}
@@ -229,6 +240,7 @@ const StorePage = () => {
       </div>
     );
   };
+  
   if ((isLoading || isLoadingUserStore) && !storeData && !userStore) {
     return <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center">
@@ -237,6 +249,7 @@ const StorePage = () => {
         </div>
       </div>;
   }
+  
   if (error && !userStore) {
     return <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-sm">
@@ -250,7 +263,9 @@ const StorePage = () => {
         </div>
       </div>;
   }
+  
   const activeStore = storeData || userStore;
+  
   if (!activeStore) {
     return <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-sm">
@@ -264,8 +279,10 @@ const StorePage = () => {
         </div>
       </div>;
   }
+  
   const storeCurrency = activeStore.currency || 'SAR';
   console.log('Store currency:', storeCurrency);
+  
   const store = {
     id: activeStore.id,
     name: activeStore.name,
@@ -291,16 +308,17 @@ const StorePage = () => {
       whatsapp: activeStore.whatsapp || ''
     }
   };
-  return <div className="min-h-screen flex flex-col bg-neutral-50">
+  
+  return <div className="min-h-screen flex flex-col bg-neutral-50 pb-16 md:pb-0">
       <main className="flex-grow">
         <StoreHeader store={store} />
         
         {isOwnStore && (
           <div className="max-w-5xl mx-auto px-4 py-2 mt-4">
-            <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 text-indigo-800">
-              <User className="w-5 h-5 text-indigo-500" />
+            <div className="flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-lg px-4 py-3 text-neutral-800">
+              <User className="w-5 h-5 text-neutral-500" />
               <span className="flex-grow">أنت تشاهد متجرك الخاص. يمكنك تعديل معلومات المتجر من لوحة التحكم.</span>
-              <Button variant="default" className="bg-indigo-600 hover:bg-indigo-700" onClick={() => window.location.href = '/dashboard'}>
+              <Button variant="default" className="bg-neutral-900 hover:bg-neutral-800" onClick={() => window.location.href = '/dashboard'}>
                 <Edit className="mr-1 h-4 w-4" />
                 إدارة المتجر
               </Button>
@@ -318,12 +336,12 @@ const StorePage = () => {
                 <Tabs defaultValue="All" value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
                   <ScrollArea className="w-full">
                     <TabsList className="w-full justify-start border-b rounded-none p-0">
-                      <TabsTrigger value="All" className="rounded-md data-[state=active]:bg-indigo-600 data-[state=active]:text-white py-2">
+                      <TabsTrigger value="All" className="rounded-md data-[state=active]:bg-neutral-900 data-[state=active]:text-white py-2">
                         <ShoppingBag className="mr-1.5 h-4 w-4" />
                         All
                       </TabsTrigger>
                       {categories.map((category, index) => (
-                        <TabsTrigger key={index} value={category} className="rounded-md data-[state=active]:bg-indigo-600 data-[state=active]:text-white py-2">
+                        <TabsTrigger key={index} value={category} className="rounded-md data-[state=active]:bg-neutral-900 data-[state=active]:text-white py-2">
                           {getCategoryIcon(category)}
                           {category}
                         </TabsTrigger>
@@ -333,9 +351,9 @@ const StorePage = () => {
                 </Tabs>
               </div>
               
-              <div className="flex items-center gap-3 mb-6">
+              <div className="hidden md:flex items-center gap-3 mb-6">
                 <div className="relative flex-grow">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-500">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500">
                     <Search className="w-4 h-4" />
                   </div>
                   <Input 
@@ -343,14 +361,14 @@ const StorePage = () => {
                     placeholder="Search products..." 
                     value={searchQuery} 
                     onChange={e => setSearchQuery(e.target.value)} 
-                    className="pl-10 pr-4 py-2 h-10 border-indigo-100 rounded-lg focus:border-indigo-300 focus:ring-indigo-200 bg-white shadow-sm"
+                    className="pl-10 pr-4 py-2 h-10 border-neutral-100 rounded-lg focus:border-neutral-300 focus:ring-neutral-200 bg-white shadow-sm"
                   />
                 </div>
                 
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="h-10 px-4 bg-white border-indigo-100 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-200 shadow-sm"
+                  className="h-10 px-4 bg-white border-neutral-100 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-200 shadow-sm"
                   onClick={() => setShowFilters(!showFilters)}
                 >
                   <Filter className="w-4 h-4 mr-1.5" />
@@ -372,6 +390,8 @@ const StorePage = () => {
           </div>
         </div>
       </main>
+      
+      <MobileNavigation />
     </div>;
 };
 
