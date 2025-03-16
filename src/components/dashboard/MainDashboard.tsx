@@ -7,8 +7,6 @@ import { CheckCircle2, AlertCircle, Clock, LayoutDashboard } from 'lucide-react'
 import StatisticsSection from './StatisticsSection';
 import ChartSection from './ChartSection';
 import OrderStatusCard from './OrderStatusCard';
-import RecentOrdersCard from './RecentOrdersCard';
-import TopProductsCard from './TopProductsCard';
 
 interface MainDashboardProps {
   statistics: any[];
@@ -79,14 +77,6 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
 
         {/* Order Status */}
         <OrderStatusCard orderStatusData={orderStatusData} loading={orderStatusLoading} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {/* Latest Orders */}
-        <RecentOrdersCard recentOrders={recentOrders} loading={recentOrdersLoading} currency={currency} />
-
-        {/* Top Products */}
-        <TopProductsCard topProducts={topProducts} loading={topProductsLoading} currency={currency} />
       </div>
     </div>
   );
