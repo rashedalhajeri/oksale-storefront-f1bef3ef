@@ -13,9 +13,10 @@ import {
 interface TopProductsCardProps {
   topProducts: any[];
   loading: boolean;
+  currency?: string;
 }
 
-const TopProductsCard: React.FC<TopProductsCardProps> = ({ topProducts, loading }) => {
+const TopProductsCard: React.FC<TopProductsCardProps> = ({ topProducts, loading, currency = 'SAR' }) => {
   return (
     <Card className="border-none shadow-sm">
       <CardHeader>
@@ -48,7 +49,7 @@ const TopProductsCard: React.FC<TopProductsCardProps> = ({ topProducts, loading 
                   <TableRow key={product.id}>
                     <TableCell>{product.name}</TableCell>
                     <TableCell>{product.sales}</TableCell>
-                    <TableCell>{product.amount} ر.س</TableCell>
+                    <TableCell>{product.amount} {currency}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
