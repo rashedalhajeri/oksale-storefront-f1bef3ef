@@ -13,6 +13,9 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import StoreSetup from "./pages/StoreSetup"; 
 import Dashboard from "./pages/Dashboard";
+import StoreCart from "./pages/store/StoreCart";
+import StoreCheckout from "./pages/store/StoreCheckout";
+import StoreAuth from "./pages/store/StoreAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
@@ -85,6 +88,11 @@ const AppRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/explore" element={<StoreDiscovery />} />
         <Route path="/:handle" element={<StorePage />} />
+        <Route path="/:handle/cart" element={<StoreCart />} />
+        <Route path="/:handle/checkout" element={<StoreCheckout />} />
+        <Route path="/:handle/login" element={<StoreAuth />} />
+        <Route path="/:handle/register" element={<StoreAuth mode="register" />} />
+        <Route path="/:handle/forgot-password" element={<StoreAuth mode="forgot-password" />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/store-setup" element={
