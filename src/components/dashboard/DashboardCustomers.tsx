@@ -90,84 +90,94 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-50 p-4 rounded-md">
+      {/* Header section */}
+      <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-xl font-bold text-right">العملاء</h1>
-            <p className="text-gray-500 text-sm text-right">عدد العملاء: {customers.length}</p>
+            <p className="text-gray-500 text-sm text-right mt-1">عدد العملاء: {customers.length}</p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="md:col-span-1">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <Input placeholder="بحث..." className="pr-10" />
+      {/* Filters and actions section */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-grow">
+          {/* Search */}
+          <div className="md:col-span-1">
+            <div className="relative">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Input placeholder="بحث..." className="pr-10" />
+            </div>
+          </div>
+
+          {/* Filter dropdown */}
+          <div className="md:col-span-1">
+            <Select>
+              <SelectTrigger>
+                <div className="flex justify-between items-center w-full">
+                  <Filter size={16} className="ml-2 text-gray-400" />
+                  <SelectValue placeholder="فلترة" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">جميع العملاء</SelectItem>
+                <SelectItem value="active">العملاء النشطين</SelectItem>
+                <SelectItem value="new">العملاء الجدد</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Selection dropdown */}
+          <div className="md:col-span-1">
+            <Select>
+              <SelectTrigger>
+                <div className="flex justify-between items-center w-full">
+                  <Users size={16} className="ml-2 text-gray-400" />
+                  <span className="text-gray-600">{selectedCustomers.length}</span>
+                  <SelectValue placeholder="جميع العملاء" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">جميع العملاء</SelectItem>
+                <SelectItem value="selected">العملاء المحددين</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Actions dropdown */}
+          <div className="md:col-span-1">
+            <Select>
+              <SelectTrigger>
+                <div className="flex justify-between items-center w-full">
+                  <CheckCircle size={16} className="ml-2 text-gray-400" />
+                  <SelectValue placeholder="إجراءات" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="export">تصدير العملاء</SelectItem>
+                <SelectItem value="delete">حذف العملاء المحددين</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        <div className="md:col-span-1">
-          <Select>
-            <SelectTrigger>
-              <div className="flex justify-between items-center w-full">
-                <Filter size={16} className="ml-2 text-gray-400" />
-                <SelectValue placeholder="فلترة" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع العملاء</SelectItem>
-              <SelectItem value="active">العملاء النشطين</SelectItem>
-              <SelectItem value="new">العملاء الجدد</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="md:col-span-1">
-          <Select>
-            <SelectTrigger>
-              <div className="flex justify-between items-center w-full">
-                <Users size={16} className="ml-2 text-gray-400" />
-                <span className="text-gray-600">2</span>
-                <SelectValue placeholder="جميع العملاء" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع العملاء</SelectItem>
-              <SelectItem value="selected">العملاء المحددين</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="md:col-span-1">
-          <Select>
-            <SelectTrigger>
-              <div className="flex justify-between items-center w-full">
-                <CheckCircle size={16} className="ml-2 text-gray-400" />
-                <SelectValue placeholder="إجراءات" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="export">تصدير العملاء</SelectItem>
-              <SelectItem value="delete">حذف العملاء المحددين</SelectItem>
-            </SelectContent>
-          </Select>
+        {/* Add customer button */}
+        <div className="flex justify-end">
+          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Plus size={16} className="ml-2" /> إضافة عميل
+          </Button>
         </div>
       </div>
 
-      <div className="md:col-span-1 flex justify-end">
-        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-          <Plus size={16} className="ml-2" /> إضافة عميل
-        </Button>
-      </div>
-
-      <Card>
+      {/* Customers table */}
+      <Card className="shadow-sm">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50 border-b">
-                  <TableHead className="py-3 px-4 text-right">
+                  <TableHead className="py-3 px-4 text-right w-10">
                     <Checkbox 
                       checked={selectedCustomers.length === customers.length && customers.length > 0}
                       onCheckedChange={selectAllCustomers}
@@ -178,15 +188,15 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                   <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">تاريخ التسجيل</TableHead>
                   <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">البريد الإلكتروني</TableHead>
                   <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">عدد الطلبات</TableHead>
-                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">إجراءات</TableHead>
+                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right w-16">إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {customers.map((customer) => (
                   <ContextMenu key={customer.id}>
-                    <ContextMenuTrigger>
+                    <ContextMenuTrigger asChild>
                       <TableRow className="border-b hover:bg-gray-50">
-                        <TableCell className="py-3 px-4">
+                        <TableCell className="py-3 px-4 w-10">
                           <Checkbox 
                             checked={selectedCustomers.includes(customer.id)}
                             onCheckedChange={() => toggleCustomerSelection(customer.id)}
@@ -197,11 +207,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         <TableCell className="py-3 px-4">{customer.registrationDate}</TableCell>
                         <TableCell className="py-3 px-4">{customer.email}</TableCell>
                         <TableCell className="py-3 px-4">{customer.totalOrders}</TableCell>
-                        <TableCell className="py-3 px-4">
+                        <TableCell className="py-3 px-4 w-16">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal size={18} />
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal size={18} className="text-gray-500" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-[160px]">
@@ -242,7 +252,8 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             </Table>
           </div>
 
-          <div className="p-4 flex justify-between items-center">
+          {/* Pagination */}
+          <div className="p-4 flex justify-between items-center border-t">
             <div>
               <Select defaultValue="10">
                 <SelectTrigger className="w-[100px]">
