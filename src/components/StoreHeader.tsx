@@ -2,21 +2,10 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ShoppingBag, 
-  CheckCircle2, 
-  Instagram, 
-  Twitter, 
-  Facebook, 
-  Globe, 
-  MapPin, 
-  Landmark, 
-  Ghost,
-  Video,
-  Phone
-} from 'lucide-react';
+import { ShoppingBag, CheckCircle2, MapPin, Landmark } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getSocialIcon, getSocialUrl, type SocialMediaType } from '@/utils/socialMediaUtils';
 
 interface StoreHeaderProps {
   store: {
@@ -61,41 +50,6 @@ const StoreHeader = ({
 
   // Check if there's no cover image
   const hasCover = !!store.coverImage;
-
-  // Function to get social media URLs
-  const getSocialMediaUrl = (type: string, username: string) => {
-    if (!username) return '';
-    
-    // If already a URL, return as is
-    if (username.startsWith('http')) return username;
-    
-    // Otherwise, construct the URL based on platform
-    switch (type) {
-      case 'instagram': return `https://instagram.com/${username}`;
-      case 'twitter': return `https://twitter.com/${username}`;
-      case 'facebook': return `https://facebook.com/${username}`;
-      case 'snapchat': return `https://snapchat.com/add/${username}`;
-      case 'tiktok': return `https://tiktok.com/@${username}`;
-      case 'whatsapp': return `https://wa.me/${username}`;
-      case 'website': return username.startsWith('http') ? username : `https://${username}`;
-      default: return username;
-    }
-  };
-
-  // Function to get icon for social media type
-  const getSocialMediaIcon = (type: string) => {
-    switch (type) {
-      case 'instagram': return <Instagram className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'twitter': return <Twitter className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'facebook': return <Facebook className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'website': return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'snapchat': return <Ghost className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'tiktok': return <Video className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'whatsapp': return <Phone className="w-4 h-4 md:w-5 md:h-5" />;
-      // For other platforms, use placeholder icon
-      default: return <Landmark className="w-4 h-4 md:w-5 md:h-5" />;
-    }
-  };
 
   // Filter social links to only show a maximum of 3
   const getSocialLinks = () => {
@@ -181,13 +135,15 @@ const StoreHeader = ({
                       return (
                         <a 
                           key={type}
-                          href={getSocialMediaUrl(type, username)} 
+                          href={getSocialUrl(type as SocialMediaType, username)} 
                           target="_blank" 
                           rel="noopener noreferrer" 
                           className="text-white hover:text-blue-200 transition-colors"
                           title={type}
                         >
-                          {getSocialMediaIcon(type)}
+                          <span className="flex">
+                            {getSocialIcon(type as SocialMediaType, "w-4 h-4 md:w-5 md:h-5")}
+                          </span>
                         </a>
                       );
                     })}

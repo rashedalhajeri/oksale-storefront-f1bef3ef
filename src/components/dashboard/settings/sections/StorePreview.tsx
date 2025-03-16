@@ -3,17 +3,10 @@ import React, { useState } from 'react';
 import { 
   ShoppingBag, 
   Upload, 
-  Instagram, 
-  Twitter, 
-  Facebook, 
   CheckCircle2, 
   Edit, 
-  Globe, 
   MapPin, 
-  Info,
-  Ghost,
-  Video,
-  Phone
+  Info
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from '@/lib/utils';
 import { DEFAULT_COVER_IMAGE } from '@/components/StoreHeader';
+import { getSocialIcon, getSocialUrl, type SocialMediaType } from '@/utils/socialMediaUtils';
 
 interface StorePreviewProps {
   storeInfo: {
@@ -43,6 +37,9 @@ interface StorePreviewProps {
     facebook: string;
     website: string;
     address: string;
+    snapchat?: string;
+    tiktok?: string;
+    whatsapp?: string;
   };
   coverInputRef: React.RefObject<HTMLInputElement>;
   logoInputRef: React.RefObject<HTMLInputElement>;
@@ -84,17 +81,19 @@ const StorePreview: React.FC<StorePreviewProps> = ({
     setOpen(false);
   };
 
-  const getSocialMediaIcon = (type: string) => {
-    switch (type) {
-      case 'instagram': return <Instagram className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'twitter': return <Twitter className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'facebook': return <Facebook className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'website': return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'snapchat': return <Ghost className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'tiktok': return <Video className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'whatsapp': return <Phone className="w-4 h-4 md:w-5 md:h-5" />;
-      default: return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
-    }
+  // Get active social media links (maximum of 3)
+  const getActiveSocialLinks = () => {
+    const links: Array<[SocialMediaType, string]> = [];
+    
+    if (storeInfo.instagram) links.push(['instagram', storeInfo.instagram]);
+    if (storeInfo.twitter) links.push(['twitter', storeInfo.twitter]);
+    if (storeInfo.facebook) links.push(['facebook', storeInfo.facebook]);
+    if (storeInfo.snapchat) links.push(['snapchat', storeInfo.snapchat]);
+    if (storeInfo.tiktok) links.push(['tiktok', storeInfo.tiktok]);
+    if (storeInfo.whatsapp) links.push(['whatsapp', storeInfo.whatsapp]);
+    if (storeInfo.website) links.push(['website', storeInfo.website]);
+    
+    return links.slice(0, 3);
   };
 
   return (
@@ -262,46 +261,19 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                   )}
                   
                   <div className="flex items-center gap-3 md:gap-4 mt-2">
-                    {storeInfo.instagram && (
+                    {getActiveSocialLinks().map(([type, value]) => (
                       <a 
-                        href={storeInfo.instagram.startsWith('http') ? storeInfo.instagram : `https://instagram.com/${storeInfo.instagram}`} 
+                        key={type}
+                        href={getSocialUrl(type, value)} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="text-white hover:text-blue-200 transition-colors"
                       >
-                        <Instagram className="w-4 h-4 md:w-5 md:h-5" />
+                        <span className="flex">
+                          {getSocialIcon(type, "w-4 h-4 md:w-5 md:h-5")}
+                        </span>
                       </a>
-                    )}
-                    {storeInfo.twitter && (
-                      <a 
-                        href={storeInfo.twitter.startsWith('http') ? storeInfo.twitter : `https://twitter.com/${storeInfo.twitter}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-white hover:text-blue-200 transition-colors"
-                      >
-                        <Twitter className="w-4 h-4 md:w-5 md:h-5" />
-                      </a>
-                    )}
-                    {storeInfo.facebook && (
-                      <a 
-                        href={storeInfo.facebook.startsWith('http') ? storeInfo.facebook : `https://facebook.com/${storeInfo.facebook}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-white hover:text-blue-200 transition-colors"
-                      >
-                        <Facebook className="w-4 h-4 md:w-5 md:h-5" />
-                      </a>
-                    )}
-                    {storeInfo.website && (
-                      <a 
-                        href={storeInfo.website.startsWith('http') ? storeInfo.website : `https://${storeInfo.website}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-white hover:text-blue-200 transition-colors"
-                      >
-                        <Globe className="w-4 h-4 md:w-5 md:h-5" />
-                      </a>
-                    )}
+                    ))}
                   </div>
                 </div>
               </div>

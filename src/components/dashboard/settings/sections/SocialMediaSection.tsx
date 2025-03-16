@@ -13,23 +13,16 @@ import {
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog";
-import { 
-  Globe, 
-  Instagram, 
-  Twitter, 
-  Facebook,
-  PlusCircle,
-  Trash2,
-  MessageSquare,
-  Ghost,
-  Video,
-  Phone
-} from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
-
-// Define supported social media types
-type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website' | 'snapchat' | 'tiktok' | 'whatsapp';
+import { 
+  getAvailablePlatforms, 
+  getSocialUrl, 
+  getHelperText, 
+  getPlaceholder,
+  type SocialMediaType 
+} from '@/utils/socialMediaUtils';
 
 interface SocialMediaAccount {
   id: string;
@@ -148,80 +141,10 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     handleInputChange(e);
   };
 
-  const availablePlatforms: {type: SocialMediaType; label: string; icon: React.ReactNode}[] = [
-    { 
-      type: 'instagram', 
-      label: 'انستجرام', 
-      icon: <Instagram className="h-5 w-5" /> 
-    },
-    { 
-      type: 'twitter', 
-      label: 'X (تويتر)', 
-      icon: <Twitter className="h-5 w-5" /> 
-    },
-    { 
-      type: 'facebook', 
-      label: 'فيسبوك', 
-      icon: <Facebook className="h-5 w-5" /> 
-    },
-    { 
-      type: 'snapchat', 
-      label: 'سناب شات', 
-      icon: <Ghost className="h-5 w-5" /> 
-    },
-    { 
-      type: 'tiktok', 
-      label: 'تيك توك', 
-      icon: <Video className="h-5 w-5" /> 
-    },
-    { 
-      type: 'whatsapp', 
-      label: 'واتساب', 
-      icon: <Phone className="h-5 w-5" /> 
-    },
-    { 
-      type: 'website', 
-      label: 'الموقع الإلكتروني', 
-      icon: <Globe className="h-5 w-5" /> 
-    }
-  ];
+  // Get all available platforms
+  const availablePlatforms = getAvailablePlatforms();
 
-  const getIconForType = (type: string) => {
-    const platform = availablePlatforms.find(p => p.type === type);
-    return platform?.icon || <Globe className="h-4 w-4" />;
-  };
-
-  const getLabelForType = (type: string) => {
-    const platform = availablePlatforms.find(p => p.type === type);
-    return platform?.label || 'حساب';
-  };
-
-  const getHelperText = (type: string) => {
-    switch (type) {
-      case 'instagram': return 'أدخل اسم المستخدم فقط بدون @';
-      case 'twitter': return 'أدخل اسم المستخدم فقط بدون @';
-      case 'facebook': return 'أدخل اسم الصفحة أو المعرف';
-      case 'snapchat': return 'أدخل اسم المستخدم فقط بدون @';
-      case 'tiktok': return 'أدخل اسم المستخدم فقط بدون @';
-      case 'whatsapp': return 'أدخل رقم الهاتف مع رمز الدولة (مثال: 966512345678)';
-      case 'website': return 'أدخل الرابط كاملاً بما في ذلك https://';
-      default: return '';
-    }
-  };
-
-  const getPlaceholder = (type: string) => {
-    switch (type) {
-      case 'instagram': return 'yourstorename';
-      case 'twitter': return 'yourstorename';
-      case 'facebook': return 'yourstorename';
-      case 'snapchat': return 'yourstorename';
-      case 'tiktok': return 'yourstorename';
-      case 'whatsapp': return '966512345678';
-      case 'website': return 'https://www.yourwebsite.com';
-      default: return '';
-    }
-  };
-
+  // Filter out already added platforms
   const availablePlatformsToAdd = availablePlatforms.filter(
     platform => !accounts.some(account => account.type === platform.type)
   );
@@ -230,7 +153,9 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     <Card>
       <CardHeader className="border-b">
         <CardTitle className="text-lg flex items-center">
-          <Globe className="h-5 w-5 ml-2 text-oksale-600" />
+          <span className="h-5 w-5 ml-2 text-oksale-600">
+            {availablePlatforms.find(p => p.type === 'website')?.icon}
+          </span>
           وسائل التواصل الاجتماعي
         </CardTitle>
         <CardDescription>يمكنك إضافة حتى 3 حسابات تواصل اجتماعي لمتجرك</CardDescription>
@@ -238,31 +163,35 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       <CardContent className="pt-6 space-y-6">
         {accounts.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
-            {accounts.map((account) => (
-              <div 
-                key={account.type} 
-                className="flex items-center justify-between p-3 border rounded-md bg-gray-50"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white border">
-                    {getIconForType(account.type)}
-                  </span>
-                  <div>
-                    <p className="font-medium text-sm">{getLabelForType(account.type)}</p>
-                    <p className="text-xs text-gray-500">{account.username}</p>
-                  </div>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleRemoveAccount(account.type)}
-                  className="text-gray-500 hover:text-destructive"
+            {accounts.map((account) => {
+              const platform = availablePlatforms.find(p => p.type === account.type);
+              
+              return (
+                <div 
+                  key={account.type} 
+                  className="flex items-center justify-between p-3 border rounded-md bg-gray-50"
                 >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="sr-only">حذف</span>
-                </Button>
-              </div>
-            ))}
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white border">
+                      {platform?.icon}
+                    </span>
+                    <div>
+                      <p className="font-medium text-sm">{platform?.label}</p>
+                      <p className="text-xs text-gray-500">{account.username}</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleRemoveAccount(account.type)}
+                    className="text-gray-500 hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">حذف</span>
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-6 border rounded-md bg-gray-50">
@@ -328,10 +257,10 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
               <>
                 <DialogHeader>
                   <DialogTitle>
-                    أضف حساب {getLabelForType(newAccount.type)}
+                    أضف حساب {availablePlatforms.find(p => p.type === newAccount.type)?.label}
                   </DialogTitle>
                   <DialogDescription>
-                    أدخل معلومات حسابك على {getLabelForType(newAccount.type)}
+                    أدخل معلومات حسابك على {availablePlatforms.find(p => p.type === newAccount.type)?.label}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -339,18 +268,18 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                     <Label htmlFor="social-username">اسم المستخدم</Label>
                     <div className="flex">
                       <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
-                        {getIconForType(newAccount.type)}
+                        {newAccount.type && availablePlatforms.find(p => p.type === newAccount.type)?.icon}
                       </span>
                       <Input 
                         id="social-username" 
-                        placeholder={getPlaceholder(newAccount.type)}
+                        placeholder={getPlaceholder(newAccount.type as SocialMediaType)}
                         value={newAccount.username}
                         onChange={(e) => setNewAccount({ ...newAccount, username: e.target.value })}
                         dir="ltr"
                         className="rounded-r-none transition-all focus:border-oksale-500"
                       />
                     </div>
-                    <p className="text-xs text-gray-500">{getHelperText(newAccount.type)}</p>
+                    <p className="text-xs text-gray-500">{getHelperText(newAccount.type as SocialMediaType)}</p>
                   </div>
                 </div>
                 <DialogFooter className="flex justify-between gap-2">
