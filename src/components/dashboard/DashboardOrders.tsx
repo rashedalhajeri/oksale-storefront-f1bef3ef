@@ -15,7 +15,11 @@ import {
   SlidersHorizontal,
   Clock3,
   Phone,
-  Mail
+  Mail,
+  ChevronsLeft,
+  ChevronsRight,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -45,11 +49,21 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
-import { formatRelativeTime, formatOrderTime, translateOrderStatus, getOrderStatusColor, generateUniqueOrderNumber, formatOrderNumber } from '@/utils/dashboard/dashboardUtils';
+import { formatRelativeTime, formatOrderTime, translateOrderStatus, getOrderStatusColor, generateUniqueOrderNumber, formatOrderNumber, getTimeColor } from '@/utils/dashboard/dashboardUtils';
+import { getOrders, getOrderDetails } from '@/utils/dashboard/orders';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Order {
@@ -72,10 +86,20 @@ interface Order {
   }>;
   payment_method?: string;
   shipping_address?: string;
+  // additional properties from formatting
+  timeColor?: string;
+  relativeTime?: string;
 }
 
 interface DashboardOrdersProps {
   storeData: any;
+}
+
+interface PaginationState {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
@@ -87,52 +111,83 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [tabValue, setTabValue] = useState("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sortOption, setSortOption] = useState("newest");
+  const [pagination, setPagination] = useState<PaginationState>({
+    total: 0,
+    page: 1,
+    limit: 20,
+    totalPages: 0
+  });
   const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchOrders();
-  }, [storeData]);
+  }, [storeData, pagination.page, tabValue, sortOption]);
+
+  // Debounced search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (pagination.page === 1) {
+        fetchOrders();
+      } else {
+        setPagination(prev => ({ ...prev, page: 1 }));
+      }
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   const fetchOrders = async () => {
     if (storeData?.id) {
       setLoading(true);
       try {
-        // Fetch actual orders from Supabase
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('store_id', storeData.id)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error("Error fetching orders:", error);
-          throw error;
+        // Determine sorting
+        let sortBy = 'created_at';
+        let sortDirection = 'desc';
+        
+        switch (sortOption) {
+          case 'newest':
+            sortBy = 'created_at';
+            sortDirection = 'desc';
+            break;
+          case 'oldest':
+            sortBy = 'created_at';
+            sortDirection = 'asc';
+            break;
+          case 'highest':
+            sortBy = 'total_amount';
+            sortDirection = 'desc';
+            break;
+          case 'lowest':
+            sortBy = 'total_amount';
+            sortDirection = 'asc';
+            break;
         }
-
-        // For demonstration, let's add mock items to each order
-        const ordersWithItems = (data || []).map(order => {
-          // Create some random mock items for each order
-          const itemCount = Math.floor(Math.random() * 4) + 1;
-          const items = Array.from({ length: itemCount }).map((_, index) => ({
-            id: `item-${order.id}-${index}`,
-            name: mockProductNames[Math.floor(Math.random() * mockProductNames.length)],
-            quantity: Math.floor(Math.random() * 3) + 1,
-            price: parseFloat((Math.random() * 100 + 50).toFixed(2))
-          }));
-
-          return {
-            ...order,
-            items,
-            payment_method: Math.random() > 0.5 ? 'بطاقة ائتمان' : 'الدفع عند الاستلام',
-            shipping_address: mockAddresses[Math.floor(Math.random() * mockAddresses.length)]
-          };
+        
+        // Fetch orders with pagination
+        const status = tabValue !== 'all' ? tabValue : null;
+        const { orders: fetchedOrders, pagination: fetchedPagination } = await getOrders(storeData.id, {
+          page: pagination.page,
+          limit: pagination.limit,
+          status,
+          search: searchTerm || null,
+          sortBy,
+          sortDirection
         });
-
-        setOrders(ordersWithItems);
-
-        // If we don't have any actual orders, add some mock data for demonstration
-        if (ordersWithItems.length === 0) {
-          setOrders(generateMockOrders(storeData.id));
+        
+        // If we don't have real data, generate mock data
+        if (fetchedOrders.length === 0 && !searchTerm && tabValue === 'all' && pagination.page === 1) {
+          const mockData = generateMockOrders(storeData.id);
+          setOrders(mockData);
+          setPagination({
+            total: mockData.length,
+            page: 1,
+            limit: pagination.limit,
+            totalPages: Math.ceil(mockData.length / pagination.limit)
+          });
+        } else {
+          setOrders(fetchedOrders);
+          setPagination(fetchedPagination);
         }
       } catch (error) {
         console.error("Failed to fetch orders:", error);
@@ -143,7 +198,14 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         });
         
         // Add some mock orders for demonstration
-        setOrders(generateMockOrders(storeData.id));
+        const mockData = generateMockOrders(storeData.id);
+        setOrders(mockData);
+        setPagination({
+          total: mockData.length,
+          page: 1,
+          limit: pagination.limit,
+          totalPages: Math.ceil(mockData.length / pagination.limit)
+        });
       } finally {
         setLoading(false);
       }
@@ -262,62 +324,63 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     });
   };
 
-  const getRelativeTimeWithColor = (dateString: string, status: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
-    
-    // لا نعرض "منذ" للطلبات المكتملة أو قيد التجهيز
-    if (status === 'completed' || status === 'processing') {
-      return { 
-        text: formatShortDate(dateString),
-        color: "text-gray-500" 
-      };
-    }
-    
-    // للطلبات الجديدة والمعلقة
-    const relativeTime = formatOrderTime(dateString, status);
-    
-    let color = "text-gray-500"; // default color
-    
-    if (diffHours < 1) {
-      color = "text-red-500 font-medium"; // less than an hour
-    } else if (diffHours < 2) {
-      color = "text-orange-500"; // less than 2 hours
-    } else if (diffHours < 24) {
-      color = "text-yellow-600"; // less than a day
-    } else if (diffHours < 48) {
-      color = "text-blue-500"; // less than 2 days
-    }
-    
-    return { text: relativeTime, color };
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  const filteredOrders = orders.filter(order => {
-    // Filter by tab
-    if (tabValue !== "all" && order.status !== tabValue) {
-      return false;
+  const renderPaginationItems = () => {
+    const { page, totalPages } = pagination;
+    const items = [];
+    
+    // Always show first and last page, and 1-2 pages around the current page
+    const pageNumbers = new Set<number>();
+    pageNumbers.add(1); // First page
+    pageNumbers.add(totalPages); // Last page
+    
+    // Pages around current
+    for (let i = Math.max(2, page - 1); i <= Math.min(page + 1, totalPages - 1); i++) {
+      pageNumbers.add(i);
     }
-
-    // Filter by search
-    if (searchTerm) {
-      return (
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (order.customer_phone && order.customer_phone.includes(searchTerm))
+    
+    // Convert to sorted array
+    const sortedPageNumbers = Array.from(pageNumbers).sort((a, b) => a - b);
+    
+    // Create pagination items with ellipses where needed
+    for (let i = 0; i < sortedPageNumbers.length; i++) {
+      const pageNum = sortedPageNumbers[i];
+      
+      // Add ellipsis if there's a gap
+      if (i > 0 && sortedPageNumbers[i] - sortedPageNumbers[i - 1] > 1) {
+        items.push(
+          <PaginationItem key={`ellipsis-${i}`}>
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+      
+      // Add the page number
+      items.push(
+        <PaginationItem key={pageNum}>
+          <PaginationLink
+            isActive={page === pageNum}
+            onClick={() => handlePageChange(pageNum)}
+          >
+            {pageNum}
+          </PaginationLink>
+        </PaginationItem>
       );
     }
-
-    return true;
-  });
+    
+    return items;
+  };
 
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold mb-1">إدارة الطلبات</h1>
-          <p className="text-gray-600 text-sm">إدارة ومتابعة طلبات متجرك ({orders.length})</p>
+          <p className="text-gray-600 text-sm">إدارة ومتابعة طلبات متجرك ({pagination.total})</p>
         </div>
         {!isMobile && (
           <Button variant="outline" size="sm" className="self-start">
@@ -368,7 +431,10 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
 
                 <div>
                   <label className="text-sm font-medium mb-1 block">ترتيب حسب</label>
-                  <Select defaultValue="newest">
+                  <Select 
+                    defaultValue={sortOption} 
+                    onValueChange={(value) => setSortOption(value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="ترتيب حسب" />
                     </SelectTrigger>
@@ -405,6 +471,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                     onClick={() => {
                       setSearchTerm('');
                       setTabValue('all');
+                      setSortOption('newest');
                       setIsFilterOpen(false);
                     }}
                   >
@@ -441,7 +508,10 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select defaultValue="newest">
+              <Select 
+                value={sortOption} 
+                onValueChange={(value) => setSortOption(value)}
+              >
                 <SelectTrigger className="w-full md:w-[150px]">
                   <SelectValue placeholder="ترتيب حسب" />
                 </SelectTrigger>
@@ -483,12 +553,10 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   </Card>
                 ))}
               </div>
-            ) : filteredOrders.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {filteredOrders.map((order) => {
-                  const { text: relativeTime, color: timeColor } = getRelativeTimeWithColor(order.created_at, order.status);
-                  
-                  return (
+            ) : orders.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {orders.map((order) => (
                     <Card 
                       key={order.id} 
                       className="border-none shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
@@ -502,37 +570,30 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                             </div>
                             {getStatusBadge(order.status)}
                           </div>
-                          <div className={`text-xs ${timeColor} flex items-center gap-1`}>
+                          <div className={`text-xs ${order.timeColor || 'text-gray-500'} flex items-center gap-1`}>
                             <Clock3 className="h-3 w-3" />
-                            <span className="rtl">{relativeTime}</span>
+                            <span className="rtl">{order.relativeTime}</span>
                           </div>
                         </div>
                         
                         <div className="mb-2">
-                          <h3 className="font-medium text-sm mb-1 ltr">
+                          <p className="text-gray-600 text-sm font-medium truncate">{order.customer}</p>
+                          <div className="flex flex-col gap-0.5 mb-1 text-xs text-gray-500">
+                            {order.phone && (
+                              <div className="flex items-center gap-1">
+                                <Phone className="h-3 w-3" />
+                                <span className="ltr">{order.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="text-gray-400 text-xs ltr mt-1">
                             #{order.id}
                           </h3>
-                          <p className="text-gray-600 text-sm truncate">{order.customer_name}</p>
-                        </div>
-                        
-                        <div className="flex flex-col gap-1 mb-2 text-xs text-gray-500">
-                          {order.customer_phone && (
-                            <div className="flex items-center gap-1">
-                              <Phone className="h-3 w-3" />
-                              <span className="ltr">{order.customer_phone}</span>
-                            </div>
-                          )}
-                          {order.customer_email && (
-                            <div className="flex items-center gap-1 truncate">
-                              <Mail className="h-3 w-3 flex-shrink-0" />
-                              <span className="truncate">{order.customer_email}</span>
-                            </div>
-                          )}
                         </div>
                         
                         <div className="flex items-center justify-between mt-2">
                           <span className="font-bold text-oksale-700 ltr">
-                            {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
+                            {order.amount}
                           </span>
                           <Button 
                             variant="ghost" 
@@ -545,9 +606,39 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                         </div>
                       </CardContent>
                     </Card>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+                
+                {pagination.totalPages > 1 && (
+                  <Pagination className="mt-6">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(pagination.page - 1);
+                          }}
+                          className={pagination.page <= 1 ? 'pointer-events-none opacity-50' : ''}
+                        />
+                      </PaginationItem>
+                      
+                      {renderPaginationItems()}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(pagination.page + 1);
+                          }}
+                          className={pagination.page >= pagination.totalPages ? 'pointer-events-none opacity-50' : ''}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center py-8 px-4">
                 <ShoppingCart className="h-10 w-10 text-gray-400 mb-3" />
@@ -559,6 +650,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   onClick={() => {
                     setSearchTerm('');
                     setTabValue('all');
+                    setSortOption('newest');
                   }}
                   size="sm"
                 >
@@ -586,12 +678,10 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 </Card>
               ))}
             </div>
-          ) : filteredOrders.length > 0 ? (
-            <div className="space-y-2">
-              {filteredOrders.map((order) => {
-                const { text: relativeTime, color: timeColor } = getRelativeTimeWithColor(order.created_at, order.status);
-                
-                return (
+          ) : orders.length > 0 ? (
+            <>
+              <div className="space-y-2">
+                {orders.map((order) => (
                   <Card 
                     key={order.id} 
                     className="border-none shadow-sm"
@@ -602,32 +692,81 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                         <div>
                           <div className="flex items-center gap-1.5 mb-1">
                             {getStatusBadge(order.status)}
-                            <div className={`text-xs ${timeColor} flex items-center gap-1 mr-2`}>
+                            <div className={`text-xs ${order.timeColor || 'text-gray-500'} flex items-center gap-1 mr-2`}>
                               <Clock3 className="h-3 w-3" />
-                              <span className="rtl">{relativeTime}</span>
+                              <span className="rtl">{order.relativeTime}</span>
                             </div>
                           </div>
-                          <h3 className="font-medium text-xs mb-0.5 ltr">
-                            #{order.id}
-                          </h3>
-                          <p className="text-gray-600 text-xs truncate">{order.customer_name}</p>
+                          <p className="font-medium text-sm mb-0.5">{order.customer}</p>
                           
-                          {order.customer_phone && (
+                          {order.phone && (
                             <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
                               <Phone className="h-3 w-3" />
-                              <span className="ltr">{order.customer_phone}</span>
+                              <span className="ltr">{order.phone}</span>
                             </div>
                           )}
+                          
+                          <h3 className="text-gray-400 text-xs mt-1 ltr">
+                            #{order.id}
+                          </h3>
                         </div>
                         <span className="font-bold text-sm text-oksale-700 ltr">
-                          {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
+                          {order.amount}
                         </span>
                       </div>
                     </CardContent>
                   </Card>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+              
+              {pagination.totalPages > 1 && (
+                <div className="flex justify-center mt-4">
+                  <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={pagination.page <= 1}
+                      onClick={() => handlePageChange(1)}
+                    >
+                      <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={pagination.page <= 1}
+                      onClick={() => handlePageChange(pagination.page - 1)}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    
+                    <span className="text-sm">
+                      {pagination.page} / {pagination.totalPages}
+                    </span>
+                    
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={pagination.page >= pagination.totalPages}
+                      onClick={() => handlePageChange(pagination.page + 1)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={pagination.page >= pagination.totalPages}
+                      onClick={() => handlePageChange(pagination.totalPages)}
+                    >
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center py-6 px-4">
               <ShoppingCart className="h-8 w-8 text-gray-400 mb-2" />
@@ -639,6 +778,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 onClick={() => {
                   setSearchTerm('');
                   setTabValue('all');
+                  setSortOption('newest');
                 }}
                 size="sm"
                 variant="outline"
@@ -663,9 +803,9 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 {selectedOrder && <span className="ltr">{formatDate(selectedOrder.created_at)}</span>}
               </div>
               {selectedOrder && (
-                <div className={`flex items-center gap-1 justify-end mt-1 ${getRelativeTimeWithColor(selectedOrder.created_at, selectedOrder.status).color}`}>
+                <div className={`flex items-center gap-1 justify-end mt-1 ${selectedOrder.timeColor || 'text-gray-500'}`}>
                   <Clock3 className="h-3.5 w-3.5" />
-                  <span>{formatOrderTime(selectedOrder.created_at, selectedOrder.status)}</span>
+                  <span>{selectedOrder.relativeTime}</span>
                 </div>
               )}
             </SheetDescription>
@@ -689,10 +829,10 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                     معلومات العميل
                   </h3>
                   <div className="bg-gray-50 rounded-md p-2.5">
-                    <p className="text-xs mb-1"><strong>الاسم:</strong> {selectedOrder.customer_name}</p>
-                    <p className="text-xs mb-1"><strong>البريد:</strong> {selectedOrder.customer_email}</p>
-                    {selectedOrder.customer_phone && (
-                      <p className="text-xs ltr"><strong>الهاتف:</strong> {selectedOrder.customer_phone}</p>
+                    <p className="text-xs mb-1.5"><strong>الاسم:</strong> {selectedOrder.customer}</p>
+                    <p className="text-xs mb-1.5"><strong>البريد:</strong> {selectedOrder.email}</p>
+                    {selectedOrder.phone && (
+                      <p className="text-xs ltr"><strong>الهاتف:</strong> {selectedOrder.phone}</p>
                     )}
                   </div>
                 </div>
@@ -828,8 +968,8 @@ const mockAddresses = [
 ];
 
 const generateMockOrders = (storeId: string): Order[] => {
-  // Generate 10 mock orders
-  return Array.from({ length: 10 }).map((_, index) => {
+  // Generate 25 mock orders
+  return Array.from({ length: 25 }).map((_, index) => {
     const now = new Date();
     // Set random dates within the last 30 days for different orders
     const createdDate = new Date(now);
@@ -864,7 +1004,7 @@ const generateMockOrders = (storeId: string): Order[] => {
     }));
     
     return {
-      id: orderNumber,
+      id: formatOrderNumber(orderNumber),
       rawId: orderNumber,
       store_id: storeId,
       total_amount: totalAmount,
@@ -876,7 +1016,9 @@ const generateMockOrders = (storeId: string): Order[] => {
       status,
       items,
       payment_method: Math.random() > 0.5 ? 'بطاقة ائتمان' : 'الدفع عند الاستلام',
-      shipping_address: mockAddresses[Math.floor(Math.random() * mockAddresses.length)]
+      shipping_address: mockAddresses[Math.floor(Math.random() * mockAddresses.length)],
+      relativeTime: formatOrderTime(createdDate.toISOString(), status),
+      timeColor: getTimeColor(createdDate.toISOString(), status)
     };
   });
 };

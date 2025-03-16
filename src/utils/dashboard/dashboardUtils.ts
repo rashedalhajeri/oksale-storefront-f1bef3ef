@@ -20,15 +20,15 @@ export const formatRelativeTime = (date: string | Date): string => {
       if (diffInMinutes < 1) {
         return 'الآن';
       } else if (diffInMinutes < 60) {
-        return `منذ ${diffInMinutes} دقيقة`;
+        return `قبل ${diffInMinutes} دقيقة`;
       } else if (diffInHours < 24) {
         const remainingMinutes = diffInMinutes % 60;
-        if (remainingMinutes > 0) {
-          return `منذ ${diffInHours} ساعة و ${remainingMinutes} دقيقة`;
+        if (remainingMinutes > 0 && remainingMinutes > 5) {
+          return `قبل ${diffInHours} ساعة و ${remainingMinutes} دقيقة`;
         }
-        return `منذ ${diffInHours} ساعة`;
+        return `قبل ${diffInHours} ساعة`;
       } else {
-        return `منذ ${diffInDays} يوم`;
+        return `قبل ${diffInDays} يوم`;
       }
     } else {
       // إذا كان أكثر من 3 أيام، نعرض التاريخ
@@ -42,17 +42,11 @@ export const formatRelativeTime = (date: string | Date): string => {
 
 /**
  * تحويل تاريخ إلى نص مناسب لعرضه على الواجهة
- * بناءً على حالة الطلب
+ * عرض التاريخ النسبي لجميع الطلبات مع لون مختلف حسب الحداثة
  */
 export const formatOrderTime = (date: string | Date, status: string): string => {
   try {
-    // لا نعرض "منذ" للطلبات المكتملة أو قيد التجهيز
-    if (status === 'completed' || status === 'processing') {
-      const parsedDate = typeof date === 'string' ? new Date(date) : date;
-      return format(parsedDate, 'dd/MM/yyyy', { locale: ar });
-    }
-    
-    // للطلبات الجديدة والمعلقة، نعرض الوقت النسبي
+    // عرض الوقت النسبي لجميع الطلبات بغض النظر عن حالتها
     return formatRelativeTime(date);
   } catch (error) {
     console.error('تعذر تنسيق وقت الطلب:', error);
@@ -159,9 +153,30 @@ export const generateUniqueOrderNumber = (storeId: string, date: Date = new Date
 export const formatOrderNumber = (orderNumber: string): string => {
   // إذا كان الرقم يحتوي على معرف طويل
   if (orderNumber.length > 10) {
-    // نأخذ فقط الجزء الأخير (8 أحرف) من الرقم الطويل
-    return orderNumber.substring(orderNumber.length - 8);
+    // نأخذ فقط الجزء الأخير (6 أحرف) من الرقم الطويل
+    return orderNumber.substring(orderNumber.length - 6);
   }
   
   return orderNumber;
+};
+
+/**
+ * الحصول على لون النص للوقت بناءً على حداثة الطلب
+ */
+export const getTimeColor = (dateString: string, status: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
+  
+  // للطلبات الجديدة خلال 24 ساعة
+  if (diffHours < 24 && status === 'pending') {
+    return "text-indigo-600 font-medium"; // لون بارز للطلبات الجديدة
+  } else if (diffHours < 48) {
+    return "text-blue-500"; // لون مميز للطلبات خلال 48 ساعة
+  } else if (diffHours < 72) {
+    return "text-gray-600"; // لون أقل بروزاً للطلبات خلال 3 أيام
+  }
+  
+  // اللون الافتراضي للطلبات القديمة
+  return "text-gray-500";
 };
