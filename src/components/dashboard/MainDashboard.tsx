@@ -83,7 +83,7 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Latest Orders */}
-        <RecentOrdersCard recentOrders={recentOrders} loading={recentOrdersLoading} />
+        <RecentOrdersCard recentOrders={recentOrders} loading={recentOrdersLoading} currency={currency} />
 
         {/* Top Products */}
         <TopProductsCard topProducts={topProducts} loading={topProductsLoading} currency={currency} />
