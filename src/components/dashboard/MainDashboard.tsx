@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -64,7 +63,7 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
       </Tabs>
 
       {/* Statistics Section */}
-      <StatisticsSection statistics={statistics} loading={statsLoading} />
+      <StatisticsSection statistics={statistics} loading={statsLoading} timeframe={timeframe} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}

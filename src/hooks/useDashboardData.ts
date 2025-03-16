@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/components/ui/use-toast";
@@ -90,7 +89,6 @@ export const useDashboardData = (storeId: string) => {
       value: formatNumber(dashboardStats.productsCount),
       icon: "products",
       description: "إجمالي المنتجات",
-      change: "+20% منذ آخر شهر",
       trendUp: true
     },
     {
@@ -98,23 +96,20 @@ export const useDashboardData = (storeId: string) => {
       value: formatNumber(dashboardStats.soldProductsCount),
       icon: "sold",
       description: "المنتجات المباعة",
-      change: "+15% منذ آخر شهر",
       trendUp: true
     },
     {
       name: "الطلبات",
       value: formatNumber(dashboardStats.ordersCount),
       icon: "orders",
-      description: "طلب هذا الشهر",
-      change: "+10% منذ آخر شهر",
+      description: "طلب",
       trendUp: true
     },
     {
       name: "الإيرادات",
       value: formatCurrencyWithSettings(dashboardStats.revenue, dashboardStats.currency),
       icon: "revenue",
-      description: "الإيرادات هذا الشهر",
-      change: "+25% منذ آخر شهر",
+      description: "الإيرادات",
       trendUp: true
     }
   ];
