@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -51,24 +50,29 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
       console.log('Updating store with ID:', storeData.id);
       console.log('Store info being saved:', storeInfo);
       
+      // Prepare the update data object
+      const updateData = {
+        name: storeInfo.name,
+        description: storeInfo.description,
+        logo_url: storeInfo.logo_url,
+        cover_url: storeInfo.cover_url,
+        contact_email: storeInfo.email,
+        contact_phone: storeInfo.phone,
+        address: storeInfo.address,
+        instagram: storeInfo.instagram,
+        twitter: storeInfo.twitter,
+        facebook: storeInfo.facebook,
+        website: storeInfo.website,
+        language: storeInfo.language,
+        currency: storeInfo.currency,
+        country: storeInfo.country
+      };
+      
+      console.log('Update data object:', updateData);
+      
       const { error } = await supabase
         .from('stores')
-        .update({
-          name: storeInfo.name,
-          description: storeInfo.description,
-          logo_url: storeInfo.logo_url,
-          cover_url: storeInfo.cover_url,
-          contact_email: storeInfo.email,
-          contact_phone: storeInfo.phone,
-          address: storeInfo.address,
-          instagram: storeInfo.instagram,
-          twitter: storeInfo.twitter,
-          facebook: storeInfo.facebook,
-          website: storeInfo.website,
-          language: storeInfo.language,
-          currency: storeInfo.currency,
-          country: storeInfo.country
-        })
+        .update(updateData)
         .eq('id', storeData.id);
       
       if (error) {
@@ -287,7 +291,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
             disabled={loading}
             className="flex items-center gap-2"
           >
-            {loading ? 'جارِ الحفظ...' : (
+            {loading ? 'جار�� الحفظ...' : (
               <>
                 <CheckCircle2 className="h-4 w-4" />
                 حفظ التغييرات

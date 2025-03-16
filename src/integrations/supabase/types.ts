@@ -209,6 +209,7 @@ export type Database = {
           id: string
           instagram: string | null
           is_active: boolean
+          language: string | null
           logo_url: string | null
           name: string
           owner_id: string
@@ -230,6 +231,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           is_active?: boolean
+          language?: string | null
           logo_url?: string | null
           name: string
           owner_id: string
@@ -251,6 +253,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           is_active?: boolean
+          language?: string | null
           logo_url?: string | null
           name?: string
           owner_id?: string
