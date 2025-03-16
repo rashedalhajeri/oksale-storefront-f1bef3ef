@@ -270,6 +270,8 @@ const StorePage = () => {
     );
   }
 
+  const storeCurrency = activeStore.currency || 'SAR';
+
   const store = {
     id: activeStore.id,
     name: activeStore.name,
@@ -406,6 +408,7 @@ const StorePage = () => {
                   setSelectedCategory={setSelectedCategory}
                   searchQuery={searchQuery}
                   setSearchQuery={setSearchQuery}
+                  currency={storeCurrency}
                 />
               </div>
             </div>

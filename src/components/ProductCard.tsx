@@ -13,7 +13,7 @@ interface ProductCardProps {
     description?: string;
     inStock: boolean;
   };
-  currency?: string; // Added currency prop
+  currency?: string;
 }
 
 const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
