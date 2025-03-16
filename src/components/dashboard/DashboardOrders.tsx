@@ -13,7 +13,9 @@ import {
   Calendar,
   MapPin,
   SlidersHorizontal,
-  Clock3
+  Clock3,
+  Phone,
+  Mail
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,13 +46,15 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
-import { formatRelativeTime, translateOrderStatus, getOrderStatusColor, generateUniqueOrderNumber, formatOrderNumber } from '@/utils/dashboard/dashboardUtils';
+import { formatRelativeTime, formatOrderTime, translateOrderStatus, getOrderStatusColor, generateUniqueOrderNumber, formatOrderNumber } from '@/utils/dashboard/dashboardUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Order {
   id: string;
+  rawId?: string;
   store_id: string;
   total_amount: number;
   created_at: string;
@@ -161,7 +165,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
           status,
           updated_at: new Date().toISOString()
         })
-        .eq('id', selectedOrder.id);
+        .eq('id', selectedOrder.rawId || selectedOrder.id);
 
       if (error) {
         console.error("Error updating order status:", error);
@@ -258,11 +262,21 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     });
   };
 
-  const getRelativeTimeWithColor = (dateString: string) => {
-    const relativeTime = formatRelativeTime(dateString);
+  const getRelativeTimeWithColor = (dateString: string, status: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
+    
+    // لا نعرض "منذ" للطلبات المكتملة أو قيد التجهيز
+    if (status === 'completed' || status === 'processing') {
+      return { 
+        text: formatShortDate(dateString),
+        color: "text-gray-500" 
+      };
+    }
+    
+    // للطلبات الجديدة والمعلقة
+    const relativeTime = formatOrderTime(dateString, status);
     
     let color = "text-gray-500"; // default color
     
@@ -472,7 +486,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
             ) : filteredOrders.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {filteredOrders.map((order) => {
-                  const { text: relativeTime, color: timeColor } = getRelativeTimeWithColor(order.created_at);
+                  const { text: relativeTime, color: timeColor } = getRelativeTimeWithColor(order.created_at, order.status);
                   
                   return (
                     <Card 
@@ -494,11 +508,26 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                           </div>
                         </div>
                         
-                        <div className="mb-3">
-                          <h3 className="font-medium text-base mb-1 ltr">
-                            #{formatOrderNumber(order.id)}
+                        <div className="mb-2">
+                          <h3 className="font-medium text-sm mb-1 ltr">
+                            #{order.id}
                           </h3>
                           <p className="text-gray-600 text-sm truncate">{order.customer_name}</p>
+                        </div>
+                        
+                        <div className="flex flex-col gap-1 mb-2 text-xs text-gray-500">
+                          {order.customer_phone && (
+                            <div className="flex items-center gap-1">
+                              <Phone className="h-3 w-3" />
+                              <span className="ltr">{order.customer_phone}</span>
+                            </div>
+                          )}
+                          {order.customer_email && (
+                            <div className="flex items-center gap-1 truncate">
+                              <Mail className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">{order.customer_email}</span>
+                            </div>
+                          )}
                         </div>
                         
                         <div className="flex items-center justify-between mt-2">
@@ -560,7 +589,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
           ) : filteredOrders.length > 0 ? (
             <div className="space-y-2">
               {filteredOrders.map((order) => {
-                const { text: relativeTime, color: timeColor } = getRelativeTimeWithColor(order.created_at);
+                const { text: relativeTime, color: timeColor } = getRelativeTimeWithColor(order.created_at, order.status);
                 
                 return (
                   <Card 
@@ -573,15 +602,22 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                         <div>
                           <div className="flex items-center gap-1.5 mb-1">
                             {getStatusBadge(order.status)}
-                            <span className={`text-xs ${timeColor} flex items-center gap-1 mr-2`}>
+                            <div className={`text-xs ${timeColor} flex items-center gap-1 mr-2`}>
                               <Clock3 className="h-3 w-3" />
                               <span className="rtl">{relativeTime}</span>
-                            </span>
+                            </div>
                           </div>
-                          <h3 className="font-medium text-sm mb-0.5 ltr">
-                            #{formatOrderNumber(order.id)}
+                          <h3 className="font-medium text-xs mb-0.5 ltr">
+                            #{order.id}
                           </h3>
                           <p className="text-gray-600 text-xs truncate">{order.customer_name}</p>
+                          
+                          {order.customer_phone && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                              <Phone className="h-3 w-3" />
+                              <span className="ltr">{order.customer_phone}</span>
+                            </div>
+                          )}
                         </div>
                         <span className="font-bold text-sm text-oksale-700 ltr">
                           {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
@@ -619,7 +655,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         <SheetContent className={`w-full ${isMobile ? 'max-w-full' : 'sm:max-w-md'} overflow-y-auto p-4`}>
           <SheetHeader className="text-right">
             <SheetTitle className="text-lg ltr">
-              تفاصيل الطلب #{selectedOrder && formatOrderNumber(selectedOrder.id)}
+              تفاصيل الطلب #{selectedOrder && selectedOrder.id}
             </SheetTitle>
             <SheetDescription>
               <div className="flex items-center gap-2 justify-end">
@@ -627,9 +663,9 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 {selectedOrder && <span className="ltr">{formatDate(selectedOrder.created_at)}</span>}
               </div>
               {selectedOrder && (
-                <div className={`flex items-center gap-1 justify-end mt-1 ${getRelativeTimeWithColor(selectedOrder.created_at).color}`}>
+                <div className={`flex items-center gap-1 justify-end mt-1 ${getRelativeTimeWithColor(selectedOrder.created_at, selectedOrder.status).color}`}>
                   <Clock3 className="h-3.5 w-3.5" />
-                  <span>{formatRelativeTime(selectedOrder.created_at)}</span>
+                  <span>{formatOrderTime(selectedOrder.created_at, selectedOrder.status)}</span>
                 </div>
               )}
             </SheetDescription>
@@ -655,7 +691,9 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   <div className="bg-gray-50 rounded-md p-2.5">
                     <p className="text-xs mb-1"><strong>الاسم:</strong> {selectedOrder.customer_name}</p>
                     <p className="text-xs mb-1"><strong>البريد:</strong> {selectedOrder.customer_email}</p>
-                    {selectedOrder.customer_phone && <p className="text-xs ltr"><strong>الهاتف:</strong> {selectedOrder.customer_phone}</p>}
+                    {selectedOrder.customer_phone && (
+                      <p className="text-xs ltr"><strong>الهاتف:</strong> {selectedOrder.customer_phone}</p>
+                    )}
                   </div>
                 </div>
                 
@@ -827,6 +865,7 @@ const generateMockOrders = (storeId: string): Order[] => {
     
     return {
       id: orderNumber,
+      rawId: orderNumber,
       store_id: storeId,
       total_amount: totalAmount,
       created_at: createdDate.toISOString(),

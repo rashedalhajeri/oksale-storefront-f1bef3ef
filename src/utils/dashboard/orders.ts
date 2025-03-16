@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from './currencyUtils';
-import { translateOrderStatus, getOrderStatusColor, formatRelativeTime, generateUniqueOrderNumber, formatOrderNumber } from './dashboardUtils';
+import { translateOrderStatus, getOrderStatusColor, formatRelativeTime, formatOrderTime, generateUniqueOrderNumber, formatOrderNumber } from './dashboardUtils';
 
 // الحصول على الطلبات الأخيرة
 export const getRecentOrders = async (storeId: string, limit = 5) => {
@@ -22,7 +22,7 @@ export const getRecentOrders = async (storeId: string, limit = 5) => {
     
     const { data: orders, error } = await supabase
       .from('orders')
-      .select('id, customer_name, customer_email, total_amount, created_at, status')
+      .select('id, customer_name, customer_email, customer_phone, total_amount, created_at, status')
       .eq('store_id', storeId)
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -31,9 +31,12 @@ export const getRecentOrders = async (storeId: string, limit = 5) => {
     
     return orders.map(order => ({
       id: formatOrderNumber(order.id),
+      rawId: order.id,
       customer: order.customer_name,
+      email: order.customer_email,
+      phone: order.customer_phone || 'غير متوفر',
       date: new Date(order.created_at).toLocaleDateString('ar-SA'),
-      relativeTime: formatRelativeTime(order.created_at),
+      relativeTime: formatOrderTime(order.created_at, order.status),
       amount: formatCurrency(order.total_amount, currency),
       rawAmount: order.total_amount,
       status: order.status,
@@ -77,11 +80,10 @@ export const getOrderDetails = async (orderId: string) => {
       ...order,
       currency,
       formattedAmount: formatCurrency(order.total_amount, currency),
-      relativeTime: formatRelativeTime(order.created_at)
+      relativeTime: formatOrderTime(order.created_at, order.status)
     };
   } catch (error) {
     console.error('Error fetching order details:', error);
     return null;
   }
 };
-

@@ -1,17 +1,61 @@
 
-import { formatDistance } from 'date-fns';
+import { formatDistance, formatRelative, format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getCurrencySymbol } from './currencyUtils';
 
 /**
  * تحويل تاريخ إلى نص يصف الوقت المنقضي بالعربية
+ * بدون كلمة "تقريبًا" وبطريقة أكثر دقة
  */
 export const formatRelativeTime = (date: string | Date): string => {
   try {
     const parsedDate = typeof date === 'string' ? new Date(date) : date;
-    return formatDistance(parsedDate, new Date(), { addSuffix: true, locale: ar });
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - parsedDate.getTime()) / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    // إذا كان الوقت أقل من 3 أيام، نعرض منذ كم ساعة أو دقيقة
+    if (diffInDays < 3) {
+      if (diffInMinutes < 1) {
+        return 'الآن';
+      } else if (diffInMinutes < 60) {
+        return `منذ ${diffInMinutes} دقيقة`;
+      } else if (diffInHours < 24) {
+        const remainingMinutes = diffInMinutes % 60;
+        if (remainingMinutes > 0) {
+          return `منذ ${diffInHours} ساعة و ${remainingMinutes} دقيقة`;
+        }
+        return `منذ ${diffInHours} ساعة`;
+      } else {
+        return `منذ ${diffInDays} يوم`;
+      }
+    } else {
+      // إذا كان أكثر من 3 أيام، نعرض التاريخ
+      return format(parsedDate, 'dd/MM/yyyy', { locale: ar });
+    }
   } catch (error) {
     console.error('تعذر تنسيق التاريخ:', error);
+    return '';
+  }
+};
+
+/**
+ * تحويل تاريخ إلى نص مناسب لعرضه على الواجهة
+ * بناءً على حالة الطلب
+ */
+export const formatOrderTime = (date: string | Date, status: string): string => {
+  try {
+    // لا نعرض "منذ" للطلبات المكتملة أو قيد التجهيز
+    if (status === 'completed' || status === 'processing') {
+      const parsedDate = typeof date === 'string' ? new Date(date) : date;
+      return format(parsedDate, 'dd/MM/yyyy', { locale: ar });
+    }
+    
+    // للطلبات الجديدة والمعلقة، نعرض الوقت النسبي
+    return formatRelativeTime(date);
+  } catch (error) {
+    console.error('تعذر تنسيق وقت الطلب:', error);
     return '';
   }
 };
@@ -86,40 +130,38 @@ export const formatCurrencyWithSettings = (amount: number, currency: string): st
 };
 
 /**
- * إنشاء رقم طلب فريد للمتجر
+ * توليد رقم تسلسلي للطلب مختصر وفريد لكل متجر
+ * يبدأ بمعرف المتجر ثم رقم متسلسل
+ * 
  * @param storeId معرف المتجر
  * @param date تاريخ الطلب
  * @returns رقم طلب فريد
  */
 export const generateUniqueOrderNumber = (storeId: string, date: Date = new Date()): string => {
-  // استخدام الأحرف الأولى من معرف المتجر
-  const storePrefix = storeId.substring(0, 3).toUpperCase();
+  // استخدام الحرف الأول والأخير من معرف المتجر
+  const storeIdFirst = storeId.substring(0, 1).toUpperCase();
+  const storeIdLast = storeId.substring(storeId.length - 1).toUpperCase();
   
-  // استخدام التاريخ (السنة/الشهر/اليوم)
+  // استخدام السنة والشهر
   const year = date.getFullYear().toString().slice(-2);
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const dateComponent = `${year}${month}${day}`;
   
-  // إنشاء رقم عشوائي من 4 أرقام
+  // إنشاء رقم عشوائي من 3 أرقام (1000-9999)
   const randomComponent = Math.floor(1000 + Math.random() * 9000);
   
-  // دمج المكونات
-  return `${storePrefix}-${dateComponent}-${randomComponent}`;
+  // دمج المكونات لإنشاء رقم طلب مختصر وفريد
+  return `${storeIdFirst}${year}${month}${randomComponent}${storeIdLast}`;
 };
 
 /**
- * تنسيق رقم الطلب ليظهر بشكل مناسب
- * @param orderNumber رقم الطلب الكامل
- * @returns رقم الطلب المنسق
+ * تنسيق رقم الطلب ليظهر بشكل أصغر ومناسب
  */
 export const formatOrderNumber = (orderNumber: string): string => {
-  // إذا كان الرقم بالتنسيق الجديد
-  if (orderNumber.includes('-')) {
-    return orderNumber;
+  // إذا كان الرقم يحتوي على معرف طويل
+  if (orderNumber.length > 10) {
+    // نأخذ فقط الجزء الأخير (8 أحرف) من الرقم الطويل
+    return orderNumber.substring(orderNumber.length - 8);
   }
   
-  // للأرقام القديمة، نعرض الجزء المختصر فقط
-  return orderNumber.substring(0, 8).toUpperCase();
+  return orderNumber;
 };
-
