@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, CheckCircle, Instagram, Twitter, Facebook } from 'lucide-react';
+import { ShoppingBag, CheckCircle, Instagram, Twitter, Facebook, Globe } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -23,6 +23,7 @@ interface StoreHeaderProps {
       instagram?: string;
       twitter?: string;
       facebook?: string;
+      website?: string;
     };
   };
 }
@@ -101,7 +102,7 @@ const StoreHeader = ({
                 </div>
                 
                 {/* Social links - only show if they exist */}
-                {(store.socialLinks?.instagram || store.socialLinks?.twitter || store.socialLinks?.facebook) && (
+                {(store.socialLinks?.instagram || store.socialLinks?.twitter || store.socialLinks?.facebook || store.socialLinks?.website) && (
                   <div className="flex items-center gap-3 md:gap-4 mt-2">
                     {store.socialLinks?.instagram && (
                       <a 
@@ -131,6 +132,16 @@ const StoreHeader = ({
                         className="text-white hover:text-blue-200 transition-colors"
                       >
                         <Facebook className="w-4 h-4 md:w-5 md:h-5" />
+                      </a>
+                    )}
+                    {store.socialLinks?.website && (
+                      <a 
+                        href={store.socialLinks.website.startsWith('http') ? store.socialLinks.website : `https://${store.socialLinks.website}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-white hover:text-blue-200 transition-colors"
+                      >
+                        <Globe className="w-4 h-4 md:w-5 md:h-5" />
                       </a>
                     )}
                   </div>

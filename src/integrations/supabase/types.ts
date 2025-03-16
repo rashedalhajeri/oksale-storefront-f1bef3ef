@@ -203,13 +203,17 @@ export type Database = {
           created_at: string
           currency: string | null
           description: string | null
+          facebook: string | null
           handle: string
           id: string
+          instagram: string | null
           is_active: boolean
           logo_url: string | null
           name: string
           owner_id: string
+          twitter: string | null
           updated_at: string
+          website: string | null
         }
         Insert: {
           contact_email?: string | null
@@ -219,13 +223,17 @@ export type Database = {
           created_at?: string
           currency?: string | null
           description?: string | null
+          facebook?: string | null
           handle: string
           id?: string
+          instagram?: string | null
           is_active?: boolean
           logo_url?: string | null
           name: string
           owner_id: string
+          twitter?: string | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
           contact_email?: string | null
@@ -235,13 +243,17 @@ export type Database = {
           created_at?: string
           currency?: string | null
           description?: string | null
+          facebook?: string | null
           handle?: string
           id?: string
+          instagram?: string | null
           is_active?: boolean
           logo_url?: string | null
           name?: string
           owner_id?: string
+          twitter?: string | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: [
           {
