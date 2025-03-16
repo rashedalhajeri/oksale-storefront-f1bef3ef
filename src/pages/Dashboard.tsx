@@ -5,12 +5,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { DashboardContext } from '@/context/DashboardContext';
 
 // Dashboard Layout
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 
 // Main Dashboard Container component
-const Dashboard = ({ children }: { children?: React.ReactNode }) => {
+const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [storeData, setStoreData] = useState<any>(null);
@@ -18,7 +19,18 @@ const Dashboard = ({ children }: { children?: React.ReactNode }) => {
   const [timeframe, setTimeframe] = useState('week');
 
   // Fetch dashboard data - passing only storeId
-  const { 
+  const {
+    statistics,
+    salesData,
+    recentOrders,
+    topProducts,
+    orderStatusData,
+    statsLoading,
+    chartLoading,
+    recentOrdersLoading,
+    topProductsLoading,
+    orderStatusLoading,
+    currency,
     setTimeframe: setDashboardTimeframe
   } = useDashboardData(storeData?.id);
 
@@ -70,8 +82,37 @@ const Dashboard = ({ children }: { children?: React.ReactNode }) => {
     fetchStoreData();
   }, [navigate, toast]);
 
-  // Memoize the store data to prevent unnecessary re-renders
-  const memoizedStoreData = useMemo(() => storeData, [storeData?.id]);
+  // Create a context value with all the data needed by child components
+  const contextValue = useMemo(() => ({
+    storeData,
+    statistics: statistics || [],
+    salesData: salesData || [],
+    timeframe,
+    setTimeframe,
+    recentOrders: recentOrders || [],
+    topProducts: topProducts || [],
+    orderStatusData: orderStatusData || [],
+    statsLoading,
+    chartLoading,
+    recentOrdersLoading,
+    topProductsLoading,
+    orderStatusLoading,
+    currency: currency || 'SAR'
+  }), [
+    storeData, 
+    statistics, 
+    salesData, 
+    timeframe,
+    recentOrders,
+    topProducts,
+    orderStatusData,
+    statsLoading,
+    chartLoading,
+    recentOrdersLoading,
+    topProductsLoading,
+    orderStatusLoading,
+    currency
+  ]);
 
   if (loading) {
     return (
@@ -109,8 +150,11 @@ const Dashboard = ({ children }: { children?: React.ReactNode }) => {
 
   // More efficient rendering with proper layout
   return (
-    <DashboardLayout storeData={memoizedStoreData}>
-      {children || <Outlet />}
+    <DashboardLayout storeData={storeData}>
+      {/* Create a provider that will pass props to all children */}
+      <DashboardContext.Provider value={contextValue}>
+        <Outlet />
+      </DashboardContext.Provider>
     </DashboardLayout>
   );
 };
