@@ -14,6 +14,8 @@ import {
   getOrderStatusStats
 } from '@/utils/dashboard';
 
+import { formatOrders } from '@/utils/dashboard/orderFormatters';
+
 export const useDashboardData = (storeId: string) => {
   const { toast } = useToast();
   const [timeframe, setTimeframe] = useState("week");
@@ -79,8 +81,9 @@ export const useDashboardData = (storeId: string) => {
     refetchOnWindowFocus: true,
   });
   
+  // Modified to handle and transform the data correctly
   const { 
-    data: recentOrders = [], 
+    data: recentOrdersResponse,
     isLoading: recentOrdersLoading 
   } = useQuery({
     queryKey: ['recent-orders', storeId],
@@ -90,6 +93,24 @@ export const useDashboardData = (storeId: string) => {
     gcTime: 3 * 60 * 1000,
     refetchOnWindowFocus: true,
   });
+  
+  // Process the recent orders to ensure we always have an array
+  const recentOrders = useMemo(() => {
+    if (!recentOrdersResponse) return [];
+    
+    // If the response has an 'orders' property, it's in the object format
+    if ('orders' in recentOrdersResponse && Array.isArray(recentOrdersResponse.orders)) {
+      return formatOrders(recentOrdersResponse.orders, recentOrdersResponse.currency || 'SAR');
+    }
+    
+    // If it's already an array, return it
+    if (Array.isArray(recentOrdersResponse)) {
+      return recentOrdersResponse;
+    }
+    
+    // Default case, return empty array
+    return [];
+  }, [recentOrdersResponse]);
   
   const { 
     data: orderStatusData = [], 

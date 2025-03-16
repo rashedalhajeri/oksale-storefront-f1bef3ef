@@ -2,6 +2,8 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Order } from '@/utils/dashboard/orderTypes';
+import OrderEmptyState from './OrderEmptyState';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Interface for RecentOrdersPreview props
 interface RecentOrdersPreviewProps {
@@ -12,6 +14,8 @@ interface RecentOrdersPreviewProps {
 
 // Recent orders preview component
 const RecentOrdersPreview: React.FC<RecentOrdersPreviewProps> = ({ recentOrders, loading, currency }) => {
+  const isMobile = useIsMobile();
+  
   if (loading) {
     return (
       <div className="space-y-4">
@@ -22,12 +26,8 @@ const RecentOrdersPreview: React.FC<RecentOrdersPreviewProps> = ({ recentOrders,
     );
   }
 
-  if (recentOrders.length === 0) {
-    return (
-      <div className="text-center py-6">
-        <p className="text-gray-500 dark:text-gray-400">لا توجد طلبات حديثة</p>
-      </div>
-    );
+  if (!recentOrders || recentOrders.length === 0) {
+    return <OrderEmptyState onReset={() => {}} isMobile={isMobile} />;
   }
 
   return (

@@ -1,6 +1,6 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { OrderOptions, PaginationState } from './orderTypes';
+import { formatOrders } from './orderFormatters';
 
 // Get orders with pagination and filtering
 export const getOrders = async (storeId: string, options: OrderOptions = {}) => {
@@ -100,7 +100,7 @@ export const getOrderDetails = async (orderId: string) => {
   }
 };
 
-// Get recent orders
+// Get recent orders - Modified to directly return formatted orders array
 export const getRecentOrders = async (storeId: string, limit = 5) => {
   try {
     const { data: orders, error } = await supabase
@@ -125,10 +125,11 @@ export const getRecentOrders = async (storeId: string, limit = 5) => {
 
     const currency = store?.currency || 'SAR';
     
-    return { orders, currency };
+    // Format and return the orders directly as an array
+    return formatOrders(orders || [], currency);
   } catch (error) {
     console.error('Error fetching recent orders:', error);
-    return { orders: [], currency: 'SAR' };
+    return []; // Return empty array on error
   }
 };
 
