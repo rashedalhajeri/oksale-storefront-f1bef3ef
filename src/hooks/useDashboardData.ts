@@ -1,6 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/components/ui/use-toast";
+
 import { 
   fetchStoreStatistics, 
   generateSalesData, 
@@ -8,8 +9,7 @@ import {
   getRecentOrders,
   getOrderStatusStats,
   calculateProgress
-} from '@/utils/dashboardUtils';
-import { useToast } from "@/components/ui/use-toast";
+} from '@/utils/dashboard';
 
 export const useDashboardData = (storeId: string) => {
   const { toast } = useToast();
@@ -30,12 +30,10 @@ export const useDashboardData = (storeId: string) => {
   const [recentOrdersLoading, setRecentOrdersLoading] = useState(true);
   const [orderStatusLoading, setOrderStatusLoading] = useState(true);
 
-  // Calculate targets based on current values
   const calculateTarget = (current: number) => Math.ceil(current * 1.2); // 20% higher than current
 
   const loadDashboardData = async () => {
     try {
-      // Load store statistics
       setStatsLoading(true);
       const stats = await fetchStoreStatistics(storeId);
       setDashboardStats({
@@ -45,22 +43,18 @@ export const useDashboardData = (storeId: string) => {
         visitsCount: stats.visitsCount
       });
       
-      // Load sales chart data
       setChartLoading(true);
       const salesChartData = generateSalesData(stats.orders, timeframe);
       setSalesData(salesChartData);
       
-      // Load top products
       setTopProductsLoading(true);
       const topProductsData = await getTopSellingProducts(storeId);
       setTopProducts(topProductsData);
       
-      // Load recent orders
       setRecentOrdersLoading(true);
       const recentOrdersData = await getRecentOrders(storeId);
       setRecentOrders(recentOrdersData);
       
-      // Load order status
       setOrderStatusLoading(true);
       const orderStatusStats = await getOrderStatusStats(storeId);
       setOrderStatusData(orderStatusStats);
@@ -80,21 +74,17 @@ export const useDashboardData = (storeId: string) => {
     }
   };
 
-  // Load data on mount
   useEffect(() => {
     if (storeId) {
       loadDashboardData();
     }
   }, [storeId]);
   
-  // Reload data when timeframe changes
   useEffect(() => {
     if (storeId) {
       setChartLoading(true);
       
-      // Fetch statistics again to get orders
       fetchStoreStatistics(storeId).then(stats => {
-        // Generate new sales data based on the selected timeframe
         const salesChartData = generateSalesData(stats.orders, timeframe);
         setSalesData(salesChartData);
         setChartLoading(false);
@@ -105,7 +95,6 @@ export const useDashboardData = (storeId: string) => {
     }
   }, [timeframe, storeId]);
 
-  // Prepare statistics data
   const statistics = [
     {
       name: "المنتجات",
