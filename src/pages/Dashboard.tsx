@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, lazy, useMemo } from 'react';
 import { 
   useNavigate, 
@@ -10,7 +9,7 @@ import {
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import useDashboardData from '@/hooks/useDashboardData';
+import { useDashboardData } from '@/hooks/useDashboardData';
 
 // Dashboard Layout
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
