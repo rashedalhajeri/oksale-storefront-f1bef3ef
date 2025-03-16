@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense, lazy, useMemo } from 'react';
 import { 
   useNavigate, 
@@ -48,7 +49,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('week');
 
-  // Fetch dashboard data
+  // Fetch dashboard data - passing only storeId
   const { 
     statistics, 
     salesData, 
@@ -60,8 +61,16 @@ const Dashboard = () => {
     recentOrdersLoading,
     topProductsLoading,
     orderStatusLoading,
-    currency
-  } = useDashboardData(storeData?.id, timeframe);
+    currency,
+    setTimeframe: setDashboardTimeframe
+  } = useDashboardData(storeData?.id);
+
+  // Effect to sync the timeframe state with the hook
+  useEffect(() => {
+    if (setDashboardTimeframe) {
+      setDashboardTimeframe(timeframe);
+    }
+  }, [timeframe, setDashboardTimeframe]);
 
   // Fetch store data only once on component mount
   useEffect(() => {
