@@ -1,6 +1,8 @@
+
 import { formatDistance, formatRelative, format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getCurrencySymbol } from './currencyUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * تحويل تاريخ إلى نص يصف الوقت المنقضي بالعربية
