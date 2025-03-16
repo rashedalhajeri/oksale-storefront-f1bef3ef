@@ -17,7 +17,7 @@ const StoreHeader: React.FC<StoreHeaderProps> = ({ storeData }) => {
               <AspectRatio ratio={1} className="h-full w-full">
                 <img 
                   src={storeData.logo_url} 
-                  alt={storeData?.name || 'متجر'} 
+                  alt={storeData?.name || 'Store'} 
                   className="h-full w-full object-cover" 
                 />
               </AspectRatio>
@@ -29,7 +29,7 @@ const StoreHeader: React.FC<StoreHeaderProps> = ({ storeData }) => {
           )}
         </div>
         <div className="overflow-hidden">
-          <h2 className="text-lg font-semibold truncate">{storeData?.name || 'متجر جديد'}</h2>
+          <h2 className="text-lg font-semibold truncate">{storeData?.name || 'New Store'}</h2>
           <div className="text-xs text-white/70 truncate ltr-text">
             {storeData?.handle ? `@${storeData.handle}` : '@store'}
           </div>
