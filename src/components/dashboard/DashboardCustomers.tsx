@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2, Eye, User, Mail, Phone, Calendar, MapPin } from 'lucide-react';
@@ -55,7 +54,6 @@ interface DashboardCustomersProps {
   storeData: any;
 }
 
-// Extended customer type with address
 interface Customer {
   id: number;
   name: string;
@@ -68,7 +66,6 @@ interface Customer {
   orders?: CustomerOrder[];
 }
 
-// Order type for customer orders
 interface CustomerOrder {
   id: number;
   date: string;
@@ -77,7 +74,6 @@ interface CustomerOrder {
   items: number;
 }
 
-// Form types
 interface CustomerFormData {
   name: string;
   email: string;
@@ -90,8 +86,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
   const { toast } = useToast();
   const now = new Date();
   const oneWeekAgo = subWeeks(now, 1);
-  
-  // Mock customers data with extended information and proper dates
+
   const customers: Customer[] = [
     { 
       id: 1, 
@@ -140,7 +135,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       email: 'noura@example.com', 
       phone: '+96656456789', 
       registrationDate: 'منذ يوم',
-      registrationTimestamp: new Date(now.getTime() - 24 * 60 * 60 * 1000 * 10), // 10 days ago for testing
+      registrationTimestamp: new Date(now.getTime() - 24 * 60 * 60 * 1000 * 10),
       totalOrders: 2, 
       address: 'قطر، الدوحة، اللؤلؤة، فيلا 42',
       orders: [
@@ -156,7 +151,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
-  // Forms
   const addForm = useForm<CustomerFormData>({
     defaultValues: {
       name: '',
@@ -191,8 +185,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
 
   const handleAddSubmit = (data: CustomerFormData) => {
     console.log('Adding customer:', data);
-    // Here you would add the customer to the database
-    // For mock purposes, we'll just show a success message
     toast({
       title: "تم إضافة العميل بنجاح",
       description: `تم إضافة العميل ${data.name} بنجاح.`,
@@ -203,8 +195,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
 
   const handleEditSubmit = (data: CustomerFormData) => {
     console.log('Editing customer:', data);
-    // Here you would update the customer in the database
-    // For mock purposes, we'll just show a success message
     toast({
       title: "تم تحديث العميل بنجاح",
       description: `تم تحديث بيانات العميل ${data.name} بنجاح.`,
@@ -216,8 +206,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
     if (!selectedCustomer) return;
     
     console.log('Deleting customer:', selectedCustomer.id);
-    // Here you would delete the customer from the database
-    // For mock purposes, we'll just show a success message
     toast({
       title: "تم حذف العميل بنجاح",
       description: `تم حذف العميل ${selectedCustomer.name} بنجاح.`,
@@ -225,36 +213,32 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
     setIsDeleteDialogOpen(false);
   };
 
-  // Format registration date - show date if older than a week
   const formatRegistrationDate = (customer: Customer) => {
     if (isAfter(oneWeekAgo, customer.registrationTimestamp)) {
       return format(customer.registrationTimestamp, 'dd MMM yyyy', { locale: ar });
     }
     return formatDistance(customer.registrationTimestamp, now, { addSuffix: true, locale: ar });
   };
-  
-  // Format phone numbers with country code and proper spacing
+
   const formatPhoneNumber = (phone: string) => {
     try {
       if (!phone) return '';
       
-      // Ensure the phone number starts with +
       const phoneWithPlus = phone.startsWith('+') ? phone : `+${phone}`;
       const phoneNumber = parsePhoneNumber(phoneWithPlus);
       
       if (phoneNumber) {
-        return phoneNumber.formatInternational();
+        const formattedNumber = phoneNumber.formatInternational();
+        return formattedNumber.split(' ').reverse().join(' ');
       }
       
-      // Fallback to basic formatting with AsYouType if parsing fails
-      return new AsYouType().input(phoneWithPlus);
+      return new AsYouType().input(phoneWithPlus).split(' ').reverse().join(' ');
     } catch (error) {
       console.error("Error formatting phone number:", error);
       return phone;
     }
   };
 
-  // Get country code from phone number
   const getCountryFromPhone = (phone: string) => {
     try {
       if (!phone) return null;
@@ -271,7 +255,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
 
   return (
     <div className="space-y-4 w-full overflow-hidden">
-      {/* Header section */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">العملاء</h1>
@@ -281,7 +264,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </div>
       </div>
 
-      {/* Search and filters section - Improved layout */}
       <div className="space-y-3">
         <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-3`}>
           <div className={`relative flex ${isMobile ? 'w-full' : 'w-full flex-1'}`}>
@@ -294,7 +276,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             </Button>
           </div>
 
-          {/* Add customer button */}
           <Button 
             className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]" 
             size="sm"
@@ -306,11 +287,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </div>
       </div>
 
-      {/* Customers table */}
       <Card className="shadow-sm border border-gray-100">
         <CardContent className="p-0">
           {isMobile ? (
-            // Mobile view - Improved phone number display
             <div className="overflow-hidden">
               {customers.map((customer) => (
                 <div 
@@ -320,8 +299,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                   <div>
                     <p className="font-medium text-gray-900">{customer.name}</p>
                     <div className="flex items-center gap-2 mt-1">
+                      <p className="text-sm text-gray-600">
+                        {formatPhoneNumber(customer.phone)}
+                      </p>
                       {getCountryFromPhone(customer.phone) && (
-                        <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
+                        <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
                           <img 
                             src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                             alt="Country flag" 
@@ -329,9 +311,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                           />
                         </span>
                       )}
-                      <p className="text-sm text-gray-600 dir-ltr">
-                        {formatPhoneNumber(customer.phone)}
-                      </p>
                     </div>
                   </div>
                   <div>
@@ -370,7 +349,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               ))}
             </div>
           ) : (
-            // Desktop view - Improved phone number column
             <div className="overflow-hidden">
               <Table>
                 <TableHeader>
@@ -388,9 +366,10 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                     <TableRow key={customer.id} className="border-b hover:bg-gray-50">
                       <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
                       <TableCell className="py-3 px-4 text-gray-700">
-                        <div className="flex items-center gap-2 dir-ltr">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{formatPhoneNumber(customer.phone)}</span>
                           {getCountryFromPhone(customer.phone) && (
-                            <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
+                            <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
                               <img 
                                 src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                                 alt="Country flag" 
@@ -398,7 +377,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                               />
                             </span>
                           )}
-                          <span className="text-sm">{formatPhoneNumber(customer.phone)}</span>
                         </div>
                       </TableCell>
                       <TableCell className="py-3 px-4 text-gray-700 text-sm">{formatRegistrationDate(customer)}</TableCell>
@@ -443,7 +421,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             </div>
           )}
 
-          {/* Pagination */}
           <div className="p-4 flex justify-center border-t border-gray-100">
             <Pagination>
               <PaginationContent>
@@ -472,7 +449,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </CardContent>
       </Card>
 
-      {/* Customer Details Dialog */}
       {selectedCustomer && (
         <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
           <DialogContent className="max-w-3xl overflow-hidden">
@@ -486,7 +462,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             <ScrollArea className="max-h-[70vh]">
               <div className="p-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                  {/* Customer Information */}
                   <div className="space-y-4">
                     <h3 className="font-medium text-gray-900 text-lg border-b pb-2">معلومات العميل</h3>
                     
@@ -504,8 +479,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         <div>
                           <p className="text-sm text-gray-500">رقم الجوال</p>
                           <div className="font-medium flex items-center gap-2">
+                            <span>{formatPhoneNumber(selectedCustomer.phone)}</span>
                             {getCountryFromPhone(selectedCustomer.phone) && (
-                              <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
+                              <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
                                 <img 
                                   src={`https://flagcdn.com/w20/${getCountryFromPhone(selectedCustomer.phone)}.png`} 
                                   alt="Country flag" 
@@ -513,7 +489,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                                 />
                               </span>
                             )}
-                            <span className="dir-ltr">{formatPhoneNumber(selectedCustomer.phone)}</span>
                           </div>
                         </div>
                       </div>
@@ -528,7 +503,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                     </div>
                   </div>
                   
-                  {/* Customer Address */}
                   <div className="space-y-4">
                     <h3 className="font-medium text-gray-900 text-lg border-b pb-2">العنوان</h3>
                     <div className="bg-gray-50 p-3 rounded-md flex items-start gap-3">
@@ -538,7 +512,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                   </div>
                 </div>
                 
-                {/* Customer Orders */}
                 <div className="mt-6">
                   <h3 className="font-medium text-gray-900 text-lg border-b pb-2 mb-4">
                     الطلبات ({selectedCustomer.orders?.length || 0})
@@ -589,196 +562,5 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </Dialog>
       )}
 
-      {/* Edit Customer Dialog - Improved phone input */}
-      {selectedCustomer && (
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-md overflow-hidden">
-            <DialogHeader>
-              <DialogTitle className="text-xl">تعديل بيانات العميل</DialogTitle>
-              <DialogDescription>
-                قم بتعديل بيانات العميل ثم اضغط على زر الحفظ للتأكيد.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4 mt-2">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-name">الاسم</Label>
-                  <div className="relative">
-                    <User className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                    <Input
-                      id="edit-name"
-                      className="pr-10"
-                      placeholder="اسم العميل"
-                      {...editForm.register("name", { required: true })}
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-email">البريد الإلكتروني</Label>
-                  <div className="relative">
-                    <Mail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                    <Input
-                      id="edit-email"
-                      type="email"
-                      className="pr-10"
-                      placeholder="البريد الإلكتروني"
-                      {...editForm.register("email", { required: true })}
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-phone">رقم الجوال</Label>
-                  <div className="dir-ltr">
-                    <PhoneInput
-                      international
-                      defaultCountry="SA"
-                      value={editForm.watch("phone")}
-                      onChange={(value) => editForm.setValue("phone", value || "")}
-                      className="w-full rounded-md border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      placeholder="+966xxxxxxxxx"
-                      numberInputProps={{
-                        className: "w-full h-10 px-3 py-2 font-normal"
-                      }}
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-address">العنوان</Label>
-                  <div className="relative">
-                    <MapPin className="absolute right-3 top-3 text-gray-400" size={16} />
-                    <textarea
-                      id="edit-address"
-                      className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-20"
-                      placeholder="عنوان العميل"
-                      {...editForm.register("address")}
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  إلغاء
-                </Button>
-                <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
-                  حفظ التغييرات
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
+      {
 
-      {/* Add Customer Dialog - Improved phone input */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-md overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="text-xl">إضافة عميل جديد</DialogTitle>
-            <DialogDescription>
-              أدخل بيانات العميل الجديد ثم اضغط على زر الإضافة للتأكيد.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <form onSubmit={addForm.handleSubmit(handleAddSubmit)} className="space-y-4 mt-2">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="add-name">الاسم</Label>
-                <div className="relative">
-                  <User className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <Input
-                    id="add-name"
-                    className="pr-10"
-                    placeholder="اسم العميل"
-                    {...addForm.register("name", { required: true })}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="add-email">البريد الإلكتروني</Label>
-                <div className="relative">
-                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <Input
-                    id="add-email"
-                    type="email"
-                    className="pr-10"
-                    placeholder="البريد الإلكتروني"
-                    {...addForm.register("email", { required: true })}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="add-phone">رقم الجوال</Label>
-                <div className="dir-ltr">
-                  <PhoneInput
-                    international
-                    defaultCountry="SA"
-                    value={addForm.watch("phone")}
-                    onChange={(value) => addForm.setValue("phone", value || "")}
-                    className="w-full rounded-md border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    placeholder="+966xxxxxxxxx"
-                    numberInputProps={{
-                      className: "w-full h-10 px-3 py-2 font-normal"
-                    }}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="add-address">العنوان</Label>
-                <div className="relative">
-                  <MapPin className="absolute right-3 top-3 text-gray-400" size={16} />
-                  <textarea
-                    id="add-address"
-                    className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-20"
-                    placeholder="عنوان العميل"
-                    {...addForm.register("address")}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                إلغاء
-              </Button>
-              <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
-                إضافة العميل
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Customer Confirmation */}
-      {selectedCustomer && (
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>تأكيد حذف العميل</AlertDialogTitle>
-              <AlertDialogDescription>
-                هل أنت متأكد من حذف العميل "{selectedCustomer.name}"؟ لا يمكن التراجع عن هذه العملية.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>إلغاء</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={handleDeleteCustomer}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                تأكيد الحذف
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-    </div>
-  );
-};
-
-export default DashboardCustomers;
