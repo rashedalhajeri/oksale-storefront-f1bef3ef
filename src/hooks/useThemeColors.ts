@@ -7,17 +7,12 @@ export const useThemeColors = (storeId?: string) => {
   const [customColor, setCustomColor] = useState<string>("#4B5563");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  // فرضاً سنستخدم جدول theme_settings للإعدادات
-  // ولكن هذا فقط مثال، يمكنك إضافة هذه الأعمدة إلى جدول stores
-  
   useEffect(() => {
     const fetchThemeSettings = async () => {
       if (!storeId) return;
       
       setIsLoading(true);
       try {
-        // هنا يمكنك استخدام الجدول الفعلي الذي يحتوي على هذه الإعدادات
-        // في الحالة الحالية نفترض أن الإعدادات محفوظة في stores
         const { data, error } = await supabase
           .from('stores')
           .select('use_custom_colors, custom_color')

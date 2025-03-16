@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -57,7 +56,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
       console.log('Updating store with ID:', storeData.id);
       console.log('Store info being saved:', storeInfo);
       
-      // Prepare the update data object
       const updateData = {
         name: storeInfo.name,
         description: storeInfo.description,
@@ -111,7 +109,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    // Special handling for inputs that use id instead of name
     if (!name) {
       const id = e.target.id;
       const key = id.replace('store-', '').replace('social-', '');
@@ -127,7 +124,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
       return;
     }
     
-    // Regular handling for inputs that use the name attribute
     setStoreInfo(prev => ({
       ...prev,
       [name]: value
@@ -230,7 +226,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
 
   const countries = [
     { value: "SA", label: "المملكة العربية السعودية" },
-    { value: "AE", label: "الإمارات العربية المتحدة" },
+    { value: "AE", label: "الإما��ات العربية المتحدة" },
     { value: "KW", label: "الكويت" },
     { value: "BH", label: "البحرين" },
     { value: "QA", label: "قطر" },
@@ -257,7 +253,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
       </div>
 
       <div className="space-y-6">
-        {/* Store Preview */}
         <StorePreview 
           storeInfo={{
             ...storeInfo,
@@ -272,34 +267,29 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           handleLogoUpload={handleLogoUpload}
           handleCoverUpload={handleCoverUpload}
           handleInputChange={handleInputChange}
-          handleSaveModal={handleSaveChanges} // Pass the save function to StorePreview
+          handleSaveModal={handleSaveChanges}
         />
 
-        {/* Basic Store Information */}
         <StoreInformationSection 
           storeInfo={storeInfo}
           handleInputChange={handleInputChange}
         />
 
-        {/* Contact Information */}
         <ContactInformationSection 
           storeInfo={storeInfo}
           handleInputChange={handleInputChange}
           handleSaveModal={handleSaveChanges}
         />
 
-        {/* Social Media */}
         <SocialMediaSection 
           storeInfo={storeInfo}
           handleInputChange={handleInputChange}
         />
 
-        {/* Social Media Theme */}
         <SocialMediaThemeSection 
           storeId={storeData.id}
         />
 
-        {/* Regional Settings */}
         <RegionalSettingsSection 
           storeInfo={storeInfo}
           handleSelectChange={handleSelectChange}

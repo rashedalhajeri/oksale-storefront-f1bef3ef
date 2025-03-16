@@ -203,6 +203,7 @@ export type Database = {
           cover_url: string | null
           created_at: string
           currency: string | null
+          custom_color: string | null
           description: string | null
           facebook: string | null
           handle: string
@@ -217,6 +218,7 @@ export type Database = {
           tiktok: string | null
           twitter: string | null
           updated_at: string
+          use_custom_colors: boolean | null
           website: string | null
           whatsapp: string | null
         }
@@ -228,6 +230,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           currency?: string | null
+          custom_color?: string | null
           description?: string | null
           facebook?: string | null
           handle: string
@@ -242,6 +245,7 @@ export type Database = {
           tiktok?: string | null
           twitter?: string | null
           updated_at?: string
+          use_custom_colors?: boolean | null
           website?: string | null
           whatsapp?: string | null
         }
@@ -253,6 +257,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           currency?: string | null
+          custom_color?: string | null
           description?: string | null
           facebook?: string | null
           handle?: string
@@ -267,6 +272,7 @@ export type Database = {
           tiktok?: string | null
           twitter?: string | null
           updated_at?: string
+          use_custom_colors?: boolean | null
           website?: string | null
           whatsapp?: string | null
         }
