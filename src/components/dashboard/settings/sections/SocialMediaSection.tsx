@@ -17,18 +17,20 @@ import {
   Globe, 
   Instagram, 
   Twitter, 
-  Facebook, 
+  Facebook,
   PlusCircle,
-  Trash2
+  Trash2,
+  Landmark
 } from 'lucide-react';
+
+// Define supported social media types
+type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website' | 'snapchat' | 'tiktok' | 'youtube' | 'linkedin';
 
 interface SocialMediaAccount {
   id: string;
-  type: 'instagram' | 'twitter' | 'facebook' | 'website';
+  type: SocialMediaType;
   username: string;
 }
-
-type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website';
 
 interface SocialMediaSectionProps {
   storeInfo: {
@@ -36,6 +38,10 @@ interface SocialMediaSectionProps {
     twitter: string;
     facebook: string;
     website: string;
+    snapchat?: string;
+    tiktok?: string;
+    youtube?: string;
+    linkedin?: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
@@ -46,18 +52,24 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
 }) => {
   const [accounts, setAccounts] = useState<SocialMediaAccount[]>(() => {
     const initialAccounts: SocialMediaAccount[] = [];
-    if (storeInfo.instagram) {
-      initialAccounts.push({ id: 'instagram', type: 'instagram', username: storeInfo.instagram });
-    }
-    if (storeInfo.twitter) {
-      initialAccounts.push({ id: 'twitter', type: 'twitter', username: storeInfo.twitter });
-    }
-    if (storeInfo.facebook) {
-      initialAccounts.push({ id: 'facebook', type: 'facebook', username: storeInfo.facebook });
-    }
-    if (storeInfo.website) {
-      initialAccounts.push({ id: 'website', type: 'website', username: storeInfo.website });
-    }
+    
+    // Helper function to add account if it exists
+    const addIfExists = (type: SocialMediaType, value?: string) => {
+      if (value) {
+        initialAccounts.push({ id: type, type, username: value });
+      }
+    };
+    
+    // Add existing accounts
+    addIfExists('instagram', storeInfo.instagram);
+    addIfExists('twitter', storeInfo.twitter);
+    addIfExists('facebook', storeInfo.facebook);
+    addIfExists('website', storeInfo.website);
+    addIfExists('snapchat', storeInfo.snapchat);
+    addIfExists('tiktok', storeInfo.tiktok);
+    addIfExists('youtube', storeInfo.youtube);
+    addIfExists('linkedin', storeInfo.linkedin);
+    
     return initialAccounts;
   });
   
@@ -121,6 +133,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     handleInputChange(e);
   };
 
+  // Define all available social media platforms
   const availablePlatforms: {type: SocialMediaType; label: string; icon: React.ReactNode}[] = [
     { 
       type: 'instagram', 
@@ -138,6 +151,26 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       icon: <Facebook className="h-5 w-5" /> 
     },
     { 
+      type: 'snapchat', 
+      label: 'سناب شات', 
+      icon: <Landmark className="h-5 w-5" /> // Using Landmark as a placeholder for Snapchat
+    },
+    { 
+      type: 'tiktok', 
+      label: 'تيك توك', 
+      icon: <Landmark className="h-5 w-5" /> // Using Landmark as a placeholder for TikTok
+    },
+    { 
+      type: 'youtube', 
+      label: 'يوتيوب', 
+      icon: <Landmark className="h-5 w-5" /> // Using Landmark as a placeholder for YouTube
+    },
+    { 
+      type: 'linkedin', 
+      label: 'لينكد إن', 
+      icon: <Landmark className="h-5 w-5" /> // Using Landmark as a placeholder for LinkedIn
+    },
+    { 
       type: 'website', 
       label: 'الموقع الإلكتروني', 
       icon: <Globe className="h-5 w-5" /> 
@@ -145,23 +178,13 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
   ];
 
   const getIconForType = (type: string) => {
-    switch (type) {
-      case 'instagram': return <Instagram className="h-4 w-4" />;
-      case 'twitter': return <Twitter className="h-4 w-4" />;
-      case 'facebook': return <Facebook className="h-4 w-4" />;
-      case 'website': return <Globe className="h-4 w-4" />;
-      default: return <Globe className="h-4 w-4" />;
-    }
+    const platform = availablePlatforms.find(p => p.type === type);
+    return platform?.icon || <Globe className="h-4 w-4" />;
   };
 
   const getLabelForType = (type: string) => {
-    switch (type) {
-      case 'instagram': return 'انستجرام';
-      case 'twitter': return 'تويتر (X)';
-      case 'facebook': return 'فيسبوك';
-      case 'website': return 'الموقع الإلكتروني';
-      default: return 'حساب';
-    }
+    const platform = availablePlatforms.find(p => p.type === type);
+    return platform?.label || 'حساب';
   };
 
   const getHelperText = (type: string) => {
@@ -169,6 +192,10 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       case 'instagram': return 'أدخل اسم المستخدم فقط بدون @';
       case 'twitter': return 'أدخل اسم المستخدم فقط بدون @';
       case 'facebook': return 'أدخل اسم الصفحة أو المعرف';
+      case 'snapchat': return 'أدخل اسم المستخدم فقط بدون @';
+      case 'tiktok': return 'أدخل اسم المستخدم فقط بدون @';
+      case 'youtube': return 'أدخل معرف القناة أو الاسم';
+      case 'linkedin': return 'أدخل اسم الصفحة أو المعرف';
       case 'website': return 'أدخل الرابط كاملاً بما في ذلك https://';
       default: return '';
     }
@@ -179,6 +206,10 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       case 'instagram': return 'yourstorename';
       case 'twitter': return 'yourstorename';
       case 'facebook': return 'yourstorename';
+      case 'snapchat': return 'yourstorename';
+      case 'tiktok': return 'yourstorename';
+      case 'youtube': return 'yourstorename';
+      case 'linkedin': return 'yourstorename';
       case 'website': return 'https://www.yourwebsite.com';
       default: return '';
     }

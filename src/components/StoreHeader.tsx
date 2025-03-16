@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, CheckCircle2, Instagram, Twitter, Facebook, Globe, MapPin } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, Instagram, Twitter, Facebook, Globe, MapPin, Landmark } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -23,6 +23,10 @@ interface StoreHeaderProps {
       twitter?: string;
       facebook?: string;
       website?: string;
+      snapchat?: string;
+      tiktok?: string;
+      youtube?: string;
+      linkedin?: string;
     };
   };
 }
@@ -45,6 +49,39 @@ const StoreHeader = ({
 
   // Check if there's no cover image
   const hasCover = !!store.coverImage;
+
+  // Function to get social media URLs
+  const getSocialMediaUrl = (type: string, username: string) => {
+    if (!username) return '';
+    
+    // If already a URL, return as is
+    if (username.startsWith('http')) return username;
+    
+    // Otherwise, construct the URL based on platform
+    switch (type) {
+      case 'instagram': return `https://instagram.com/${username}`;
+      case 'twitter': return `https://twitter.com/${username}`;
+      case 'facebook': return `https://facebook.com/${username}`;
+      case 'snapchat': return `https://snapchat.com/add/${username}`;
+      case 'tiktok': return `https://tiktok.com/@${username}`;
+      case 'youtube': return `https://youtube.com/@${username}`;
+      case 'linkedin': return `https://linkedin.com/in/${username}`;
+      case 'website': return username.startsWith('http') ? username : `https://${username}`;
+      default: return username;
+    }
+  };
+
+  // Function to get icon for social media type
+  const getSocialMediaIcon = (type: string) => {
+    switch (type) {
+      case 'instagram': return <Instagram className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'twitter': return <Twitter className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'facebook': return <Facebook className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'website': return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
+      // For other platforms, use placeholder icon
+      default: return <Landmark className="w-4 h-4 md:w-5 md:h-5" />;
+    }
+  };
 
   return (
     <div className="relative">
@@ -110,49 +147,25 @@ const StoreHeader = ({
                   </div>
                 )}
                 
-                {/* Social links - only show if they exist */}
-                {(store.socialLinks?.instagram || store.socialLinks?.twitter || store.socialLinks?.facebook || store.socialLinks?.website) && (
+                {/* Social links - display all available social media links */}
+                {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
                   <div className="flex items-center gap-3 md:gap-4 mt-2">
-                    {store.socialLinks?.instagram && (
-                      <a 
-                        href={store.socialLinks.instagram.startsWith('http') ? store.socialLinks.instagram : `https://instagram.com/${store.socialLinks.instagram}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-white hover:text-blue-200 transition-colors"
-                      >
-                        <Instagram className="w-4 h-4 md:w-5 md:h-5" />
-                      </a>
-                    )}
-                    {store.socialLinks?.twitter && (
-                      <a 
-                        href={store.socialLinks.twitter.startsWith('http') ? store.socialLinks.twitter : `https://twitter.com/${store.socialLinks.twitter}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-white hover:text-blue-200 transition-colors"
-                      >
-                        <Twitter className="w-4 h-4 md:w-5 md:h-5" />
-                      </a>
-                    )}
-                    {store.socialLinks?.facebook && (
-                      <a 
-                        href={store.socialLinks.facebook.startsWith('http') ? store.socialLinks.facebook : `https://facebook.com/${store.socialLinks.facebook}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-white hover:text-blue-200 transition-colors"
-                      >
-                        <Facebook className="w-4 h-4 md:w-5 md:h-5" />
-                      </a>
-                    )}
-                    {store.socialLinks?.website && (
-                      <a 
-                        href={store.socialLinks.website.startsWith('http') ? store.socialLinks.website : `https://${store.socialLinks.website}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-white hover:text-blue-200 transition-colors"
-                      >
-                        <Globe className="w-4 h-4 md:w-5 md:h-5" />
-                      </a>
-                    )}
+                    {Object.entries(store.socialLinks).map(([type, username]) => {
+                      if (!username) return null;
+                      
+                      return (
+                        <a 
+                          key={type}
+                          href={getSocialMediaUrl(type, username)} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-white hover:text-blue-200 transition-colors"
+                          title={type}
+                        >
+                          {getSocialMediaIcon(type)}
+                        </a>
+                      );
+                    })}
                   </div>
                 )}
               </div>
