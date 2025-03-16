@@ -104,7 +104,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
           </CardHeader>
           <CardContent className="pb-4">
             <div className="text-2xl font-bold">{item.value}</div>
-            <p className="text-gray-500 text-sm">{item.description}</p>
+            <p className="text-gray-500 text-sm">{item.name}</p>
           </CardContent>
         </Card>
       ))}
