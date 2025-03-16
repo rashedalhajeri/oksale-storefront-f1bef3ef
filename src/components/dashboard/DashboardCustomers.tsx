@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2, Eye, User, Mail, Phone, Calendar, MapPin } from 'lucide-react';
@@ -749,4 +750,35 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
                 إضافة العميل
               </Button>
-            </Dialog
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Customer Confirmation */}
+      {selectedCustomer && (
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>تأكيد حذف العميل</AlertDialogTitle>
+              <AlertDialogDescription>
+                هل أنت متأكد من حذف العميل "{selectedCustomer.name}"؟ لا يمكن التراجع عن هذه العملية.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>إلغاء</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeleteCustomer}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                تأكيد الحذف
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </div>
+  );
+};
+
+export default DashboardCustomers;
