@@ -49,6 +49,7 @@ import { parsePhoneNumber, AsYouType } from 'libphonenumber-js';
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 interface DashboardCustomersProps {
   storeData: any;
@@ -242,9 +243,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       const phoneNumber = parsePhoneNumber(phoneWithPlus);
       
       if (phoneNumber) {
-        const countryCode = phoneNumber.countryCallingCode;
-        const nationalNumber = phoneNumber.nationalNumber;
-        return `+${countryCode} ${nationalNumber}`;
+        return phoneNumber.formatInternational();
       }
       
       // Fallback to basic formatting with AsYouType if parsing fails
@@ -642,17 +641,18 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 
                 <div className="space-y-2">
                   <Label htmlFor="edit-phone">رقم الجوال</Label>
-                  <div className="relative">
-                    <div className="dir-ltr">
-                      <PhoneInput
-                        international
-                        defaultCountry="SA"
-                        value={editForm.watch("phone")}
-                        onChange={(value) => editForm.setValue("phone", value || "")}
-                        className="rounded-md border border-input"
-                        placeholder="+966xxxxxxxxx"
-                      />
-                    </div>
+                  <div className="dir-ltr">
+                    <PhoneInput
+                      international
+                      defaultCountry="SA"
+                      value={editForm.watch("phone")}
+                      onChange={(value) => editForm.setValue("phone", value || "")}
+                      className="rounded-md border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      placeholder="+966xxxxxxxxx"
+                      numberInputProps={{
+                        className: "w-full h-10 px-3 py-2 font-normal"
+                      }}
+                    />
                   </div>
                 </div>
                 
@@ -730,8 +730,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                     defaultCountry="SA"
                     value={addForm.watch("phone")}
                     onChange={(value) => addForm.setValue("phone", value || "")}
-                    className="rounded-md border border-input"
+                    className="rounded-md border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     placeholder="+966xxxxxxxxx"
+                    numberInputProps={{
+                      className: "w-full h-10 px-3 py-2 font-normal"
+                    }}
                   />
                 </div>
               </div>
