@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Edit } from 'lucide-react';
+import { Eye, Edit } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { 
   Dialog,
@@ -14,16 +14,16 @@ interface PreviewHeaderProps {
 
 const PreviewHeader: React.FC<PreviewHeaderProps> = ({ open, setOpen }) => {
   return (
-    <div className="absolute top-3 right-3">
+    <div className="absolute top-3 right-3 z-10">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button 
             variant="secondary" 
             size="sm"
-            className="text-xs font-medium"
+            className="text-xs font-medium flex items-center gap-1.5 shadow-md"
           >
-            <Edit className="h-3 w-3 ml-1" />
-            تعديل
+            {open ? <Edit className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+            {open ? 'تعديل' : 'معاينة وتعديل'}
           </Button>
         </DialogTrigger>
       </Dialog>

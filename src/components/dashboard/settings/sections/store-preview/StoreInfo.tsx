@@ -20,6 +20,8 @@ interface StoreInfoProps {
     snapchat?: string;
     tiktok?: string;
     whatsapp?: string;
+    useCustomColors?: boolean;
+    customColor?: string;
   };
   logoLoaded: boolean;
   setLogoLoaded: React.Dispatch<React.SetStateAction<boolean>>;
@@ -45,7 +47,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
     if (storeInfo.whatsapp) links.push(['whatsapp', storeInfo.whatsapp]);
     if (storeInfo.website) links.push(['website', storeInfo.website]);
     
-    return links.slice(0, 3);
+    return links;
   };
 
   return (
@@ -90,7 +92,11 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
                 </div>
               )}
               
-              <SocialLinks links={getActiveSocialLinks()} />
+              <SocialLinks 
+                links={getActiveSocialLinks()} 
+                useCustomColors={storeInfo.useCustomColors}
+                customColor={storeInfo.customColor}
+              />
             </div>
           </div>
         </div>

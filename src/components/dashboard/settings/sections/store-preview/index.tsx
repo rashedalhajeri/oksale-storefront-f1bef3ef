@@ -13,11 +13,11 @@ interface StorePreviewProps {
     handle: string;
     logo_url: string;
     cover_url: string;
-    instagram: string;
-    twitter: string;
-    facebook: string;
-    website: string;
-    address: string;
+    instagram?: string;
+    twitter?: string;
+    facebook?: string;
+    website?: string;
+    address?: string;
     snapchat?: string;
     tiktok?: string;
     whatsapp?: string;
@@ -79,15 +79,17 @@ const StorePreview: React.FC<StorePreviewProps> = ({
           setLogoLoaded={setLogoLoaded}
         />
         
-        <EditStoreDialog 
-          storeInfo={storeInfo}
-          coverInputRef={coverInputRef}
-          logoInputRef={logoInputRef}
-          coverUploading={coverUploading}
-          logoUploading={logoUploading}
-          handleInputChange={handleInputChange}
-          handleSaveAndClose={handleSaveAndClose}
-        />
+        {open && (
+          <EditStoreDialog 
+            storeInfo={storeInfo}
+            coverInputRef={coverInputRef}
+            logoInputRef={logoInputRef}
+            coverUploading={coverUploading}
+            logoUploading={logoUploading}
+            handleInputChange={handleInputChange}
+            handleSaveAndClose={handleSaveAndClose}
+          />
+        )}
         
         <InputFields 
           coverInputRef={coverInputRef}
