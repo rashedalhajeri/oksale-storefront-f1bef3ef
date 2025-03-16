@@ -1,9 +1,19 @@
 
 import React, { useRef } from 'react';
-import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle, Edit } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface StorePreviewProps {
   storeInfo: {
@@ -22,6 +32,7 @@ interface StorePreviewProps {
   featured?: boolean;
   handleLogoUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleCoverUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleInputChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 const StorePreview: React.FC<StorePreviewProps> = ({
@@ -32,7 +43,8 @@ const StorePreview: React.FC<StorePreviewProps> = ({
   logoUploading,
   featured,
   handleLogoUpload,
-  handleCoverUpload
+  handleCoverUpload,
+  handleInputChange
 }) => {
   const displayHandle = storeInfo.handle.startsWith('@') 
     ? storeInfo.handle
@@ -55,18 +67,97 @@ const StorePreview: React.FC<StorePreviewProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
         </div>
         
-        {/* Button to change cover */}
-        <div className="absolute bottom-0 right-0 p-2">
-          <Button 
-            variant="secondary" 
-            size="sm"
-            className="text-xs"
-            onClick={() => coverInputRef.current?.click()}
-            disabled={coverUploading}
-          >
-            <Upload className="h-3 w-3 ml-1" />
-            {coverUploading ? 'جارِ الرفع...' : 'تغيير الغلاف'}
-          </Button>
+        {/* Edit button in the top right corner */}
+        <div className="absolute top-3 right-3">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button 
+                variant="secondary" 
+                size="sm"
+                className="text-xs font-medium"
+              >
+                <Edit className="h-3 w-3 mr-1" />
+                تعديل
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl overflow-auto">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold">تعديل معلومات المتجر</DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-6 py-3">
+                {/* Store name input */}
+                <div className="space-y-2">
+                  <Label htmlFor="store-name">اسم المتجر</Label>
+                  <Input 
+                    id="store-name" 
+                    value={storeInfo.name} 
+                    onChange={handleInputChange}
+                    className="w-full"
+                  />
+                </div>
+                
+                {/* Logo upload */}
+                <div className="space-y-2">
+                  <Label>شعار المتجر</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-white flex items-center justify-center border border-gray-200">
+                      {storeInfo.logo_url ? (
+                        <img 
+                          src={storeInfo.logo_url} 
+                          alt={`${storeInfo.name} logo`} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <ShoppingBag className="w-8 h-8 text-neutral-400" />
+                      )}
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={logoUploading}
+                    >
+                      {logoUploading ? 'جارِ الرفع...' : 'تغيير الشعار'}
+                      <Upload className="mr-1 h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Cover upload */}
+                <div className="space-y-2">
+                  <Label>صورة الغلاف</Label>
+                  <div className="flex flex-col gap-3">
+                    <div className="w-full h-36 rounded-lg overflow-hidden">
+                      {storeInfo.cover_url ? (
+                        <img 
+                          src={storeInfo.cover_url} 
+                          alt={`${storeInfo.name} cover`} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-t from-oksale-600 to-oksale-800"></div>
+                      )}
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => coverInputRef.current?.click()}
+                      disabled={coverUploading}
+                    >
+                      {coverUploading ? 'جارِ الرفع...' : 'تغيير الغلاف'}
+                      <Upload className="mr-1 h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button type="button">
+                  حفظ التغييرات
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
           <input
             type="file"
             id="cover-upload"
@@ -74,6 +165,14 @@ const StorePreview: React.FC<StorePreviewProps> = ({
             className="hidden"
             accept="image/*"
             onChange={handleCoverUpload}
+          />
+          <input
+            type="file"
+            id="logo-upload"
+            ref={logoInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleLogoUpload}
           />
         </div>
         
@@ -107,14 +206,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                       <Upload className="h-3 w-3" />
                     )}
                   </button>
-                  <input
-                    type="file"
-                    id="logo-upload"
-                    ref={logoInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                  />
                 </div>
                 
                 {/* Store details with consistent text sizes */}
@@ -167,8 +258,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                   </div>
                 </div>
               </div>
-              
-              {/* Removed Share button as requested */}
             </div>
           </div>
         </div>
