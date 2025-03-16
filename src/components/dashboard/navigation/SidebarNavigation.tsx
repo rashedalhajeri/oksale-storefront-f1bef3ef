@@ -81,11 +81,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
   const isSettingsPath = () => {
     return location.pathname.includes('/dashboard/settings');
   };
-
-  const handleEditStore = () => {
-    // Navigation is handled via the Link component in the button
-  };
-
+  
   return (
     <div className="flex-1 overflow-y-auto py-4 px-3">
       {/* Store Header Section */}
@@ -97,13 +93,12 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
           <div className="flex gap-1">
             <button 
               className="text-xs flex items-center gap-1 border border-oksale-500 text-oksale-700 hover:bg-oksale-50 px-2 py-1 rounded"
-              onClick={handleEditStore}
             >
               <PenSquare className="h-3 w-3" />
               <Link to="/dashboard/settings/general">تحرير المتجر</Link>
             </button>
             <Link 
-              to={`/store/${storeData?.handle?.replace('@', '')}`} 
+              to={`/${storeData?.handle}`} 
               className="text-xs flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-100"
               target="_blank"
             >
