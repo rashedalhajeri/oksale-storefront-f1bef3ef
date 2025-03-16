@@ -9,7 +9,7 @@ import {
   BarChart, 
   Settings,
   ChevronDown,
-  ChevronRight,
+  ChevronLeft,
   Megaphone
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -117,7 +117,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
               </div>
               {isSettingsOpen ? 
                 <ChevronDown className="h-4 w-4" /> : 
-                <ChevronRight className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" />
               }
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-1 space-y-1">
