@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle, Edit } from 'lucide-react';
+import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -24,6 +24,8 @@ interface StorePreviewProps {
     instagram: string;
     twitter: string;
     facebook: string;
+    website: string;
+    address: string;
   };
   coverInputRef: React.RefObject<HTMLInputElement>;
   logoInputRef: React.RefObject<HTMLInputElement>;
@@ -50,6 +52,9 @@ const StorePreview: React.FC<StorePreviewProps> = ({
     ? storeInfo.handle
     : `@${storeInfo.handle}`;
 
+  // Default cover image if none is provided
+  const defaultCoverUrl = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
+
   return (
     <Card className="overflow-hidden">
       <div className="relative">
@@ -62,7 +67,11 @@ const StorePreview: React.FC<StorePreviewProps> = ({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-t from-[#8E9196] to-[#F6F6F7]"></div>
+            <img 
+              src={defaultCoverUrl} 
+              alt="Default store cover" 
+              className="w-full h-full object-cover"
+            />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
         </div>
@@ -135,7 +144,11 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-t from-[#8E9196] to-[#F6F6F7]"></div>
+                        <img 
+                          src={defaultCoverUrl} 
+                          alt="Default store cover" 
+                          className="w-full h-full object-cover"
+                        />
                       )}
                     </div>
                     <Button 
@@ -201,52 +214,66 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                 <div>
                   <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
                     <h1 className="text-lg md:text-2xl font-bold truncate">{storeInfo.name || 'اسم المتجر'}</h1>
-                    {featured && (
-                      <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
-                        <CheckCircle className="w-2 h-2 md:w-3 md:h-3" />
-                      </Badge>
-                    )}
+                    <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
+                      <CheckCircle2 className="w-2 h-2 md:w-3 md:h-3" />
+                    </Badge>
                   </div>
                   
                   <div className="flex items-center gap-1 text-white text-xs md:text-sm">
                     <span className="truncate">{displayHandle}</span>
                   </div>
                   
-                  {/* Social links - only show if they exist */}
-                  {(storeInfo.instagram || storeInfo.twitter || storeInfo.facebook) && (
-                    <div className="flex items-center gap-3 md:gap-4 mt-2">
-                      {storeInfo.instagram && (
-                        <a 
-                          href={storeInfo.instagram.startsWith('http') ? storeInfo.instagram : `https://instagram.com/${storeInfo.instagram}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="text-white hover:text-blue-200 transition-colors"
-                        >
-                          <Instagram className="w-4 h-4 md:w-5 md:h-5" />
-                        </a>
-                      )}
-                      {storeInfo.twitter && (
-                        <a 
-                          href={storeInfo.twitter.startsWith('http') ? storeInfo.twitter : `https://twitter.com/${storeInfo.twitter}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="text-white hover:text-blue-200 transition-colors"
-                        >
-                          <Twitter className="w-4 h-4 md:w-5 md:h-5" />
-                        </a>
-                      )}
-                      {storeInfo.facebook && (
-                        <a 
-                          href={storeInfo.facebook.startsWith('http') ? storeInfo.facebook : `https://facebook.com/${storeInfo.facebook}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="text-white hover:text-blue-200 transition-colors"
-                        >
-                          <Facebook className="w-4 h-4 md:w-5 md:h-5" />
-                        </a>
-                      )}
+                  {/* Address if available */}
+                  {storeInfo.address && (
+                    <div className="flex items-center gap-1 text-white text-xs md:text-sm mt-1">
+                      <MapPin className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="truncate">{storeInfo.address}</span>
                     </div>
                   )}
+                  
+                  {/* Social links - only show if they exist */}
+                  <div className="flex items-center gap-3 md:gap-4 mt-2">
+                    {storeInfo.instagram && (
+                      <a 
+                        href={storeInfo.instagram.startsWith('http') ? storeInfo.instagram : `https://instagram.com/${storeInfo.instagram}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-white hover:text-blue-200 transition-colors"
+                      >
+                        <Instagram className="w-4 h-4 md:w-5 md:h-5" />
+                      </a>
+                    )}
+                    {storeInfo.twitter && (
+                      <a 
+                        href={storeInfo.twitter.startsWith('http') ? storeInfo.twitter : `https://twitter.com/${storeInfo.twitter}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-white hover:text-blue-200 transition-colors"
+                      >
+                        <Twitter className="w-4 h-4 md:w-5 md:h-5" />
+                      </a>
+                    )}
+                    {storeInfo.facebook && (
+                      <a 
+                        href={storeInfo.facebook.startsWith('http') ? storeInfo.facebook : `https://facebook.com/${storeInfo.facebook}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-white hover:text-blue-200 transition-colors"
+                      >
+                        <Facebook className="w-4 h-4 md:w-5 md:h-5" />
+                      </a>
+                    )}
+                    {storeInfo.website && (
+                      <a 
+                        href={storeInfo.website.startsWith('http') ? storeInfo.website : `https://${storeInfo.website}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-white hover:text-blue-200 transition-colors"
+                      >
+                        <Globe className="w-4 h-4 md:w-5 md:h-5" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

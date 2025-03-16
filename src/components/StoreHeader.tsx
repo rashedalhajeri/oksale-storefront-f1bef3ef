@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, CheckCircle, Instagram, Twitter, Facebook, Globe, MapPin } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, Instagram, Twitter, Facebook, Globe, MapPin } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -42,6 +42,9 @@ const StoreHeader = ({
     ? store.handle
     : `@${store.handle}`;
 
+  // Default cover image if none is provided
+  const defaultCoverUrl = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
+
   return (
     <div className="relative">
       {/* Cover image container with fixed height */}
@@ -57,7 +60,15 @@ const StoreHeader = ({
             onLoad={() => setCoverLoaded(true)} 
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-t from-[#8E9196] to-[#F6F6F7]"></div>
+          <img 
+            src={defaultCoverUrl} 
+            alt="Default store cover" 
+            className={cn(
+              "w-full h-full object-cover transition-opacity duration-700", 
+              coverLoaded ? "opacity-100" : "opacity-0"
+            )} 
+            onLoad={() => setCoverLoaded(true)} 
+          />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
       </div>
@@ -93,7 +104,7 @@ const StoreHeader = ({
                   <h1 className="text-lg md:text-2xl font-bold truncate">{store.name}</h1>
                   {store.featured && (
                     <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
-                      <CheckCircle className="w-2 h-2 md:w-3 md:h-3" />
+                      <CheckCircle2 className="w-2 h-2 md:w-3 md:h-3" />
                     </Badge>
                   )}
                 </div>
