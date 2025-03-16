@@ -10,6 +10,14 @@ interface DashboardLayoutProps {
   storeData: any;
 }
 
+// Memoized Sidebar component to prevent re-rendering
+const MemoizedSidebar = React.memo(
+  ({ storeData }: { storeData: any }) => <Sidebar storeData={storeData} />,
+  () => true // Always return true to prevent re-renders completely
+);
+
+MemoizedSidebar.displayName = 'MemoizedSidebar';
+
 const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
   children,
   storeData
@@ -52,7 +60,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
         isMobile ? "fixed inset-y-0 right-0 shadow-xl" : "sticky top-0 h-screen", 
         isMobile && !sidebarOpen ? "translate-x-full" : "translate-x-0"
       )}>
-        <Sidebar storeData={storeData} />
+        {/* Using MemoizedSidebar instead of Sidebar to prevent re-renders */}
+        <MemoizedSidebar storeData={storeData} />
       </div>
       
       {/* Overlay for mobile when sidebar is open */}

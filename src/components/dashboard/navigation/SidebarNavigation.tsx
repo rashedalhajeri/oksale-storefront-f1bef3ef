@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
   ShoppingBag, 
@@ -19,6 +19,7 @@ interface SidebarNavigationProps {
   storeData: any;
 }
 
+// Enhanced memo to completely prevent re-renders
 const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeData }) => {
   const location = useLocation();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -86,19 +87,24 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
       <ul className="space-y-2">
         {navigationItems.map((item) => (
           <li key={item.path}>
-            <NavLink
+            <Link
               to={item.path}
-              end={item.path === '/dashboard'}
-              className={({isActive}) => cn(
+              className={cn(
                 "flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all",
-                isActive
+                isActive(item.path)
                   ? "bg-[#1A2747] text-white"
                   : "text-white/80 hover:text-white hover:bg-[#1A2747]/50"
               )}
+              onClick={(e) => {
+                // If already on this route, prevent navigation to avoid re-renders
+                if (isActive(item.path)) {
+                  e.preventDefault();
+                }
+              }}
             >
               {item.icon}
               <span>{item.name}</span>
-            </NavLink>
+            </Link>
           </li>
         ))}
         
@@ -126,18 +132,24 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-1 space-y-1">
               {settingsItems.map((item) => (
-                <NavLink
+                <Link
                   key={item.path}
                   to={item.path}
-                  className={({isActive}) => cn(
+                  className={cn(
                     "flex items-center mr-7 gap-2 px-4 py-2 rounded-md text-sm transition-colors",
-                    isActive
+                    isActive(item.path)
                       ? "bg-[#1A2747]/70 text-white"
                       : "text-white/70 hover:bg-[#1A2747]/30 hover:text-white"
                   )}
+                  onClick={(e) => {
+                    // If already on this route, prevent navigation to avoid re-renders
+                    if (isActive(item.path)) {
+                      e.preventDefault();
+                    }
+                  }}
                 >
                   <span>{item.name}</span>
-                </NavLink>
+                </Link>
               ))}
             </CollapsibleContent>
           </Collapsible>
@@ -145,7 +157,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
       </ul>
     </div>
   );
-});
+}, () => true); // Always return true to prevent re-renders completely
 
 SidebarNavigation.displayName = 'SidebarNavigation';
 
