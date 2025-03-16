@@ -68,7 +68,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
         isMobile && !sidebarOpen ? "translate-x-full" : "translate-x-0"
       )}>
         {/* Using MemoizedSidebar with memoized store data */}
-        <MemoizedSidebar storeData={memoizedStoreData} />
+        <div className="h-full overflow-hidden rounded-l-2xl">
+          <MemoizedSidebar storeData={memoizedStoreData} />
+        </div>
       </div>
       
       {/* Overlay for mobile when sidebar is open */}
