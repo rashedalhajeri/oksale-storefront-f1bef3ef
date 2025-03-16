@@ -37,15 +37,25 @@ export const fetchStoreStatistics = async (storeId: string) => {
     
     const totalRevenue = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
     
-    // حساب الزيارات التقديرية (في تطبيق حقيقي، ستأتي من التحليلات)
-    // هنا نقوم فقط بتوليد رقم بناءً على الطلبات والمنتجات
-    const estimatedVisits = Math.max(orders.length * 10, productsCount * 5);
+    // حساب عدد المنتجات المباعة
+    const { data: orderItems, error: orderItemsError } = await supabase
+      .from('order_items')
+      .select(`
+        quantity,
+        orders!inner(store_id)
+      `)
+      .eq('orders.store_id', storeId);
+    
+    if (orderItemsError) throw orderItemsError;
+    
+    // حساب إجمالي المنتجات المباعة
+    const soldProductsCount = orderItems.reduce((sum, item) => sum + Number(item.quantity), 0);
     
     return {
       productsCount: productsCount || 0,
       ordersCount: orders.length,
       revenue: totalRevenue.toFixed(2),
-      visitsCount: estimatedVisits,
+      soldProductsCount: soldProductsCount,
       currency: currency,
       orders
     };

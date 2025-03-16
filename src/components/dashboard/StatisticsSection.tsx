@@ -2,7 +2,7 @@
 import React from 'react';
 import { 
   Package, 
-  Users, 
+  ShoppingBag,
   ShoppingCart, 
   Banknote,
   ArrowUpRight
@@ -31,8 +31,8 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
     switch(iconName) {
       case 'products':
         return <Package className="h-5 w-5 text-indigo-600" />;
-      case 'visitors':
-        return <Users className="h-5 w-5 text-blue-600" />;
+      case 'sold':
+        return <ShoppingBag className="h-5 w-5 text-blue-600" />;
       case 'orders':
         return <ShoppingCart className="h-5 w-5 text-green-600" />;
       case 'revenue':
@@ -44,7 +44,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {Array.from({ length: 4 }).map((_, index) => (
           <Card key={index} className="border-none shadow-sm animate-pulse">
             <CardHeader className="pb-2">
@@ -73,7 +73,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {statistics.map((item, index) => (
         <Card key={index} className="border-none shadow-sm">
           <CardHeader className="pb-2">

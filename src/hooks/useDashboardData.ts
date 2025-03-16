@@ -21,7 +21,7 @@ export const useDashboardData = (storeId: string) => {
     productsCount: 0,
     ordersCount: 0,
     revenue: 0,
-    visitsCount: 0,
+    soldProductsCount: 0,
     currency: 'SAR'
   });
   const [salesData, setSalesData] = useState([]);
@@ -46,7 +46,7 @@ export const useDashboardData = (storeId: string) => {
         productsCount: stats.productsCount,
         ordersCount: stats.ordersCount,
         revenue: parseFloat(stats.revenue),
-        visitsCount: stats.visitsCount,
+        soldProductsCount: stats.soldProductsCount || 0,
         currency: stats.currency || 'SAR'
       });
       
@@ -96,13 +96,13 @@ export const useDashboardData = (storeId: string) => {
       progressValue: calculateProgress(dashboardStats.productsCount, calculateTarget(dashboardStats.productsCount))
     },
     {
-      name: "الزيارات",
-      value: formatNumber(dashboardStats.visitsCount),
-      icon: "visitors",
-      description: "زائر هذا الشهر",
+      name: "المبيعات",
+      value: formatNumber(dashboardStats.soldProductsCount),
+      icon: "sold",
+      description: "المنتجات المباعة",
       change: "+15% منذ آخر شهر",
       trendUp: true,
-      progressValue: calculateProgress(dashboardStats.visitsCount, calculateTarget(dashboardStats.visitsCount))
+      progressValue: calculateProgress(dashboardStats.soldProductsCount, calculateTarget(dashboardStats.soldProductsCount))
     },
     {
       name: "الطلبات",
