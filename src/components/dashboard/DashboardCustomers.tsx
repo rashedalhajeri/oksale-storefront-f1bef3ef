@@ -19,6 +19,14 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface DashboardCustomersProps {
   storeData: any;
@@ -156,66 +164,82 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b">
-                  <th className="py-3 px-4 text-right">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50 border-b">
+                  <TableHead className="py-3 px-4 text-right">
                     <Checkbox 
                       checked={selectedCustomers.length === customers.length && customers.length > 0}
                       onCheckedChange={selectAllCustomers}
                     />
-                  </th>
-                  <th className="py-3 px-4 font-medium text-gray-500 text-right">الاسم</th>
-                  <th className="py-3 px-4 font-medium text-gray-500 text-right">رقم الجوال</th>
-                  <th className="py-3 px-4 font-medium text-gray-500 text-right">تاريخ التسجيل</th>
-                  <th className="py-3 px-4 font-medium text-gray-500 text-right">البريد الإلكتروني</th>
-                  <th className="py-3 px-4 font-medium text-gray-500 text-right">عدد الطلبات</th>
-                  <th className="py-3 px-4 font-medium text-gray-500 text-right">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableHead>
+                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">الاسم</TableHead>
+                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">رقم الجوال</TableHead>
+                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">تاريخ التسجيل</TableHead>
+                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">البريد الإلكتروني</TableHead>
+                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">عدد الطلبات</TableHead>
+                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">إجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {customers.map((customer) => (
-                  <ContextMenuTrigger key={customer.id} id={`customer-${customer.id}`}>
-                    <tr className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">
-                        <Checkbox 
-                          checked={selectedCustomers.includes(customer.id)}
-                          onCheckedChange={() => toggleCustomerSelection(customer.id)}
-                        />
-                      </td>
-                      <td className="py-3 px-4 font-medium">{customer.name}</td>
-                      <td className="py-3 px-4">{customer.phone}</td>
-                      <td className="py-3 px-4">{customer.registrationDate}</td>
-                      <td className="py-3 px-4">{customer.email}</td>
-                      <td className="py-3 px-4">{customer.totalOrders}</td>
-                      <td className="py-3 px-4">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal size={18} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-[160px]">
-                            <DropdownMenuItem className="flex items-center gap-2 text-sm">
-                              <Pencil size={14} className="text-gray-500" />
-                              <span>عرض</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="flex items-center gap-2 text-sm">
-                              <Pencil size={14} className="text-gray-500" />
-                              <span>تعديل</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="flex items-center gap-2 text-sm text-red-600">
-                              <Trash2 size={14} className="text-red-500" />
-                              <span>حذف</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  </ContextMenuTrigger>
+                  <ContextMenu key={customer.id}>
+                    <ContextMenuTrigger>
+                      <TableRow className="border-b hover:bg-gray-50">
+                        <TableCell className="py-3 px-4">
+                          <Checkbox 
+                            checked={selectedCustomers.includes(customer.id)}
+                            onCheckedChange={() => toggleCustomerSelection(customer.id)}
+                          />
+                        </TableCell>
+                        <TableCell className="py-3 px-4 font-medium">{customer.name}</TableCell>
+                        <TableCell className="py-3 px-4">{customer.phone}</TableCell>
+                        <TableCell className="py-3 px-4">{customer.registrationDate}</TableCell>
+                        <TableCell className="py-3 px-4">{customer.email}</TableCell>
+                        <TableCell className="py-3 px-4">{customer.totalOrders}</TableCell>
+                        <TableCell className="py-3 px-4">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal size={18} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-[160px]">
+                              <DropdownMenuItem className="flex items-center gap-2 text-sm">
+                                <Pencil size={14} className="text-gray-500" />
+                                <span>عرض</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="flex items-center gap-2 text-sm">
+                                <Pencil size={14} className="text-gray-500" />
+                                <span>تعديل</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="flex items-center gap-2 text-sm text-red-600">
+                                <Trash2 size={14} className="text-red-500" />
+                                <span>حذف</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem className="flex items-center gap-2">
+                        <Pencil size={14} className="text-gray-500" />
+                        <span>عرض</span>
+                      </ContextMenuItem>
+                      <ContextMenuItem className="flex items-center gap-2">
+                        <Pencil size={14} className="text-gray-500" />
+                        <span>تعديل</span>
+                      </ContextMenuItem>
+                      <ContextMenuItem className="flex items-center gap-2 text-red-600">
+                        <Trash2 size={14} className="text-red-500" />
+                        <span>حذف</span>
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           <div className="p-4 flex justify-between items-center">
@@ -255,24 +279,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
           </div>
         </CardContent>
       </Card>
-
-      {/* Context Menu For Right-Click */}
-      <ContextMenu>
-        <ContextMenuContent>
-          <ContextMenuItem className="flex items-center gap-2">
-            <Pencil size={14} className="text-gray-500" />
-            <span>عرض</span>
-          </ContextMenuItem>
-          <ContextMenuItem className="flex items-center gap-2">
-            <Pencil size={14} className="text-gray-500" />
-            <span>تعديل</span>
-          </ContextMenuItem>
-          <ContextMenuItem className="flex items-center gap-2 text-red-600">
-            <Trash2 size={14} className="text-red-500" />
-            <span>حذف</span>
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
     </div>
   );
 };
