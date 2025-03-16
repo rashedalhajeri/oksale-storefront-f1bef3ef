@@ -8,8 +8,7 @@ import {
   TrendingUp,
   TrendingDown
 } from 'lucide-react';
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface StatisticItem {
@@ -71,19 +70,10 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
                 <Skeleton className="h-4 w-20 rounded" />
               </div>
             </CardHeader>
-            <CardContent className="pb-2">
+            <CardContent className="pb-4">
               <Skeleton className="h-7 w-24 rounded mb-2" />
               <Skeleton className="h-4 w-32 rounded" />
             </CardContent>
-            <CardFooter className="pt-0 pb-4">
-              <div className="w-full">
-                <div className="flex items-center justify-between mb-1">
-                  <Skeleton className="h-3 w-16 rounded" />
-                  <Skeleton className="h-3 w-10 rounded" />
-                </div>
-                <Skeleton className="h-2 w-full rounded" />
-              </div>
-            </CardFooter>
           </Card>
         ))}
       </div>
@@ -112,33 +102,10 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pb-2">
+          <CardContent className="pb-4">
             <div className="text-2xl font-bold">{item.value}</div>
             <p className="text-gray-500 text-sm">{item.description}</p>
           </CardContent>
-          <CardFooter className="pt-0 pb-4">
-            <div className="w-full">
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
-                <span>التقدم</span>
-                <span className="font-medium">{item.progressValue}%</span>
-              </div>
-              <Progress 
-                value={item.progressValue} 
-                className={`h-1.5 rounded-full ${
-                  item.icon === 'products' ? 'bg-indigo-100' : 
-                  item.icon === 'sold' ? 'bg-blue-100' : 
-                  item.icon === 'orders' ? 'bg-green-100' : 
-                  'bg-purple-100'
-                }`}
-                indicatorClassName={
-                  item.icon === 'products' ? 'bg-indigo-500' : 
-                  item.icon === 'sold' ? 'bg-blue-500' : 
-                  item.icon === 'orders' ? 'bg-green-500' : 
-                  'bg-purple-500'
-                }
-              />
-            </div>
-          </CardFooter>
         </Card>
       ))}
     </div>
