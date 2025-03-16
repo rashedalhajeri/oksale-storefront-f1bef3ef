@@ -45,6 +45,11 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { formatDistance, isAfter, subWeeks, format } from 'date-fns';
+import { ar } from 'date-fns/locale';
+import { parsePhoneNumber, AsYouType } from 'libphonenumber-js';
+import 'react-phone-number-input/style.css';
+import PhoneInput from 'react-phone-number-input';
 
 interface DashboardCustomersProps {
   storeData: any;
@@ -57,6 +62,7 @@ interface Customer {
   email: string;
   phone: string;
   registrationDate: string;
+  registrationTimestamp: Date; // Added for proper date comparisons
   totalOrders: number;
   // New fields
   address?: string;
@@ -83,15 +89,18 @@ interface CustomerFormData {
 const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const now = new Date();
+  const oneWeekAgo = subWeeks(now, 1);
   
-  // Mock customers data with extended information
+  // Mock customers data with extended information and proper dates
   const customers: Customer[] = [
     { 
       id: 1, 
       name: 'راشد الراجحي', 
       email: 'rhajri965@gmail.com', 
-      phone: '96566605014', 
+      phone: '+96566605014', 
       registrationDate: 'منذ ثانية',
+      registrationTimestamp: new Date(),
       totalOrders: 0, 
       address: 'الكويت، حولي، شارع المثنى، بناية 24، شقة 7',
       orders: [],
@@ -100,8 +109,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       id: 2, 
       name: 'فاطمة علي', 
       email: 'fatima@example.com', 
-      phone: '96650765432', 
+      phone: '+96650765432', 
       registrationDate: 'منذ دقيقة',
+      registrationTimestamp: new Date(now.getTime() - 60 * 1000),
       totalOrders: 3, 
       address: 'المملكة العربية السعودية، الرياض، حي النخيل، طريق الملك فهد',
       orders: [
@@ -114,8 +124,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       id: 3, 
       name: 'محمد عبدالله', 
       email: 'mohammed@example.com', 
-      phone: '96654987654', 
+      phone: '+96654987654', 
       registrationDate: 'منذ ساعة',
+      registrationTimestamp: new Date(now.getTime() - 60 * 60 * 1000),
       totalOrders: 7, 
       address: 'الإمارات العربية المتحدة، دبي، شارع الشيخ زايد، برج الخالدية',
       orders: [
@@ -128,8 +139,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       id: 4, 
       name: 'نورة سالم', 
       email: 'noura@example.com', 
-      phone: '96656456789', 
+      phone: '+96656456789', 
       registrationDate: 'منذ يوم',
+      registrationTimestamp: new Date(now.getTime() - 24 * 60 * 60 * 1000 * 10), // 10 days ago for testing
       totalOrders: 2, 
       address: 'قطر، الدوحة، اللؤلؤة، فيلا 42',
       orders: [
@@ -231,17 +243,50 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
     setIsDeleteDialogOpen(false);
   };
 
-  // Format phone numbers with country code (966) and add spaces
-  const formatPhoneNumber = (phone: string) => {
-    // Check if the phone starts with 9665 or 9665x
-    if (phone.startsWith('9665')) {
-      // Format: 966 5x xxx xxxx
-      const cleaned = phone.slice(3); // Remove 966
-      if (cleaned.length >= 8) {
-        return `${phone.slice(0, 3)} ${cleaned.slice(0, 1)} ${cleaned.slice(1, 4)} ${cleaned.slice(4)}`;
-      }
+  // Format registration date - show date if older than a week
+  const formatRegistrationDate = (customer: Customer) => {
+    if (isAfter(oneWeekAgo, customer.registrationTimestamp)) {
+      return format(customer.registrationTimestamp, 'dd MMM yyyy', { locale: ar });
     }
-    return phone; // Return as is if it doesn't match pattern
+    return formatDistance(customer.registrationTimestamp, now, { addSuffix: true, locale: ar });
+  };
+
+  // Format phone numbers with country code and proper spacing
+  const formatPhoneNumber = (phone: string) => {
+    try {
+      if (!phone) return '';
+      
+      // Ensure the phone number starts with +
+      const phoneWithPlus = phone.startsWith('+') ? phone : `+${phone}`;
+      const phoneNumber = parsePhoneNumber(phoneWithPlus);
+      
+      if (phoneNumber) {
+        const countryCode = phoneNumber.countryCallingCode;
+        const nationalNumber = phoneNumber.nationalNumber;
+        return `+${countryCode} ${nationalNumber}`;
+      }
+      
+      // Fallback to basic formatting with AsYouType if parsing fails
+      return new AsYouType().input(phoneWithPlus);
+    } catch (error) {
+      console.error("Error formatting phone number:", error);
+      return phone;
+    }
+  };
+
+  // Get country code from phone number
+  const getCountryFromPhone = (phone: string) => {
+    try {
+      if (!phone) return null;
+      
+      const phoneWithPlus = phone.startsWith('+') ? phone : `+${phone}`;
+      const phoneNumber = parsePhoneNumber(phoneWithPlus);
+      
+      return phoneNumber?.country?.toLowerCase() || null;
+    } catch (error) {
+      console.error("Error getting country from phone:", error);
+      return null;
+    }
   };
 
   return (
@@ -267,7 +312,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             <Select>
               <SelectTrigger className={`bg-white border-gray-200 ${isMobile ? 'w-full mt-2' : 'w-[150px] mr-2'}`}>
                 <div className="flex items-center gap-1">
-                  <Filter size={16} className="text-gray-500" />
+                  <Filter size={14} className="text-gray-500" />
                   <span className="text-sm">فلترة</span>
                 </div>
               </SelectTrigger>
@@ -304,9 +349,20 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 >
                   <div>
                     <p className="font-medium text-gray-900">{customer.name}</p>
-                    <p className="text-sm text-gray-600 mt-1 dir-ltr text-right">
-                      {formatPhoneNumber(customer.phone)}
-                    </p>
+                    <div className="flex items-center gap-1 mt-1">
+                      {getCountryFromPhone(customer.phone) && (
+                        <span className="inline-block h-4 w-6 overflow-hidden rounded-sm">
+                          <img 
+                            src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
+                            alt="Country flag" 
+                            className="h-full w-full object-cover"
+                          />
+                        </span>
+                      )}
+                      <p className="text-sm text-gray-600 dir-ltr text-right">
+                        {formatPhoneNumber(customer.phone)}
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <DropdownMenu>
@@ -345,79 +401,88 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             </div>
           ) : (
             // Desktop view - Full table with scroll area
-            <ScrollArea className="w-full">
-              <div className="w-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-gray-50">
-                      <TableHead className="w-10 text-right py-3 font-semibold text-gray-600">
+            <div className="overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="w-10 text-right py-3 font-semibold text-gray-600">
+                      <Checkbox 
+                        checked={selectedCustomers.length === customers.length && customers.length > 0}
+                        onCheckedChange={selectAllCustomers}
+                      />
+                    </TableHead>
+                    <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[140px]">الاسم</TableHead>
+                    <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[140px]">رقم الجوال</TableHead>
+                    <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[130px]">تاريخ التسجيل</TableHead>
+                    <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[180px]">البريد الإلكتروني</TableHead>
+                    <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[100px]">الطلبات</TableHead>
+                    <TableHead className="text-right py-3 font-semibold text-gray-600 w-16">إجراءات</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {customers.map((customer) => (
+                    <TableRow key={customer.id} className="border-b hover:bg-gray-50">
+                      <TableCell className="w-10 py-3 px-4">
                         <Checkbox 
-                          checked={selectedCustomers.length === customers.length && customers.length > 0}
-                          onCheckedChange={selectAllCustomers}
+                          checked={selectedCustomers.includes(customer.id)}
+                          onCheckedChange={() => toggleCustomerSelection(customer.id)}
                         />
-                      </TableHead>
-                      <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[140px]">الاسم</TableHead>
-                      <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[120px]">رقم الجوال</TableHead>
-                      <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[100px]">تاريخ التسجيل</TableHead>
-                      <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[180px]">البريد الإلكتروني</TableHead>
-                      <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[100px]">الطلبات</TableHead>
-                      <TableHead className="text-right py-3 font-semibold text-gray-600 w-16">إجراءات</TableHead>
+                      </TableCell>
+                      <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
+                      <TableCell className="py-3 px-4 text-gray-700 text-sm">
+                        <div className="flex items-center gap-2 dir-ltr justify-end">
+                          {getCountryFromPhone(customer.phone) && (
+                            <span className="inline-block h-4 w-6 overflow-hidden rounded-sm">
+                              <img 
+                                src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
+                                alt="Country flag" 
+                                className="h-full w-full object-cover"
+                              />
+                            </span>
+                          )}
+                          <span>{formatPhoneNumber(customer.phone)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3 px-4 text-gray-700 text-sm">{formatRegistrationDate(customer)}</TableCell>
+                      <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.email}</TableCell>
+                      <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.totalOrders}</TableCell>
+                      <TableCell className="py-3 px-4 w-16">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal size={18} className="text-gray-500" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-[160px]">
+                            <DropdownMenuItem 
+                              className="flex items-center gap-2 text-sm cursor-pointer"
+                              onClick={() => openCustomerDetails(customer)}
+                            >
+                              <Eye size={14} className="text-gray-500" />
+                              <span>عرض</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="flex items-center gap-2 text-sm cursor-pointer"
+                              onClick={() => openEditCustomer(customer)}
+                            >
+                              <Pencil size={14} className="text-gray-500" />
+                              <span>تعديل</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="flex items-center gap-2 text-sm text-red-600 cursor-pointer"
+                              onClick={() => openDeleteConfirmation(customer)}
+                            >
+                              <Trash2 size={14} className="text-red-500" />
+                              <span>حذف</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {customers.map((customer) => (
-                      <TableRow key={customer.id} className="border-b hover:bg-gray-50">
-                        <TableCell className="w-10 py-3 px-4">
-                          <Checkbox 
-                            checked={selectedCustomers.includes(customer.id)}
-                            onCheckedChange={() => toggleCustomerSelection(customer.id)}
-                          />
-                        </TableCell>
-                        <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
-                        <TableCell className="py-3 px-4 text-gray-700 text-sm dir-ltr text-right">
-                          {formatPhoneNumber(customer.phone)}
-                        </TableCell>
-                        <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.registrationDate}</TableCell>
-                        <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.email}</TableCell>
-                        <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.totalOrders}</TableCell>
-                        <TableCell className="py-3 px-4 w-16">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal size={18} className="text-gray-500" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-[160px]">
-                              <DropdownMenuItem 
-                                className="flex items-center gap-2 text-sm cursor-pointer"
-                                onClick={() => openCustomerDetails(customer)}
-                              >
-                                <Eye size={14} className="text-gray-500" />
-                                <span>عرض</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="flex items-center gap-2 text-sm cursor-pointer"
-                                onClick={() => openEditCustomer(customer)}
-                              >
-                                <Pencil size={14} className="text-gray-500" />
-                                <span>تعديل</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="flex items-center gap-2 text-sm text-red-600 cursor-pointer"
-                                onClick={() => openDeleteConfirmation(customer)}
-                              >
-                                <Trash2 size={14} className="text-red-500" />
-                                <span>حذف</span>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </ScrollArea>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
 
           {/* Pagination with better alignment */}
@@ -449,7 +514,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </CardContent>
       </Card>
 
-      {/* Customer Details Dialog */}
+      {/* Customer Details Dialog - Enhanced with scrollable content */}
       {selectedCustomer && (
         <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
           <DialogContent className="max-w-3xl overflow-hidden">
@@ -457,98 +522,113 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               <DialogTitle className="text-xl">{selectedCustomer.name}</DialogTitle>
             </DialogHeader>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-              {/* Customer Information */}
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 text-lg border-b pb-2">معلومات العميل</h3>
+            <ScrollArea className="max-h-[70vh]">
+              <div className="p-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  {/* Customer Information */}
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-gray-900 text-lg border-b pb-2">معلومات العميل</h3>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <Mail className="mt-1 text-gray-400 h-4 w-4" />
+                        <div>
+                          <p className="text-sm text-gray-500">البريد الإلكتروني</p>
+                          <p className="font-medium">{selectedCustomer.email}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <Phone className="mt-1 text-gray-400 h-4 w-4" />
+                        <div>
+                          <p className="text-sm text-gray-500">رقم الجوال</p>
+                          <div className="font-medium dir-ltr text-right flex items-center gap-2">
+                            {getCountryFromPhone(selectedCustomer.phone) && (
+                              <span className="inline-block h-4 w-6 overflow-hidden rounded-sm">
+                                <img 
+                                  src={`https://flagcdn.com/w20/${getCountryFromPhone(selectedCustomer.phone)}.png`} 
+                                  alt="Country flag" 
+                                  className="h-full w-full object-cover"
+                                />
+                              </span>
+                            )}
+                            <span>{formatPhoneNumber(selectedCustomer.phone)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <Calendar className="mt-1 text-gray-400 h-4 w-4" />
+                        <div>
+                          <p className="text-sm text-gray-500">تاريخ التسجيل</p>
+                          <p className="font-medium">{formatRegistrationDate(selectedCustomer)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Customer Address */}
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-gray-900 text-lg border-b pb-2">العنوان</h3>
+                    <div className="bg-gray-50 p-3 rounded-md flex items-start gap-3">
+                      <MapPin className="mt-1 text-gray-400 h-4 w-4 flex-shrink-0" />
+                      <p className="text-gray-700">{selectedCustomer.address || 'لا يوجد عنوان مسجل'}</p>
+                    </div>
+                  </div>
+                </div>
                 
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <Mail className="mt-1 text-gray-400 h-4 w-4" />
-                    <div>
-                      <p className="text-sm text-gray-500">البريد الإلكتروني</p>
-                      <p className="font-medium">{selectedCustomer.email}</p>
-                    </div>
-                  </div>
+                {/* Customer Orders */}
+                <div className="mt-6">
+                  <h3 className="font-medium text-gray-900 text-lg border-b pb-2 mb-4">
+                    الطلبات ({selectedCustomer.orders?.length || 0})
+                  </h3>
                   
-                  <div className="flex items-start gap-3">
-                    <Phone className="mt-1 text-gray-400 h-4 w-4" />
-                    <div>
-                      <p className="text-sm text-gray-500">رقم الجوال</p>
-                      <p className="font-medium dir-ltr text-right">{formatPhoneNumber(selectedCustomer.phone)}</p>
+                  {selectedCustomer.orders && selectedCustomer.orders.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-gray-50">
+                            <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">رقم الطلب</th>
+                            <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">التاريخ</th>
+                            <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">الحالة</th>
+                            <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">عدد المنتجات</th>
+                            <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">المبلغ</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedCustomer.orders.map((order) => (
+                            <tr key={order.id} className="border-b">
+                              <td className="py-3 px-4 text-gray-700">#{order.id}</td>
+                              <td className="py-3 px-4 text-gray-700">{order.date}</td>
+                              <td className="py-3 px-4">
+                                <span className={`px-2 py-1 rounded-full text-xs inline-block ${
+                                  order.status === 'مكتمل' ? 'bg-green-100 text-green-800' : 
+                                  order.status === 'قيد المعالجة' ? 'bg-blue-100 text-blue-800' : 
+                                  'bg-red-100 text-red-800'
+                                }`}>
+                                  {order.status}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-gray-700">{order.items}</td>
+                              <td className="py-3 px-4 text-gray-700 font-medium">{order.total} ر.س</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <Calendar className="mt-1 text-gray-400 h-4 w-4" />
-                    <div>
-                      <p className="text-sm text-gray-500">تاريخ التسجيل</p>
-                      <p className="font-medium">{selectedCustomer.registrationDate}</p>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      لا توجد طلبات سابقة
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
-              
-              {/* Customer Address */}
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 text-lg border-b pb-2">العنوان</h3>
-                <div className="bg-gray-50 p-3 rounded-md flex items-start gap-3">
-                  <MapPin className="mt-1 text-gray-400 h-4 w-4 flex-shrink-0" />
-                  <p className="text-gray-700">{selectedCustomer.address || 'لا يوجد عنوان مسجل'}</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Customer Orders */}
-            <div className="mt-6">
-              <h3 className="font-medium text-gray-900 text-lg border-b pb-2 mb-4">
-                الطلبات ({selectedCustomer.orders?.length || 0})
-              </h3>
-              
-              {selectedCustomer.orders && selectedCustomer.orders.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">رقم الطلب</th>
-                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">التاريخ</th>
-                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">الحالة</th>
-                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">عدد المنتجات</th>
-                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">المبلغ</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedCustomer.orders.map((order) => (
-                        <tr key={order.id} className="border-b">
-                          <td className="py-3 px-4 text-gray-700">#{order.id}</td>
-                          <td className="py-3 px-4 text-gray-700">{order.date}</td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs inline-block ${
-                              order.status === 'مكتمل' ? 'bg-green-100 text-green-800' : 
-                              order.status === 'قيد المعالجة' ? 'bg-blue-100 text-blue-800' : 
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-gray-700">{order.items}</td>
-                          <td className="py-3 px-4 text-gray-700 font-medium">{order.total} ر.س</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  لا توجد طلبات سابقة
-                </div>
-              )}
-            </div>
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       )}
 
-      {/* Edit Customer Dialog */}
+      {/* Edit Customer Dialog - Improved phone input with country code */}
       {selectedCustomer && (
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-md overflow-hidden">
@@ -591,13 +671,16 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 <div className="space-y-2">
                   <Label htmlFor="edit-phone">رقم الجوال</Label>
                   <div className="relative">
-                    <Phone className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                    <Input
-                      id="edit-phone"
-                      className="pr-10"
-                      placeholder="رقم الجوال"
-                      {...editForm.register("phone", { required: true })}
-                    />
+                    <div className="dir-ltr">
+                      <PhoneInput
+                        international
+                        defaultCountry="SA"
+                        value={editForm.watch("phone")}
+                        onChange={(value) => editForm.setValue("phone", value || "")}
+                        className="rounded-md border border-input"
+                        placeholder="+966xxxxxxxxx"
+                      />
+                    </div>
                   </div>
                 </div>
                 
@@ -628,7 +711,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </Dialog>
       )}
 
-      {/* Add Customer Dialog */}
+      {/* Add Customer Dialog - Improved with international phone input */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-md overflow-hidden">
           <DialogHeader>
@@ -669,13 +752,14 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               
               <div className="space-y-2">
                 <Label htmlFor="add-phone">رقم الجوال</Label>
-                <div className="relative">
-                  <Phone className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <Input
-                    id="add-phone"
-                    className="pr-10 dir-ltr text-right"
-                    placeholder="966xxxxxxxxx"
-                    {...addForm.register("phone", { required: true })}
+                <div className="dir-ltr">
+                  <PhoneInput
+                    international
+                    defaultCountry="SA"
+                    value={addForm.watch("phone")}
+                    onChange={(value) => addForm.setValue("phone", value || "")}
+                    className="rounded-md border border-input"
+                    placeholder="+966xxxxxxxxx"
                   />
                 </div>
               </div>
