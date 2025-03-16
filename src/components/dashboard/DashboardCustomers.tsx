@@ -482,7 +482,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </CardContent>
       </Card>
 
-      {/* Customer Details Dialog - Enhanced with scrollable content */}
+      {/* Customer Details Dialog */}
       {selectedCustomer && (
         <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
           <DialogContent className="max-w-3xl overflow-hidden">
@@ -647,7 +647,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                       defaultCountry="SA"
                       value={editForm.watch("phone")}
                       onChange={(value) => editForm.setValue("phone", value || "")}
-                      className="rounded-md border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="w-full rounded-md border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       placeholder="+966xxxxxxxxx"
                       numberInputProps={{
                         className: "w-full h-10 px-3 py-2 font-normal"
@@ -730,7 +730,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                     defaultCountry="SA"
                     value={addForm.watch("phone")}
                     onChange={(value) => addForm.setValue("phone", value || "")}
-                    className="rounded-md border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="w-full rounded-md border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     placeholder="+966xxxxxxxxx"
                     numberInputProps={{
                       className: "w-full h-10 px-3 py-2 font-normal"
