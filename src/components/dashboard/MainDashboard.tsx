@@ -19,7 +19,7 @@ interface StatsCardProps {
 }
 
 // Enhanced StatsCard component with proper typing
-const StatsCard = React.memo(({ title, value, icon, trend, percentage }: StatsCardProps) => {
+const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend, percentage }) => {
   return (
     <Card className="bg-white dark:bg-gray-800 shadow-md border-0">
       <CardContent className="p-6">
@@ -44,9 +44,7 @@ const StatsCard = React.memo(({ title, value, icon, trend, percentage }: StatsCa
       </CardContent>
     </Card>
   );
-});
-
-StatsCard.displayName = 'StatsCard';
+};
 
 // Interface for SalesChart props
 interface SalesChartProps {
@@ -57,7 +55,7 @@ interface SalesChartProps {
 }
 
 // Enhanced SalesChart component
-const SalesChart = React.memo(({ salesData, timeframe, currency, isLoading }: SalesChartProps) => {
+const SalesChart: React.FC<SalesChartProps> = ({ salesData, timeframe, currency, isLoading }) => {
   if (isLoading) {
     return (
       <div className="h-72 w-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -134,12 +132,10 @@ const SalesChart = React.memo(({ salesData, timeframe, currency, isLoading }: Sa
       </ResponsiveContainer>
     </div>
   );
-});
-
-SalesChart.displayName = 'SalesChart';
+};
 
 // Featured promotions component
-const FeaturedPromotions = React.memo(() => {
+const FeaturedPromotions: React.FC = () => {
   return (
     <Card className="border-none bg-gradient-to-br from-purple-50 to-indigo-50 shadow-md dark:from-gray-800 dark:to-gray-900">
       <CardContent className="p-6">
@@ -159,9 +155,7 @@ const FeaturedPromotions = React.memo(() => {
       </CardContent>
     </Card>
   );
-});
-
-FeaturedPromotions.displayName = 'FeaturedPromotions';
+};
 
 // Interface for RecentOrdersPreview props
 interface RecentOrdersPreviewProps {
@@ -171,7 +165,7 @@ interface RecentOrdersPreviewProps {
 }
 
 // Enhanced RecentOrdersPreview component
-const RecentOrdersPreview = React.memo(({ recentOrders, loading, currency }: RecentOrdersPreviewProps) => {
+const RecentOrdersPreview: React.FC<RecentOrdersPreviewProps> = ({ recentOrders, loading, currency }) => {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -208,9 +202,7 @@ const RecentOrdersPreview = React.memo(({ recentOrders, loading, currency }: Rec
       ))}
     </div>
   );
-});
-
-RecentOrdersPreview.displayName = 'RecentOrdersPreview';
+};
 
 // Main component interface
 interface MainDashboardProps {
@@ -400,6 +392,4 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
   );
 };
 
-MainDashboard.displayName = 'MainDashboard';
-
-export default React.memo(MainDashboard);
+export default MainDashboard;
