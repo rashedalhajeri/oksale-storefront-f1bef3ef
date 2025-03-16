@@ -10,8 +10,7 @@ import {
   generateSalesData, 
   getTopSellingProducts, 
   getRecentOrders,
-  getOrderStatusStats,
-  calculateProgress
+  getOrderStatusStats
 } from '@/utils/dashboard';
 
 export const useDashboardData = (storeId: string) => {
@@ -92,8 +91,7 @@ export const useDashboardData = (storeId: string) => {
       icon: "products",
       description: "إجمالي المنتجات",
       change: "+20% منذ آخر شهر",
-      trendUp: true,
-      progressValue: calculateProgress(dashboardStats.productsCount, calculateTarget(dashboardStats.productsCount))
+      trendUp: true
     },
     {
       name: "المبيعات",
@@ -101,8 +99,7 @@ export const useDashboardData = (storeId: string) => {
       icon: "sold",
       description: "المنتجات المباعة",
       change: "+15% منذ آخر شهر",
-      trendUp: true,
-      progressValue: calculateProgress(dashboardStats.soldProductsCount, calculateTarget(dashboardStats.soldProductsCount))
+      trendUp: true
     },
     {
       name: "الطلبات",
@@ -110,8 +107,7 @@ export const useDashboardData = (storeId: string) => {
       icon: "orders",
       description: "طلب هذا الشهر",
       change: "+10% منذ آخر شهر",
-      trendUp: true,
-      progressValue: calculateProgress(dashboardStats.ordersCount, calculateTarget(dashboardStats.ordersCount))
+      trendUp: true
     },
     {
       name: "الإيرادات",
@@ -119,8 +115,7 @@ export const useDashboardData = (storeId: string) => {
       icon: "revenue",
       description: "الإيرادات هذا الشهر",
       change: "+25% منذ آخر شهر",
-      trendUp: true,
-      progressValue: calculateProgress(dashboardStats.revenue, calculateTarget(dashboardStats.revenue))
+      trendUp: true
     }
   ];
 

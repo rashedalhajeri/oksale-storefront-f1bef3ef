@@ -18,7 +18,6 @@ interface StatisticItem {
   description: string;
   change: string;
   trendUp: boolean;
-  progressValue: number;
 }
 
 interface StatisticsSectionProps {
