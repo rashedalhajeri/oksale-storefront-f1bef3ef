@@ -304,11 +304,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         {formatPhoneNumber(customer.phone)}
                       </p>
                       {getCountryFromPhone(customer.phone) && (
-                        <span className="inline-block h-6 w-6 overflow-hidden rounded-md border border-gray-200">
+                        <span className="country-flag-container">
                           <img 
-                            src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
+                            src={`https://flagcdn.com/w40/${getCountryFromPhone(customer.phone)}.png`} 
                             alt="Country flag" 
-                            className="h-full w-full object-cover"
+                            className="country-flag"
                           />
                         </span>
                       )}
@@ -370,11 +370,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         <div className="flex items-center gap-2">
                           <span className="text-sm ltr-text">{formatPhoneNumber(customer.phone)}</span>
                           {getCountryFromPhone(customer.phone) && (
-                            <span className="inline-block h-6 w-6 overflow-hidden rounded-md border border-gray-200">
+                            <span className="country-flag-container">
                               <img 
-                                src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
+                                src={`https://flagcdn.com/w40/${getCountryFromPhone(customer.phone)}.png`} 
                                 alt="Country flag" 
-                                className="h-full w-full object-cover"
+                                className="country-flag"
                               />
                             </span>
                           )}
@@ -482,11 +482,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                           <div className="font-medium flex items-center gap-2">
                             <span className="ltr-text">{formatPhoneNumber(selectedCustomer.phone)}</span>
                             {getCountryFromPhone(selectedCustomer.phone) && (
-                              <span className="inline-block h-6 w-6 overflow-hidden rounded-md border border-gray-200">
+                              <span className="country-flag-container">
                                 <img 
-                                  src={`https://flagcdn.com/w20/${getCountryFromPhone(selectedCustomer.phone)}.png`} 
+                                  src={`https://flagcdn.com/w40/${getCountryFromPhone(selectedCustomer.phone)}.png`} 
                                   alt="Country flag" 
-                                  className="h-full w-full object-cover"
+                                  className="country-flag"
                                 />
                               </span>
                             )}
