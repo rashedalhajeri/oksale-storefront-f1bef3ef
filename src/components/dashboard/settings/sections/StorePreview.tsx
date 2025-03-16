@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin } from 'lucide-react';
+import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -150,6 +150,10 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                           className="w-full h-full object-cover"
                         />
                       )}
+                    </div>
+                    <div className="flex items-center text-sm text-amber-600 bg-amber-50 p-2 rounded-md border border-amber-200">
+                      <Info className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span>هذه الصورة ستظهر لجميع زوار متجرك في أعلى الصفحة الرئيسية</span>
                     </div>
                     <Button 
                       variant="outline" 
