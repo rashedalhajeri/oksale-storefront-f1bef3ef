@@ -319,12 +319,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 >
                   <div>
                     <p className="font-medium text-gray-900">{customer.name}</p>
-                    <div className="flex items-center gap-2 mt-1 flex-row-reverse">
-                      <p className="text-sm text-gray-600 dir-ltr text-left">
-                        {formatPhoneNumber(customer.phone)}
-                      </p>
+                    <div className="flex items-center gap-2 mt-1">
                       {getCountryFromPhone(customer.phone) && (
-                        <span className="inline-block h-5 w-5 overflow-hidden rounded-sm border border-gray-200">
+                        <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
                           <img 
                             src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                             alt="Country flag" 
@@ -332,6 +329,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                           />
                         </span>
                       )}
+                      <p className="text-sm text-gray-600 dir-ltr">
+                        {formatPhoneNumber(customer.phone)}
+                      </p>
                     </div>
                   </div>
                   <div>
@@ -388,10 +388,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                     <TableRow key={customer.id} className="border-b hover:bg-gray-50">
                       <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
                       <TableCell className="py-3 px-4 text-gray-700">
-                        <div className="flex items-center gap-2 flex-row-reverse justify-end">
-                          <span className="text-sm text-left dir-ltr">{formatPhoneNumber(customer.phone)}</span>
+                        <div className="flex items-center gap-2 dir-ltr">
                           {getCountryFromPhone(customer.phone) && (
-                            <span className="inline-block h-5 w-5 overflow-hidden rounded-sm border border-gray-200">
+                            <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
                               <img 
                                 src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                                 alt="Country flag" 
@@ -399,6 +398,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                               />
                             </span>
                           )}
+                          <span className="text-sm">{formatPhoneNumber(customer.phone)}</span>
                         </div>
                       </TableCell>
                       <TableCell className="py-3 px-4 text-gray-700 text-sm">{formatRegistrationDate(customer)}</TableCell>
@@ -503,10 +503,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         <Phone className="mt-1 text-gray-400 h-4 w-4" />
                         <div>
                           <p className="text-sm text-gray-500">رقم الجوال</p>
-                          <div className="font-medium flex items-center gap-2 flex-row-reverse justify-end">
-                            <span className="text-left dir-ltr">{formatPhoneNumber(selectedCustomer.phone)}</span>
+                          <div className="font-medium flex items-center gap-2">
                             {getCountryFromPhone(selectedCustomer.phone) && (
-                              <span className="inline-block h-5 w-5 overflow-hidden rounded-sm border border-gray-200">
+                              <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
                                 <img 
                                   src={`https://flagcdn.com/w20/${getCountryFromPhone(selectedCustomer.phone)}.png`} 
                                   alt="Country flag" 
@@ -514,6 +513,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                                 />
                               </span>
                             )}
+                            <span className="dir-ltr">{formatPhoneNumber(selectedCustomer.phone)}</span>
                           </div>
                         </div>
                       </div>
@@ -756,27 +756,27 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       </Dialog>
 
       {/* Delete Customer Confirmation */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>هل أنت متأكد من حذف العميل؟</AlertDialogTitle>
-            <AlertDialogDescription>
-              سيتم حذف العميل{' '}
-              {selectedCustomer && <span className="font-medium">{selectedCustomer.name}</span>}{' '}
-              وجميع بياناته بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteCustomer}
-              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-            >
-              حذف العميل
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {selectedCustomer && (
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>تأكيد حذف العميل</AlertDialogTitle>
+              <AlertDialogDescription>
+                هل أنت متأكد من حذف العميل "{selectedCustomer.name}"؟ لا يمكن التراجع عن هذه العملية.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>إلغاء</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeleteCustomer}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                تأكيد الحذف
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
