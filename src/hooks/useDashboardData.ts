@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
+import { formatCurrencyWithSettings, formatNumber } from '@/utils/dashboard/dashboardUtils';
 
 import { 
   fetchStoreStatistics, 
@@ -35,7 +36,9 @@ export const useDashboardData = (storeId: string) => {
 
   const calculateTarget = (current: number) => Math.ceil(current * 1.2); // أعلى بنسبة 20% من الحالي
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
+    if (!storeId) return;
+    
     try {
       setStatsLoading(true);
       const stats = await fetchStoreStatistics(storeId);
@@ -76,33 +79,16 @@ export const useDashboardData = (storeId: string) => {
       setRecentOrdersLoading(false);
       setOrderStatusLoading(false);
     }
-  };
+  }, [storeId, timeframe, toast]);
 
   useEffect(() => {
-    if (storeId) {
-      loadDashboardData();
-    }
-  }, [storeId]);
-  
-  useEffect(() => {
-    if (storeId) {
-      setChartLoading(true);
-      
-      fetchStoreStatistics(storeId).then(stats => {
-        const salesChartData = generateSalesData(stats.orders, timeframe);
-        setSalesData(salesChartData);
-        setChartLoading(false);
-      }).catch(error => {
-        console.error("Error reloading sales data:", error);
-        setChartLoading(false);
-      });
-    }
-  }, [timeframe, storeId]);
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const statistics = [
     {
       name: "المنتجات",
-      value: dashboardStats.productsCount.toString(),
+      value: formatNumber(dashboardStats.productsCount),
       icon: "products",
       description: "إجمالي المنتجات",
       change: "+20% منذ آخر شهر",
@@ -111,7 +97,7 @@ export const useDashboardData = (storeId: string) => {
     },
     {
       name: "الزيارات",
-      value: dashboardStats.visitsCount.toString(),
+      value: formatNumber(dashboardStats.visitsCount),
       icon: "visitors",
       description: "زائر هذا الشهر",
       change: "+15% منذ آخر شهر",
@@ -120,7 +106,7 @@ export const useDashboardData = (storeId: string) => {
     },
     {
       name: "الطلبات",
-      value: dashboardStats.ordersCount.toString(),
+      value: formatNumber(dashboardStats.ordersCount),
       icon: "orders",
       description: "طلب هذا الشهر",
       change: "+10% منذ آخر شهر",
@@ -129,7 +115,7 @@ export const useDashboardData = (storeId: string) => {
     },
     {
       name: "الإيرادات",
-      value: formatCurrency(dashboardStats.revenue, dashboardStats.currency),
+      value: formatCurrencyWithSettings(dashboardStats.revenue, dashboardStats.currency),
       icon: "revenue",
       description: "الإيرادات هذا الشهر",
       change: "+25% منذ آخر شهر",
@@ -151,6 +137,7 @@ export const useDashboardData = (storeId: string) => {
     topProductsLoading,
     recentOrdersLoading,
     orderStatusLoading,
-    loadDashboardData
+    loadDashboardData,
+    currency: dashboardStats.currency
   };
 };

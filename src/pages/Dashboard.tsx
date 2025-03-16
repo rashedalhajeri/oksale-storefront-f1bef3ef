@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
+import { useNavigate, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -27,12 +27,13 @@ const DashboardSettingsUsers = React.lazy(() => import('@/components/dashboard/s
 // Loading component
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full min-h-[400px]">
-    <Loader2 className="h-10 w-10 text-oksale-600 animate-spin" />
+    <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
   </div>
 );
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -79,18 +80,18 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-6 h-6 border-2 border-oksale-700 border-t-transparent rounded-full"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
   if (!storeData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <Card className="shadow-lg border-none max-w-md w-full">
           <CardHeader>
-            <CardTitle>لا يوجد متجر</CardTitle>
+            <CardTitle className="text-xl">لا يوجد متجر</CardTitle>
             <CardDescription>
               لم يتم العثور على متجر مرتبط بحسابك. يرجى إنشاء متجر جديد.
             </CardDescription>
@@ -98,7 +99,7 @@ const Dashboard = () => {
           <CardContent>
             <button 
               onClick={() => navigate('/signup')}
-              className="bg-oksale-600 text-white px-4 py-2 rounded"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors w-full"
             >
               إنشاء متجر
             </button>
@@ -108,7 +109,6 @@ const Dashboard = () => {
     );
   }
 
-  // تأكد من أن الصفحة الرئيسية تظهر افتراضيًا
   return (
     <DashboardLayout storeData={storeData}>
       <Suspense fallback={<PageLoader />}>
@@ -146,7 +146,8 @@ const DashboardMain = ({ storeData }) => {
     chartLoading,
     topProductsLoading,
     recentOrdersLoading,
-    orderStatusLoading
+    orderStatusLoading,
+    currency
   } = useDashboardData(storeData.id);
 
   return (
@@ -163,6 +164,7 @@ const DashboardMain = ({ storeData }) => {
       recentOrdersLoading={recentOrdersLoading}
       topProductsLoading={topProductsLoading}
       orderStatusLoading={orderStatusLoading}
+      currency={currency}
     />
   );
 };
