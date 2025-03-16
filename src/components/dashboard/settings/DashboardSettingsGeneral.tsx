@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -9,7 +8,6 @@ import { uploadFile } from "@/utils/uploadUtils";
 // Import refactored components
 import StorePreview from "./sections/StorePreview";
 import StoreInformationSection from "./sections/StoreInformationSection";
-import LogoBrandingSection from "./sections/LogoBrandingSection";
 import ContactInformationSection from "./sections/ContactInformationSection";
 import SocialMediaSection from "./sections/SocialMediaSection";
 import RegionalSettingsSection from "./sections/RegionalSettingsSection";
@@ -186,7 +184,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     }
   };
 
-  // Predefined data
   const currencies = [
     { value: "SAR", label: "ريال سعودي (SAR)" },
     { value: "AED", label: "درهم إماراتي (AED)" },
@@ -239,21 +236,13 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           featured={storeData.featured}
           handleLogoUpload={handleLogoUpload}
           handleCoverUpload={handleCoverUpload}
+          handleInputChange={handleInputChange}
         />
 
         {/* Basic Store Information */}
         <StoreInformationSection 
           storeInfo={storeInfo}
           handleInputChange={handleInputChange}
-        />
-
-        {/* Logo & Brand Section */}
-        <LogoBrandingSection 
-          storeInfo={storeInfo}
-          logoInputRef={logoInputRef}
-          coverInputRef={coverInputRef}
-          logoUploading={logoUploading}
-          coverUploading={coverUploading}
         />
 
         {/* Contact Information */}
