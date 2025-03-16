@@ -27,12 +27,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardCustomersProps {
   storeData: any;
 }
 
 const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) => {
+  const isMobile = useIsMobile();
+  
   // Mock customers data
   const customers = [
     { 
@@ -91,81 +94,43 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
   return (
     <div className="space-y-4">
       {/* Header section */}
-      <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+      <div className="bg-gray-50 p-4 md:p-6 rounded-lg shadow-sm">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold text-right">العملاء</h1>
-            <p className="text-gray-500 text-sm text-right mt-1">عدد العملاء: {customers.length}</p>
+            <h1 className="text-lg md:text-xl font-bold text-right">العملاء</h1>
+            <p className="text-gray-500 text-xs md:text-sm text-right mt-1">عدد العملاء: {customers.length}</p>
           </div>
         </div>
       </div>
 
-      {/* Filters and actions section */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-grow">
-          {/* Search */}
-          <div className="md:col-span-1">
-            <div className="relative">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <Input placeholder="بحث..." className="pr-10" />
-            </div>
-          </div>
-
-          {/* Filter dropdown */}
-          <div className="md:col-span-1">
-            <Select>
-              <SelectTrigger>
-                <div className="flex justify-between items-center w-full">
-                  <Filter size={16} className="ml-2 text-gray-400" />
-                  <SelectValue placeholder="فلترة" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع العملاء</SelectItem>
-                <SelectItem value="active">العملاء النشطين</SelectItem>
-                <SelectItem value="new">العملاء الجدد</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Selection dropdown */}
-          <div className="md:col-span-1">
-            <Select>
-              <SelectTrigger>
-                <div className="flex justify-between items-center w-full">
-                  <Users size={16} className="ml-2 text-gray-400" />
-                  <span className="text-gray-600">{selectedCustomers.length}</span>
-                  <SelectValue placeholder="جميع العملاء" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع العملاء</SelectItem>
-                <SelectItem value="selected">العملاء المحددين</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Actions dropdown */}
-          <div className="md:col-span-1">
-            <Select>
-              <SelectTrigger>
-                <div className="flex justify-between items-center w-full">
-                  <CheckCircle size={16} className="ml-2 text-gray-400" />
-                  <SelectValue placeholder="إجراءات" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="export">تصدير العملاء</SelectItem>
-                <SelectItem value="delete">حذف العملاء المحددين</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Filters and actions section - Simplified for mobile */}
+      <div className="flex flex-col gap-3">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Input placeholder="بحث..." className="pr-10" />
         </div>
 
-        {/* Add customer button */}
-        <div className="flex justify-end">
+        {/* Filter controls row */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* Filter dropdown */}
+          <Select>
+            <SelectTrigger>
+              <div className="flex justify-between items-center w-full">
+                <Filter size={16} className={`${isMobile ? 'mr-1' : 'ml-2'} text-gray-400`} />
+                <SelectValue placeholder="فلترة" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع العملاء</SelectItem>
+              <SelectItem value="active">العملاء النشطين</SelectItem>
+              <SelectItem value="new">العملاء الجدد</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Add customer button */}
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-            <Plus size={16} className="ml-2" /> إضافة عميل
+            <Plus size={16} className="ml-1" /> {isMobile ? 'إضافة' : 'إضافة عميل'}
           </Button>
         </div>
       </div>
@@ -177,37 +142,49 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50 border-b">
-                  <TableHead className="py-3 px-4 text-right w-10">
-                    <Checkbox 
-                      checked={selectedCustomers.length === customers.length && customers.length > 0}
-                      onCheckedChange={selectAllCustomers}
-                    />
-                  </TableHead>
-                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">الاسم</TableHead>
-                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">رقم الجوال</TableHead>
-                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">تاريخ التسجيل</TableHead>
-                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">البريد الإلكتروني</TableHead>
-                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right">عدد الطلبات</TableHead>
-                  <TableHead className="py-3 px-4 font-medium text-gray-500 text-right w-16">إجراءات</TableHead>
+                  {!isMobile && (
+                    <TableHead className="py-3 px-2 md:px-4 text-right w-10">
+                      <Checkbox 
+                        checked={selectedCustomers.length === customers.length && customers.length > 0}
+                        onCheckedChange={selectAllCustomers}
+                      />
+                    </TableHead>
+                  )}
+                  <TableHead className="py-3 px-2 md:px-4 font-medium text-gray-500 text-right">الاسم</TableHead>
+                  <TableHead className="py-3 px-2 md:px-4 font-medium text-gray-500 text-right">رقم الجوال</TableHead>
+                  {!isMobile && (
+                    <>
+                      <TableHead className="py-3 px-2 md:px-4 font-medium text-gray-500 text-right">تاريخ التسجيل</TableHead>
+                      <TableHead className="py-3 px-2 md:px-4 font-medium text-gray-500 text-right">البريد الإلكتروني</TableHead>
+                      <TableHead className="py-3 px-2 md:px-4 font-medium text-gray-500 text-right">عدد الطلبات</TableHead>
+                    </>
+                  )}
+                  <TableHead className="py-3 px-2 md:px-4 font-medium text-gray-500 text-right w-16">إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {customers.map((customer) => (
                   <ContextMenu key={customer.id}>
-                    <ContextMenuTrigger asChild>
+                    <ContextMenuTrigger>
                       <TableRow className="border-b hover:bg-gray-50">
-                        <TableCell className="py-3 px-4 w-10">
-                          <Checkbox 
-                            checked={selectedCustomers.includes(customer.id)}
-                            onCheckedChange={() => toggleCustomerSelection(customer.id)}
-                          />
-                        </TableCell>
-                        <TableCell className="py-3 px-4 font-medium">{customer.name}</TableCell>
-                        <TableCell className="py-3 px-4">{customer.phone}</TableCell>
-                        <TableCell className="py-3 px-4">{customer.registrationDate}</TableCell>
-                        <TableCell className="py-3 px-4">{customer.email}</TableCell>
-                        <TableCell className="py-3 px-4">{customer.totalOrders}</TableCell>
-                        <TableCell className="py-3 px-4 w-16">
+                        {!isMobile && (
+                          <TableCell className="py-2 md:py-3 px-2 md:px-4 w-10">
+                            <Checkbox 
+                              checked={selectedCustomers.includes(customer.id)}
+                              onCheckedChange={() => toggleCustomerSelection(customer.id)}
+                            />
+                          </TableCell>
+                        )}
+                        <TableCell className="py-2 md:py-3 px-2 md:px-4 font-medium text-sm">{customer.name}</TableCell>
+                        <TableCell className="py-2 md:py-3 px-2 md:px-4 text-sm">{customer.phone}</TableCell>
+                        {!isMobile && (
+                          <>
+                            <TableCell className="py-2 md:py-3 px-2 md:px-4 text-sm">{customer.registrationDate}</TableCell>
+                            <TableCell className="py-2 md:py-3 px-2 md:px-4 text-sm">{customer.email}</TableCell>
+                            <TableCell className="py-2 md:py-3 px-2 md:px-4 text-sm">{customer.totalOrders}</TableCell>
+                          </>
+                        )}
+                        <TableCell className="py-2 md:py-3 px-2 md:px-4 w-12 md:w-16">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -252,21 +229,23 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             </Table>
           </div>
 
-          {/* Pagination */}
-          <div className="p-4 flex justify-between items-center border-t">
-            <div>
-              <Select defaultValue="10">
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Pagination - Simplified for mobile */}
+          <div className="p-3 md:p-4 flex flex-col md:flex-row justify-between items-center border-t gap-3">
+            {!isMobile && (
+              <div>
+                <Select defaultValue="10">
+                  <SelectTrigger className="w-[80px] md:w-[100px]">
+                    <SelectValue placeholder="10" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <Pagination>
               <PaginationContent>
@@ -276,12 +255,16 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 <PaginationItem>
                   <PaginationLink isActive>1</PaginationLink>
                 </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink>2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink>3</PaginationLink>
-                </PaginationItem>
+                {!isMobile && (
+                  <>
+                    <PaginationItem>
+                      <PaginationLink>2</PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink>3</PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
                 <PaginationItem>
                   <PaginationLink>التالي</PaginationLink>
                 </PaginationItem>
