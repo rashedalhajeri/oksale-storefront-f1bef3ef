@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,26 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Globe, MapPin, Upload, Phone, Mail, Instagram, Twitter, Facebook, Link2, Image, LockIcon } from 'lucide-react';
+import { 
+  Globe, 
+  MapPin, 
+  Upload, 
+  Phone, 
+  Mail, 
+  Instagram, 
+  Twitter, 
+  Facebook, 
+  Link2, 
+  Image, 
+  LockIcon,
+  Store,
+  GanttChartSquare,
+  Languages,
+  GlobeIcon,
+  CircleDollarSign,
+  CheckCircle2,
+  Info
+} from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -262,30 +282,165 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">المعلومات العامة</h1>
-        <p className="text-gray-600">إدارة المعلومات الأساسية لمتجرك</p>
+        <h1 className="text-2xl font-bold mb-1">إعدادات المتجر</h1>
+        <p className="text-gray-600">تخصيص وإدارة معلومات متجرك الأساسية</p>
       </div>
 
       <div className="space-y-6">
+        {/* Store Profile Card */}
+        <Card className="overflow-hidden">
+          <div className="relative h-40 bg-gradient-to-r from-oksale-600 to-oksale-800">
+            {storeInfo.cover_url && (
+              <img 
+                src={storeInfo.cover_url} 
+                alt="غلاف المتجر" 
+                className="w-full h-full object-cover"
+              />
+            )}
+            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="absolute bottom-0 right-0 p-2">
+              <Button 
+                variant="secondary" 
+                size="sm"
+                className="text-xs"
+                onClick={() => coverInputRef.current?.click()}
+                disabled={coverUploading}
+              >
+                <Upload className="h-3 w-3 ml-1" />
+                {coverUploading ? 'جارِ الرفع...' : 'تغيير الغلاف'}
+              </Button>
+              <input
+                type="file"
+                id="cover-upload"
+                ref={coverInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleCoverUpload}
+              />
+            </div>
+          </div>
+          
+          <div className="px-6 pb-6">
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-end -mt-10 mb-4">
+              <div className="relative flex-shrink-0">
+                <Avatar className="h-20 w-20 ring-4 ring-background">
+                  {storeInfo.logo_url ? (
+                    <AvatarImage src={storeInfo.logo_url} alt={storeInfo.name} />
+                  ) : (
+                    <AvatarFallback className="bg-gradient-to-br from-oksale-600 to-oksale-800 text-white text-2xl">
+                      {storeInfo.name?.charAt(0) || 'S'}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <button 
+                  className="absolute bottom-0 right-0 p-1 bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={logoUploading}
+                >
+                  <Upload className="h-3 w-3" />
+                </button>
+                <input
+                  type="file"
+                  id="logo-upload"
+                  ref={logoInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                />
+              </div>
+              
+              <div className="flex-grow">
+                <div className="space-y-1 mb-3">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-bold">{storeInfo.name || 'اسم المتجر'}</h2>
+                    <span className="bg-oksale-50 text-oksale-700 px-2 py-0.5 rounded-full text-xs">
+                      {storeInfo.handle ? `@${storeInfo.handle}` : '@username'}
+                    </span>
+                  </div>
+                  <p className="text-gray-500 text-sm line-clamp-2">{storeInfo.description || 'وصف المتجر يظهر هنا'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="flex items-center gap-1.5 text-gray-600">
+                <Globe className="h-4 w-4 text-oksale-600" />
+                <span>{countries.find(c => c.value === storeInfo.country)?.label || 'الدولة'}</span>
+              </div>
+              {storeInfo.address && (
+                <div className="flex items-center gap-1.5 text-gray-600">
+                  <MapPin className="h-4 w-4 text-oksale-600" />
+                  <span className="truncate">{storeInfo.address}</span>
+                </div>
+              )}
+              {storeInfo.email && (
+                <div className="flex items-center gap-1.5 text-gray-600">
+                  <Mail className="h-4 w-4 text-oksale-600" />
+                  <span className="truncate">{storeInfo.email}</span>
+                </div>
+              )}
+              {storeInfo.phone && (
+                <div className="flex items-center gap-1.5 text-gray-600">
+                  <Phone className="h-4 w-4 text-oksale-600" />
+                  <span dir="ltr">{storeInfo.phone}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex mt-4 gap-2">
+              {storeInfo.instagram && (
+                <a href={`https://instagram.com/${storeInfo.instagram}`} target="_blank" rel="noopener noreferrer" 
+                   className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                  <Instagram className="h-4 w-4 text-gray-700" />
+                </a>
+              )}
+              {storeInfo.twitter && (
+                <a href={`https://twitter.com/${storeInfo.twitter}`} target="_blank" rel="noopener noreferrer"
+                   className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                  <Twitter className="h-4 w-4 text-gray-700" />
+                </a>
+              )}
+              {storeInfo.facebook && (
+                <a href={`https://facebook.com/${storeInfo.facebook}`} target="_blank" rel="noopener noreferrer"
+                   className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                  <Facebook className="h-4 w-4 text-gray-700" />
+                </a>
+              )}
+              {storeInfo.website && (
+                <a href={storeInfo.website} target="_blank" rel="noopener noreferrer"
+                   className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                  <Globe className="h-4 w-4 text-gray-700" />
+                </a>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        {/* Basic Store Information */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">معلومات المتجر</CardTitle>
-            <CardDescription>المعلومات الأساسية التي ستظهر للعملاء</CardDescription>
+          <CardHeader className="border-b">
+            <CardTitle className="text-lg flex items-center">
+              <Store className="h-5 w-5 ml-2 text-oksale-600" />
+              المعلومات الأساسية
+            </CardTitle>
+            <CardDescription>معلومات المتجر الأساسية التي تظهر للعملاء</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="pt-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="store-name">اسم المتجر</Label>
+                <Label htmlFor="store-name" className="font-medium">اسم المتجر</Label>
                 <Input 
                   id="store-name" 
                   placeholder="أدخل اسم المتجر" 
                   value={storeInfo.name}
                   onChange={handleInputChange}
+                  className="transition-all focus:border-oksale-500"
                 />
+                <p className="text-xs text-gray-500">الاسم الذي سيظهر للعملاء وفي نتائج البحث</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="store-handle" className="flex items-center gap-1">
-                  معرف المتجر (Store handle)
+                <Label htmlFor="store-handle" className="flex items-center gap-1 font-medium">
+                  معرف المتجر
                   <LockIcon className="h-3 w-3 text-gray-500" />
                 </Label>
                 <div className="flex">
@@ -301,121 +456,41 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     className="rounded-r-none bg-gray-100 text-gray-500 cursor-not-allowed"
                   />
                 </div>
-                <p className="text-sm text-gray-500">معرف المتجر لا يمكن تغييره بعد الإنشاء</p>
+                <p className="text-xs text-gray-500 flex items-center">
+                  <Info className="h-3 w-3 ml-1 text-oksale-600" />
+                  معرف المتجر لا يمكن تغييره بعد الإنشاء
+                </p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="store-description">وصف المتجر</Label>
+              <Label htmlFor="store-description" className="font-medium">وصف المتجر</Label>
               <Textarea 
                 id="store-description" 
                 placeholder="أدخل وصفاً لمتجرك" 
                 rows={4}
                 value={storeInfo.description}
                 onChange={handleInputChange}
+                className="transition-all focus:border-oksale-500"
               />
-              <p className="text-sm text-gray-500">يظهر في صفحة المتجر ويساعد في تحسين ظهور متجرك في محركات البحث</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>شعار المتجر</Label>
-              <div className="flex items-center gap-6">
-                <Avatar className="h-20 w-20">
-                  {storeInfo.logo_url ? (
-                    <AvatarImage src={storeInfo.logo_url} alt={storeInfo.name} />
-                  ) : (
-                    <AvatarFallback className="bg-gradient-to-br from-oksale-600 to-oksale-800 text-white text-2xl">
-                      {storeInfo.name?.charAt(0) || 'S'}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <div>
-                  <input
-                    type="file"
-                    id="logo-upload"
-                    ref={logoInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                  />
-                  <Button 
-                    variant="outline" 
-                    className="mb-2"
-                    disabled={logoUploading}
-                    onClick={() => logoInputRef.current?.click()}
-                  >
-                    <Upload className="h-4 w-4 ml-2" />
-                    {logoUploading ? 'جارِ الرفع...' : 'رفع شعار جديد'}
-                  </Button>
-                  <p className="text-sm text-gray-500">
-                    يفضل استخدام صورة مربعة بأبعاد 500×500 بيكسل بصيغة PNG أو JPG
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>صورة غلاف المتجر</Label>
-              <div className="border border-dashed border-gray-300 rounded-md p-4">
-                {storeInfo.cover_url ? (
-                  <div className="relative">
-                    <img 
-                      src={storeInfo.cover_url} 
-                      alt="غلاف المتجر" 
-                      className="w-full h-48 object-cover rounded-md"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-md">
-                      <Button 
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => coverInputRef.current?.click()}
-                        disabled={coverUploading}
-                      >
-                        <Upload className="h-4 w-4 ml-2" />
-                        تغيير الصورة
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-48 bg-gray-50 rounded-md">
-                    <Image className="h-10 w-10 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-500 mb-2">لم يتم تحميل صورة غلاف بعد</p>
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={() => coverInputRef.current?.click()}
-                      disabled={coverUploading}
-                    >
-                      <Upload className="h-4 w-4 ml-2" />
-                      {coverUploading ? 'جارِ الرفع...' : 'رفع صورة الغلاف'}
-                    </Button>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  id="cover-upload"
-                  ref={coverInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleCoverUpload}
-                />
-                <p className="text-sm text-gray-500 mt-2">
-                  يفضل استخدام صورة بنسبة عرض 3:1 مثل 1200×400 بيكسل بصيغة JPG أو PNG
-                </p>
-              </div>
+              <p className="text-xs text-gray-500">يظهر في صفحة المتجر ويساعد في تحسين ظهور متجرك في محركات البحث</p>
             </div>
           </CardContent>
         </Card>
 
+        {/* Contact Information */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">معلومات الاتصال</CardTitle>
-            <CardDescription>معلومات الاتصال التي ستظهر للعملاء</CardDescription>
+          <CardHeader className="border-b">
+            <CardTitle className="text-lg flex items-center">
+              <Phone className="h-5 w-5 ml-2 text-oksale-600" />
+              معلومات الاتصال
+            </CardTitle>
+            <CardDescription>وسائل التواصل التي ستظهر للعملاء</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="pt-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="store-email">البريد الإلكتروني</Label>
+                <Label htmlFor="store-email" className="font-medium">البريد الإلكتروني</Label>
                 <div className="flex">
                   <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
                     <Mail className="h-4 w-4" />
@@ -427,12 +502,12 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     value={storeInfo.email}
                     onChange={handleInputChange}
                     dir="ltr"
-                    className="rounded-r-none"
+                    className="rounded-r-none transition-all focus:border-oksale-500"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="store-phone">رقم الهاتف</Label>
+                <Label htmlFor="store-phone" className="font-medium">رقم الهاتف</Label>
                 <div className="flex">
                   <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
                     <Phone className="h-4 w-4" />
@@ -443,14 +518,14 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     value={storeInfo.phone}
                     onChange={handleInputChange}
                     dir="ltr"
-                    className="rounded-r-none"
+                    className="rounded-r-none transition-all focus:border-oksale-500"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="store-address">عنوان المتجر</Label>
+              <Label htmlFor="store-address" className="font-medium">عنوان المتجر</Label>
               <div className="flex">
                 <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
                   <MapPin className="h-4 w-4" />
@@ -460,97 +535,114 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                   placeholder="أدخل عنوان المتجر" 
                   value={storeInfo.address}
                   onChange={handleInputChange}
-                  className="rounded-r-none"
+                  className="rounded-r-none transition-all focus:border-oksale-500"
                 />
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <h3 className="text-base font-medium">وسائل التواصل الاجتماعي</h3>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="social-instagram">انستجرام</Label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
-                      <Instagram className="h-4 w-4" />
-                    </span>
-                    <Input 
-                      id="social-instagram" 
-                      placeholder="yourstorename" 
-                      value={storeInfo.instagram}
-                      onChange={handleInputChange}
-                      dir="ltr"
-                      className="rounded-r-none"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="social-twitter">تويتر (X)</Label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
-                      <Twitter className="h-4 w-4" />
-                    </span>
-                    <Input 
-                      id="social-twitter" 
-                      placeholder="yourstorename" 
-                      value={storeInfo.twitter}
-                      onChange={handleInputChange}
-                      dir="ltr"
-                      className="rounded-r-none"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="social-facebook">فيسبوك</Label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
-                      <Facebook className="h-4 w-4" />
-                    </span>
-                    <Input 
-                      id="social-facebook" 
-                      placeholder="yourstorename" 
-                      value={storeInfo.facebook}
-                      onChange={handleInputChange}
-                      dir="ltr"
-                      className="rounded-r-none"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="social-website">الموقع الإلكتروني</Label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
-                      <Globe className="h-4 w-4" />
-                    </span>
-                    <Input 
-                      id="social-website" 
-                      placeholder="https://www.yourwebsite.com" 
-                      value={storeInfo.website}
-                      onChange={handleInputChange}
-                      dir="ltr"
-                      className="rounded-r-none"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* Social Media */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">الإعدادات الإقليمية</CardTitle>
-            <CardDescription>إعدادات اللغة والعملة والدولة</CardDescription>
+          <CardHeader className="border-b">
+            <CardTitle className="text-lg flex items-center">
+              <Globe className="h-5 w-5 ml-2 text-oksale-600" />
+              وسائل التواصل الاجتماعي
+            </CardTitle>
+            <CardDescription>حسابات التواصل الاجتماعي لمتجرك</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="pt-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="store-language">اللغة الأساسية</Label>
+                <Label htmlFor="social-instagram" className="font-medium">انستجرام</Label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
+                    <Instagram className="h-4 w-4" />
+                  </span>
+                  <Input 
+                    id="social-instagram" 
+                    placeholder="yourstorename" 
+                    value={storeInfo.instagram}
+                    onChange={handleInputChange}
+                    dir="ltr"
+                    className="rounded-r-none transition-all focus:border-oksale-500"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">أدخل اسم المستخدم فقط بدون @</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="social-twitter" className="font-medium">تويتر (X)</Label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
+                    <Twitter className="h-4 w-4" />
+                  </span>
+                  <Input 
+                    id="social-twitter" 
+                    placeholder="yourstorename" 
+                    value={storeInfo.twitter}
+                    onChange={handleInputChange}
+                    dir="ltr"
+                    className="rounded-r-none transition-all focus:border-oksale-500"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">أدخل اسم المستخدم فقط بدون @</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="social-facebook" className="font-medium">فيسبوك</Label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
+                    <Facebook className="h-4 w-4" />
+                  </span>
+                  <Input 
+                    id="social-facebook" 
+                    placeholder="yourstorename" 
+                    value={storeInfo.facebook}
+                    onChange={handleInputChange}
+                    dir="ltr"
+                    className="rounded-r-none transition-all focus:border-oksale-500"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">أدخل اسم الصفحة أو المعرف</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="social-website" className="font-medium">الموقع الإلكتروني</Label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
+                    <Globe className="h-4 w-4" />
+                  </span>
+                  <Input 
+                    id="social-website" 
+                    placeholder="https://www.yourwebsite.com" 
+                    value={storeInfo.website}
+                    onChange={handleInputChange}
+                    dir="ltr"
+                    className="rounded-r-none transition-all focus:border-oksale-500"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">أدخل الرابط كاملاً بما في ذلك https://</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Regional Settings */}
+        <Card>
+          <CardHeader className="border-b">
+            <CardTitle className="text-lg flex items-center">
+              <GlobeIcon className="h-5 w-5 ml-2 text-oksale-600" />
+              الإعدادات الإقليمية
+            </CardTitle>
+            <CardDescription>إعدادات اللغة والعملة والدولة</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="store-language" className="font-medium">اللغة الأساسية</Label>
                 <Select 
                   value={storeInfo.language}
                   onValueChange={(value) => handleSelectChange(value, 'language')}
@@ -567,7 +659,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="store-currency">العملة</Label>
+                <Label htmlFor="store-currency" className="font-medium">العملة</Label>
                 <Select 
                   value={storeInfo.currency}
                   onValueChange={(value) => handleSelectChange(value, 'currency')}
@@ -584,32 +676,41 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="store-country">الدولة</Label>
-              <Select 
-                value={storeInfo.country}
-                onValueChange={(value) => handleSelectChange(value, 'country')}
-              >
-                <SelectTrigger id="store-country" className="w-full">
-                  <SelectValue placeholder="اختر الدولة" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.value} value={country.value}>
-                      {country.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              
+              <div className="space-y-2">
+                <Label htmlFor="store-country" className="font-medium">الدولة</Label>
+                <Select 
+                  value={storeInfo.country}
+                  onValueChange={(value) => handleSelectChange(value, 'country')}
+                >
+                  <SelectTrigger id="store-country" className="w-full">
+                    <SelectValue placeholder="اختر الدولة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.value} value={country.value}>
+                        {country.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         <div className="flex justify-end">
-          <Button onClick={handleSaveChanges} disabled={loading}>
-            {loading ? 'جارِ الحفظ...' : 'حفظ التغييرات'}
+          <Button 
+            onClick={handleSaveChanges} 
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            {loading ? 'جارِ الحفظ...' : (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                حفظ التغييرات
+              </>
+            )}
           </Button>
         </div>
       </div>
