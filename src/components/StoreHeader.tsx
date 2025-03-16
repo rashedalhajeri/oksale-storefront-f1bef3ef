@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ShoppingBag, CheckCircle2, Instagram, Twitter, Facebook, Globe, MapPin } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -62,8 +61,6 @@ const StoreHeader = ({
           )} 
           onLoad={() => setCoverLoaded(true)} 
         />
-        
-        {/* Removed the gradient overlay as requested */}
       </div>
       
       {/* Store info container with improved positioning */}

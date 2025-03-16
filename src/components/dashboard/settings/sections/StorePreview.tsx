@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+
+import React, { useState } from 'react';
 import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { cn } from '@/lib/utils';
 
 interface StorePreviewProps {
   storeInfo: {
@@ -47,22 +49,31 @@ const StorePreview: React.FC<StorePreviewProps> = ({
   handleCoverUpload,
   handleInputChange
 }) => {
+  const [coverLoaded, setCoverLoaded] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  
   const displayHandle = storeInfo.handle.startsWith('@') 
     ? storeInfo.handle
     : `@${storeInfo.handle}`;
 
+  // Use the same default cover image as StoreHeader
   const defaultCoverUrl = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
 
+  // Check if there's a cover image using the same logic as StoreHeader
   const hasCover = !!storeInfo.cover_url;
 
   return (
     <Card className="overflow-hidden">
       <div className="relative">
-        <div className="h-[30vh] overflow-hidden">
+        <div className="h-[30vh] md:h-[45vh] overflow-hidden">
           <img 
             src={hasCover ? storeInfo.cover_url : defaultCoverUrl} 
             alt={`${storeInfo.name} cover`} 
-            className="w-full h-full object-cover"
+            className={cn(
+              "w-full h-full object-cover transition-opacity duration-700", 
+              coverLoaded ? "opacity-100" : "opacity-0"
+            )}
+            onLoad={() => setCoverLoaded(true)}
           />
         </div>
         
@@ -180,7 +191,11 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                     <img 
                       src={storeInfo.logo_url} 
                       alt={`${storeInfo.name} logo`} 
-                      className="w-full h-full object-cover"
+                      className={cn(
+                        "w-full h-full object-cover transition-opacity duration-500", 
+                        logoLoaded ? "opacity-100" : "opacity-0"
+                      )}
+                      onLoad={() => setLogoLoaded(true)}
                     />
                   ) : (
                     <div className="w-full h-full bg-neutral-100 flex items-center justify-center">
