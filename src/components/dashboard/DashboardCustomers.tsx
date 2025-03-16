@@ -5,8 +5,6 @@ import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2, Eye, User, Mail, 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,6 +48,7 @@ import { ar } from 'date-fns/locale';
 import { parsePhoneNumber, AsYouType } from 'libphonenumber-js';
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 
 interface DashboardCustomersProps {
   storeData: any;
@@ -62,9 +61,8 @@ interface Customer {
   email: string;
   phone: string;
   registrationDate: string;
-  registrationTimestamp: Date; // Added for proper date comparisons
+  registrationTimestamp: Date;
   totalOrders: number;
-  // New fields
   address?: string;
   orders?: CustomerOrder[];
 }
@@ -151,7 +149,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
     },
   ];
 
-  const [selectedCustomers, setSelectedCustomers] = useState<number[]>([]);
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -169,22 +166,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
   });
 
   const editForm = useForm<CustomerFormData>();
-
-  const toggleCustomerSelection = (customerId: number) => {
-    if (selectedCustomers.includes(customerId)) {
-      setSelectedCustomers(selectedCustomers.filter(id => id !== customerId));
-    } else {
-      setSelectedCustomers([...selectedCustomers, customerId]);
-    }
-  };
-
-  const selectAllCustomers = () => {
-    if (selectedCustomers.length === customers.length) {
-      setSelectedCustomers([]);
-    } else {
-      setSelectedCustomers(customers.map(customer => customer.id));
-    }
-  };
 
   const openCustomerDetails = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -291,7 +272,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
 
   return (
     <div className="space-y-4 w-full overflow-hidden">
-      {/* Header section - Improved header with customer count on the opposite side */}
+      {/* Header section */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">العملاء</h1>
@@ -301,7 +282,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </div>
       </div>
 
-      {/* Search and filters section - Improved layout with filters inline */}
+      {/* Search and filters section */}
       <div className="space-y-3">
         <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-3`}>
           <div className={`relative flex ${isMobile ? 'w-full' : 'w-full flex-1'}`}>
@@ -310,9 +291,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               <Input placeholder="بحث عن عميل..." className="pr-10 bg-white border-gray-200" />
             </div>
             <Select>
-              <SelectTrigger className={`bg-white border-gray-200 ${isMobile ? 'w-full mt-2' : 'w-[150px] mr-2'}`}>
-                <div className="flex items-center gap-1">
-                  <Filter size={14} className="text-gray-500" />
+              <SelectTrigger className={`bg-white border-gray-200 ${isMobile ? 'w-full mt-2' : 'w-[120px] mr-2'}`}>
+                <div className="flex items-center">
+                  <Filter size={14} className="text-gray-500 ml-1" />
                   <span className="text-sm">فلترة</span>
                 </div>
               </SelectTrigger>
@@ -324,7 +305,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             </Select>
           </div>
 
-          {/* Add customer button - Compact design */}
+          {/* Add customer button */}
           <Button 
             className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]" 
             size="sm"
@@ -336,11 +317,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </div>
       </div>
 
-      {/* Customers table with improved mobile styling */}
+      {/* Customers table */}
       <Card className="shadow-sm border border-gray-100">
         <CardContent className="p-0">
           {isMobile ? (
-            // Mobile view - Clean and compact list view without horizontal scroll
+            // Mobile view
             <div className="overflow-hidden">
               {customers.map((customer) => (
                 <div 
@@ -400,17 +381,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               ))}
             </div>
           ) : (
-            // Desktop view - Full table with scroll area
+            // Desktop view
             <div className="overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50">
-                    <TableHead className="w-10 text-right py-3 font-semibold text-gray-600">
-                      <Checkbox 
-                        checked={selectedCustomers.length === customers.length && customers.length > 0}
-                        onCheckedChange={selectAllCustomers}
-                      />
-                    </TableHead>
                     <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[140px]">الاسم</TableHead>
                     <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[140px]">رقم الجوال</TableHead>
                     <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[130px]">تاريخ التسجيل</TableHead>
@@ -422,12 +397,6 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 <TableBody>
                   {customers.map((customer) => (
                     <TableRow key={customer.id} className="border-b hover:bg-gray-50">
-                      <TableCell className="w-10 py-3 px-4">
-                        <Checkbox 
-                          checked={selectedCustomers.includes(customer.id)}
-                          onCheckedChange={() => toggleCustomerSelection(customer.id)}
-                        />
-                      </TableCell>
                       <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
                       <TableCell className="py-3 px-4 text-gray-700 text-sm">
                         <div className="flex items-center gap-2 dir-ltr justify-end">
@@ -485,7 +454,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             </div>
           )}
 
-          {/* Pagination with better alignment */}
+          {/* Pagination */}
           <div className="p-4 flex justify-center border-t border-gray-100">
             <Pagination>
               <PaginationContent>
@@ -520,6 +489,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
           <DialogContent className="max-w-3xl overflow-hidden">
             <DialogHeader>
               <DialogTitle className="text-xl">{selectedCustomer.name}</DialogTitle>
+              <DialogDescription>
+                معلومات العميل وطلباته السابقة
+              </DialogDescription>
             </DialogHeader>
             
             <ScrollArea className="max-h-[70vh]">
@@ -628,7 +600,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </Dialog>
       )}
 
-      {/* Edit Customer Dialog - Improved phone input with country code */}
+      {/* Edit Customer Dialog */}
       {selectedCustomer && (
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-md overflow-hidden">
@@ -711,7 +683,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </Dialog>
       )}
 
-      {/* Add Customer Dialog - Improved with international phone input */}
+      {/* Add Customer Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-md overflow-hidden">
           <DialogHeader>
