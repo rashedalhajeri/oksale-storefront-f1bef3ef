@@ -123,7 +123,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                 size="sm"
                 className="text-xs font-medium"
               >
-                <Edit className="h-3 w-3 mr-1" />
+                <Edit className="h-3 w-3 ml-1" />
                 تعديل
               </Button>
             </DialogTrigger>
@@ -182,7 +182,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                       />
                     </div>
                     <div className="flex items-center text-sm text-amber-600 bg-amber-50 p-2 rounded-md border border-amber-200">
-                      <Info className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <Info className="h-4 w-4 ml-2 flex-shrink-0" />
                       <span>هذه الصورة ستظهر لجميع زوار متجرك في أعلى الصفحة الرئيسية</span>
                     </div>
                     <Button 
@@ -254,7 +254,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                   </div>
                   
                   <div className="flex items-center gap-1 text-white text-xs md:text-sm text-shadow">
-                    <span className="truncate">{displayHandle}</span>
+                    <span className="ltr-text truncate" dir="ltr">{displayHandle}</span>
                   </div>
                   
                   {storeInfo.address && (

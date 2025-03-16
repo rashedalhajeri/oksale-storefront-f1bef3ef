@@ -115,6 +115,11 @@ const StoreHeader = ({
                   )}
                 </div>
                 
+                {/* Display handle with LTR direction */}
+                <div className="flex items-center gap-1 text-white text-xs md:text-sm mb-2 text-shadow">
+                  <span className="ltr-text truncate" dir="ltr">{displayHandle}</span>
+                </div>
+                
                 {/* Display address if available */}
                 {store.address && (
                   <div className="flex items-center gap-1 text-white text-xs md:text-sm mb-2 text-shadow">

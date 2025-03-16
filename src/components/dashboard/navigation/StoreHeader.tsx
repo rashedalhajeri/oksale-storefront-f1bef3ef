@@ -30,7 +30,7 @@ const StoreHeader: React.FC<StoreHeaderProps> = ({ storeData }) => {
         </div>
         <div className="overflow-hidden">
           <h2 className="text-lg font-semibold truncate">{storeData?.name || 'متجر جديد'}</h2>
-          <div className="text-xs text-white/70 truncate">
+          <div className="text-xs text-white/70 truncate ltr-text">
             {storeData?.handle ? `@${storeData.handle}` : '@store'}
           </div>
         </div>
