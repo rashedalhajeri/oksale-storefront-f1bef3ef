@@ -230,7 +230,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       
       if (phoneNumber) {
         // Format the phone number to display in the correct order
-        return phoneNumber.formatInternational().split(' ').join(' ');
+        return phoneNumber.formatInternational();
       }
       
       return new AsYouType().input(phoneWithPlus);
@@ -299,12 +299,12 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 >
                   <div>
                     <p className="font-medium text-gray-900">{customer.name}</p>
-                    <div className="flex flex-row-reverse items-center gap-2 mt-1">
-                      <p className="text-sm text-gray-600 text-left">
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-sm text-gray-600 ltr-text">
                         {formatPhoneNumber(customer.phone)}
                       </p>
                       {getCountryFromPhone(customer.phone) && (
-                        <span className="inline-block h-6 w-8 overflow-hidden rounded-md border border-gray-200">
+                        <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
                           <img 
                             src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                             alt="Country flag" 
@@ -367,10 +367,10 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                     <TableRow key={customer.id} className="border-b hover:bg-gray-50">
                       <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
                       <TableCell className="py-3 px-4 text-gray-700">
-                        <div className="flex flex-row-reverse items-center gap-2">
-                          <span className="text-sm text-left">{formatPhoneNumber(customer.phone)}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm ltr-text">{formatPhoneNumber(customer.phone)}</span>
                           {getCountryFromPhone(customer.phone) && (
-                            <span className="inline-block h-6 w-8 overflow-hidden rounded-md border border-gray-200">
+                            <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
                               <img 
                                 src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                                 alt="Country flag" 
@@ -479,10 +479,10 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         <Phone className="mt-1 text-gray-400 h-4 w-4" />
                         <div>
                           <p className="text-sm text-gray-500">رقم الجوال</p>
-                          <div className="font-medium flex flex-row-reverse items-center gap-2">
-                            <span className="text-left">{formatPhoneNumber(selectedCustomer.phone)}</span>
+                          <div className="font-medium flex items-center gap-2">
+                            <span className="ltr-text">{formatPhoneNumber(selectedCustomer.phone)}</span>
                             {getCountryFromPhone(selectedCustomer.phone) && (
-                              <span className="inline-block h-6 w-8 overflow-hidden rounded-md border border-gray-200">
+                              <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
                                 <img 
                                   src={`https://flagcdn.com/w20/${getCountryFromPhone(selectedCustomer.phone)}.png`} 
                                   alt="Country flag" 
@@ -597,6 +597,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                   id="phone"
                   {...addForm.register('phone')}
                   placeholder="+9665xxxxxxxx"
+                  className="ltr-text"
                 />
               </div>
               <div className="grid gap-2">
@@ -650,6 +651,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                     id="edit-phone"
                     {...editForm.register('phone')}
                     placeholder="+9665xxxxxxxx"
+                    className="ltr-text"
                   />
                 </div>
                 <div className="grid gap-2">
