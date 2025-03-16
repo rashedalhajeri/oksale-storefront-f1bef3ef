@@ -11,15 +11,12 @@ import {
   Package,
   User,
   Calendar,
-  MapPin,
-  Phone,
-  Mail
+  MapPin
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
@@ -29,7 +26,6 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import {
   Select,
@@ -46,6 +42,7 @@ import {
 } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
+import { formatCurrency } from '@/utils/dashboard/currencyUtils';
 
 interface Order {
   id: string;
@@ -151,14 +148,13 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     if (!selectedOrder) return;
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('orders')
         .update({ 
           status,
           updated_at: new Date().toISOString()
         })
-        .eq('id', selectedOrder.id)
-        .select();
+        .eq('id', selectedOrder.id);
 
       if (error) {
         console.error("Error updating order status:", error);
@@ -234,14 +230,25 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   };
 
   const formatDate = (dateString: string) => {
+    // Format date in Gregorian calendar with English numerals
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('ar-SA', {
+    return date.toLocaleString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+      minute: '2-digit',
+      hour12: false
+    });
+  };
+
+  const formatShortDate = (dateString: string) => {
+    // Format short date in Gregorian calendar with English numerals (day/month only)
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   const filteredOrders = orders.filter(order => {
@@ -263,23 +270,24 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     return true;
   });
 
+  // Check if we're on a mobile device
+  const isMobile = window.innerWidth < 768;
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-6">
         <div>
-          <h1 className="text-2xl font-bold mb-1">إدارة الطلبات</h1>
-          <p className="text-gray-600">إدارة ومتابعة طلبات متجرك ({orders.length})</p>
+          <h1 className="text-xl md:text-2xl font-bold mb-1">إدارة الطلبات</h1>
+          <p className="text-gray-600 text-sm">إدارة ومتابعة طلبات متجرك ({orders.length})</p>
         </div>
-        <div>
-          <Button variant="outline">
-            تصدير الطلبات
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" className="self-start">
+          تصدير الطلبات
+        </Button>
       </div>
 
-      <Card className="mb-6 border-none shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
+      <Card className="mb-4 border-none shadow-sm">
+        <CardContent className="p-3">
+          <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
@@ -289,39 +297,33 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
-              <Select>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="ترتيب حسب" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">الأحدث</SelectItem>
-                  <SelectItem value="oldest">الأقدم</SelectItem>
-                  <SelectItem value="highest">الأعلى قيمة</SelectItem>
-                  <SelectItem value="lowest">الأقل قيمة</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                تصفية
-              </Button>
-            </div>
+            <Select defaultValue="newest">
+              <SelectTrigger className="w-full md:w-[150px]">
+                <SelectValue placeholder="ترتيب حسب" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">الأحدث</SelectItem>
+                <SelectItem value="oldest">الأقدم</SelectItem>
+                <SelectItem value="highest">الأعلى قيمة</SelectItem>
+                <SelectItem value="lowest">الأقل قيمة</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
 
-      <Tabs value={tabValue} onValueChange={setTabValue} className="mb-6">
-        <TabsList className="mb-4">
-          <TabsTrigger value="all">الكل</TabsTrigger>
-          <TabsTrigger value="pending">قيد الانتظار</TabsTrigger>
-          <TabsTrigger value="processing">قيد التجهيز</TabsTrigger>
-          <TabsTrigger value="completed">مكتمل</TabsTrigger>
-          <TabsTrigger value="cancelled">ملغي</TabsTrigger>
+      <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
+        <TabsList className="mb-3 w-full overflow-x-auto flex-nowrap justify-start">
+          <TabsTrigger value="all" className="flex-shrink-0">الكل</TabsTrigger>
+          <TabsTrigger value="pending" className="flex-shrink-0">قيد الانتظار</TabsTrigger>
+          <TabsTrigger value="processing" className="flex-shrink-0">قيد التجهيز</TabsTrigger>
+          <TabsTrigger value="completed" className="flex-shrink-0">مكتمل</TabsTrigger>
+          <TabsTrigger value="cancelled" className="flex-shrink-0">ملغي</TabsTrigger>
         </TabsList>
 
         <TabsContent value={tabValue}>
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {Array.from({ length: 6 }).map((_, index) => (
                 <Card key={index} className="animate-pulse border-none shadow-sm">
                   <CardContent className="p-4">
@@ -335,41 +337,40 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               ))}
             </div>
           ) : filteredOrders.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredOrders.map((order) => (
                 <Card 
                   key={order.id} 
                   className="border-none shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
                   onClick={() => handleViewOrder(order)}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-3">
                     <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-gray-100 p-2 rounded-full">
+                      <div className="flex items-center gap-1.5">
+                        <div className="bg-gray-100 p-1.5 rounded-full">
                           {getStatusIcon(order.status)}
                         </div>
                         {getStatusBadge(order.status)}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {formatDate(order.created_at).split('،')[0]}
-                      </div>
+                      <div className="text-xs text-gray-500 ltr">{formatShortDate(order.created_at)}</div>
                     </div>
                     
-                    <div className="mb-4">
-                      <h3 className="font-medium text-lg mb-1">طلب #{order.id.substring(0, 8)}</h3>
-                      <p className="text-gray-600 text-sm">{order.customer_name}</p>
-                      <p className="text-gray-500 text-sm">{order.customer_email}</p>
+                    <div className="mb-3">
+                      <h3 className="font-medium text-base mb-1">#{order.id.substring(0, 8).toUpperCase()}</h3>
+                      <p className="text-gray-600 text-sm truncate">{order.customer_name}</p>
                     </div>
                     
-                    <div className="flex items-center justify-between mt-4">
-                      <span className="font-bold text-oksale-700">{order.total_amount} ر.س</span>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="font-bold text-oksale-700 ltr">
+                        {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
+                      </span>
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 text-xs"
                       >
                         عرض التفاصيل
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-3 w-3" />
                       </Button>
                     </div>
                   </CardContent>
@@ -377,10 +378,10 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 px-4">
-              <ShoppingCart className="h-12 w-12 text-gray-400 mb-4" />
+            <div className="flex flex-col items-center justify-center py-8 px-4">
+              <ShoppingCart className="h-10 w-10 text-gray-400 mb-3" />
               <h3 className="text-lg font-medium text-gray-900 mb-1">لا توجد طلبات</h3>
-              <p className="text-gray-500 text-center mb-4">
+              <p className="text-gray-500 text-center mb-4 text-sm">
                 لم يتم العثور على أي طلبات مطابقة لمعايير البحث الخاصة بك.
               </p>
               <Button 
@@ -388,6 +389,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   setSearchTerm('');
                   setTabValue('all');
                 }}
+                size="sm"
               >
                 عرض كل الطلبات
               </Button>
@@ -398,44 +400,41 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
 
       {/* Order Details Sheet */}
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>تفاصيل الطلب #{selectedOrder?.id.substring(0, 8)}</SheetTitle>
+            <SheetTitle>تفاصيل الطلب #{selectedOrder?.id.substring(0, 8).toUpperCase()}</SheetTitle>
             <SheetDescription>
-              معلومات تفصيلية عن الطلب وحالته
+              تاريخ الطلب: {selectedOrder && <span className="ltr">{formatDate(selectedOrder.created_at)}</span>}
             </SheetDescription>
           </SheetHeader>
           
           {selectedOrder && (
-            <div className="mt-6">
-              <div className="flex justify-between items-center mb-4">
+            <div className="mt-5">
+              <div className="flex justify-start items-center mb-4">
                 <div className="flex items-center gap-2">
                   {getStatusBadge(selectedOrder.status)}
-                  <span className="text-sm text-gray-500">
-                    تم الطلب {formatDate(selectedOrder.created_at)}
-                  </span>
                 </div>
               </div>
 
-              <Separator className="my-4" />
+              <Separator className="my-3" />
               
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Customer Info */}
                 <div>
-                  <h3 className="font-medium flex items-center gap-2 mb-2">
+                  <h3 className="font-medium flex items-center gap-2 mb-2 text-sm">
                     <User className="h-4 w-4 text-gray-500" />
                     معلومات العميل
                   </h3>
                   <div className="bg-gray-50 rounded-md p-3">
                     <p className="text-sm"><strong>الاسم:</strong> {selectedOrder.customer_name}</p>
-                    <p className="text-sm"><strong>البريد الإلكتروني:</strong> {selectedOrder.customer_email}</p>
-                    {selectedOrder.customer_phone && <p className="text-sm"><strong>الهاتف:</strong> {selectedOrder.customer_phone}</p>}
+                    <p className="text-sm"><strong>البريد:</strong> {selectedOrder.customer_email}</p>
+                    {selectedOrder.customer_phone && <p className="text-sm ltr"><strong>الهاتف:</strong> {selectedOrder.customer_phone}</p>}
                   </div>
                 </div>
                 
                 {/* Order Items */}
                 <div>
-                  <h3 className="font-medium flex items-center gap-2 mb-2">
+                  <h3 className="font-medium flex items-center gap-2 mb-2 text-sm">
                     <Package className="h-4 w-4 text-gray-500" />
                     المنتجات
                   </h3>
@@ -443,23 +442,25 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                     {selectedOrder.items?.map((item) => (
                       <div key={item.id} className="bg-gray-50 rounded-md p-3 flex justify-between items-center">
                         <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-gray-500">الكمية: {item.quantity}</p>
+                          <p className="font-medium text-sm">{item.name}</p>
+                          <p className="text-xs text-gray-500">الكمية: {item.quantity}</p>
                         </div>
-                        <div className="font-medium">{item.price * item.quantity} ر.س</div>
+                        <div className="font-medium text-sm ltr">
+                          {formatCurrency(item.price * item.quantity, storeData?.currency || 'SAR')}
+                        </div>
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-between items-center mt-4 font-bold">
                     <span>الإجمالي</span>
-                    <span>{selectedOrder.total_amount} ر.س</span>
+                    <span className="ltr">{formatCurrency(selectedOrder.total_amount, storeData?.currency || 'SAR')}</span>
                   </div>
                 </div>
                 
                 {/* Shipping Address */}
                 {selectedOrder.shipping_address && (
                   <div>
-                    <h3 className="font-medium flex items-center gap-2 mb-2">
+                    <h3 className="font-medium flex items-center gap-2 mb-2 text-sm">
                       <MapPin className="h-4 w-4 text-gray-500" />
                       عنوان الشحن
                     </h3>
@@ -472,7 +473,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 {/* Payment Method */}
                 {selectedOrder.payment_method && (
                   <div>
-                    <h3 className="font-medium flex items-center gap-2 mb-2">
+                    <h3 className="font-medium flex items-center gap-2 mb-2 text-sm">
                       <Calendar className="h-4 w-4 text-gray-500" />
                       طريقة الدفع
                     </h3>
@@ -481,98 +482,47 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                     </div>
                   </div>
                 )}
-                
-                {/* Order Timeline */}
-                <div>
-                  <h3 className="font-medium flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-gray-500" />
-                    سجل الطلب
-                  </h3>
-                  <div className="space-y-2">
-                    <div className="bg-gray-50 rounded-md p-3 flex items-start gap-3">
-                      <div className="bg-blue-100 p-1 rounded-full">
-                        <Clock className="h-4 w-4 text-blue-500" />
-                      </div>
-                      <div>
-                        <p className="font-medium">تم استلام الطلب</p>
-                        <p className="text-sm text-gray-500">{formatDate(selectedOrder.created_at)}</p>
-                      </div>
-                    </div>
-                    
-                    {selectedOrder.status !== 'pending' && (
-                      <div className="bg-gray-50 rounded-md p-3 flex items-start gap-3">
-                        <div className="bg-blue-100 p-1 rounded-full">
-                          <Package className="h-4 w-4 text-blue-500" />
-                        </div>
-                        <div>
-                          <p className="font-medium">تم بدء تجهيز الطلب</p>
-                          <p className="text-sm text-gray-500">{formatDate(selectedOrder.updated_at)}</p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {selectedOrder.status === 'completed' && (
-                      <div className="bg-gray-50 rounded-md p-3 flex items-start gap-3">
-                        <div className="bg-green-100 p-1 rounded-full">
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
-                        </div>
-                        <div>
-                          <p className="font-medium">تم اكتمال الطلب</p>
-                          <p className="text-sm text-gray-500">{formatDate(selectedOrder.updated_at)}</p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {selectedOrder.status === 'cancelled' && (
-                      <div className="bg-gray-50 rounded-md p-3 flex items-start gap-3">
-                        <div className="bg-red-100 p-1 rounded-full">
-                          <AlertCircle className="h-4 w-4 text-red-500" />
-                        </div>
-                        <div>
-                          <p className="font-medium">تم إلغاء الطلب</p>
-                          <p className="text-sm text-gray-500">{formatDate(selectedOrder.updated_at)}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
 
-              <Separator className="my-6" />
+              <Separator className="my-4" />
               
               <div>
-                <Label className="mb-2 block">تحديث حالة الطلب</Label>
-                <div className="grid grid-cols-2 gap-2 mb-4">
+                <h3 className="font-medium mb-2 text-sm">تحديث حالة الطلب</h3>
+                <div className="grid grid-cols-2 gap-2">
                   <Button 
                     variant={selectedOrder.status === 'pending' ? 'default' : 'outline'} 
                     onClick={() => handleUpdateStatus('pending')}
-                    className="justify-start"
+                    className="justify-start text-xs"
+                    size="sm"
                   >
-                    <Clock className="h-4 w-4 mr-2 text-yellow-500" />
+                    <Clock className="h-3 w-3 mr-1 text-yellow-500" />
                     قيد الانتظار
                   </Button>
                   <Button 
                     variant={selectedOrder.status === 'processing' ? 'default' : 'outline'} 
                     onClick={() => handleUpdateStatus('processing')}
-                    className="justify-start"
+                    className="justify-start text-xs"
+                    size="sm"
                   >
-                    <Clock className="h-4 w-4 mr-2 text-blue-500" />
+                    <Clock className="h-3 w-3 mr-1 text-blue-500" />
                     قيد التجهيز
                   </Button>
                   <Button 
                     variant={selectedOrder.status === 'completed' ? 'default' : 'outline'} 
                     onClick={() => handleUpdateStatus('completed')}
-                    className="justify-start"
+                    className="justify-start text-xs"
+                    size="sm"
                   >
-                    <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
+                    <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
                     مكتمل
                   </Button>
                   <Button 
                     variant={selectedOrder.status === 'cancelled' ? 'default' : 'outline'} 
                     onClick={() => handleUpdateStatus('cancelled')}
-                    className="justify-start"
+                    className="justify-start text-xs"
+                    size="sm"
                   >
-                    <AlertCircle className="h-4 w-4 mr-2 text-red-500" />
+                    <AlertCircle className="h-3 w-3 mr-1 text-red-500" />
                     ملغي
                   </Button>
                 </div>
@@ -582,7 +532,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
           
           <SheetFooter className="mt-6">
             <SheetClose asChild>
-              <Button>إغلاق</Button>
+              <Button size="sm">إغلاق</Button>
             </SheetClose>
           </SheetFooter>
         </SheetContent>
