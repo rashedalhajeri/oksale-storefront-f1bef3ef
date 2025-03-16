@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { getSocialIcon, getSocialUrl, getSocialLabel, type SocialMediaType } from '@/utils/socialMediaUtils';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface StoreAboutProps {
   store: {
@@ -16,9 +17,11 @@ interface StoreAboutProps {
       whatsapp?: string;
     };
   };
+  useCustomColors?: boolean;
+  customColor?: string;
 }
 
-const StoreAbout = ({ store }: StoreAboutProps) => {
+const StoreAbout = ({ store, useCustomColors = false, customColor = "#4B5563" }: StoreAboutProps) => {
   // Ensure we have valid socialLinks object
   const socialLinks = store.socialLinks || {};
   
@@ -49,7 +52,7 @@ const StoreAbout = ({ store }: StoreAboutProps) => {
                 onClick={() => window.open(getSocialUrl(type as SocialMediaType, value), '_blank')}
               >
                 <span className="mr-2">
-                  {getSocialIcon(type as SocialMediaType, "w-4 h-4")}
+                  {getSocialIcon(type as SocialMediaType, "w-4 h-4", useCustomColors, customColor)}
                 </span>
                 {getSocialLabel(type as SocialMediaType)}
               </Button>

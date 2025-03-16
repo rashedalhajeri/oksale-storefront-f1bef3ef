@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -10,6 +11,7 @@ import StorePreview from "./sections/StorePreview";
 import StoreInformationSection from "./sections/StoreInformationSection";
 import ContactInformationSection from "./sections/ContactInformationSection";
 import SocialMediaSection from "./sections/SocialMediaSection";
+import SocialMediaThemeSection from "./sections/SocialMediaThemeSection";
 import RegionalSettingsSection from "./sections/RegionalSettingsSection";
 
 interface DashboardSettingsGeneralProps {
@@ -38,6 +40,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     language: storeData?.language || 'ar',
     currency: storeData?.currency || 'SAR',
     country: storeData?.country || 'SA',
+    use_custom_colors: storeData?.use_custom_colors || false,
+    custom_color: storeData?.custom_color || '#4B5563'
   });
   
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -71,7 +75,9 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
         whatsapp: storeInfo.whatsapp,
         language: storeInfo.language,
         currency: storeInfo.currency,
-        country: storeInfo.country
+        country: storeInfo.country,
+        use_custom_colors: storeInfo.use_custom_colors,
+        custom_color: storeInfo.custom_color
       };
       
       console.log('Update data object:', updateData);
@@ -253,7 +259,11 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
       <div className="space-y-6">
         {/* Store Preview */}
         <StorePreview 
-          storeInfo={storeInfo}
+          storeInfo={{
+            ...storeInfo,
+            useCustomColors: storeInfo.use_custom_colors,
+            customColor: storeInfo.custom_color
+          }}
           coverInputRef={coverInputRef}
           logoInputRef={logoInputRef}
           coverUploading={coverUploading}
@@ -282,6 +292,11 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
         <SocialMediaSection 
           storeInfo={storeInfo}
           handleInputChange={handleInputChange}
+        />
+
+        {/* Social Media Theme */}
+        <SocialMediaThemeSection 
+          storeId={storeData.id}
         />
 
         {/* Regional Settings */}

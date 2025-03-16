@@ -89,13 +89,19 @@ export const getSocialUrl = (type: SocialMediaType, value: string): string => {
   return `${platform.urlPrefix}${value}`;
 };
 
-// Get icon for a platform with custom styling
-export const getSocialIcon = (type: SocialMediaType, className: string = ''): JSX.Element => {
+// Get icon for a platform with custom styling and optional color override
+export const getSocialIcon = (
+  type: SocialMediaType, 
+  className: string = '',
+  useCustomColor: boolean = false,
+  customColor: string = ''
+): JSX.Element => {
   const platform = socialMediaPlatforms[type] || socialMediaPlatforms.website;
+  const color = useCustomColor ? customColor : platform.color;
   
   return React.cloneElement(platform.icon as React.ReactElement, {
     className: className,
-    style: { color: platform.color }
+    style: { color: color }
   });
 };
 
