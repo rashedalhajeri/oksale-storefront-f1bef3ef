@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Globe, MapPin, Clock, Upload, Phone, Mail, Instagram, Twitter, Facebook, Link2 } from 'lucide-react';
+import { Globe, MapPin, Clock, Upload, Phone, Mail, Instagram, Twitter, Facebook, Link2, Image } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardSettingsGeneralProps {
   storeData: any;
@@ -18,18 +19,203 @@ interface DashboardSettingsGeneralProps {
 const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ storeData }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-
-  const handleSaveChanges = () => {
+  const [storeInfo, setStoreInfo] = useState({
+    name: storeData?.name || '',
+    handle: storeData?.handle?.replace('@', '') || '',
+    description: storeData?.description || '',
+    logo_url: storeData?.logo_url || '',
+    cover_url: storeData?.cover_url || '',
+    email: storeData?.contact_email || '',
+    phone: storeData?.contact_phone || '',
+    address: storeData?.address || '',
+    instagram: storeData?.instagram || '',
+    twitter: storeData?.twitter || '',
+    facebook: storeData?.facebook || '',
+    website: storeData?.website || '',
+    language: storeData?.language || 'ar',
+    currency: storeData?.currency || 'sar',
+    timezone: storeData?.timezone || 'asia_riyadh'
+  });
+  
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
+  
+  const handleSaveChanges = async () => {
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const { error } = await supabase
+        .from('stores')
+        .update({
+          name: storeInfo.name,
+          handle: storeInfo.handle,
+          description: storeInfo.description,
+          logo_url: storeInfo.logo_url,
+          cover_url: storeInfo.cover_url,
+          contact_email: storeInfo.email,
+          contact_phone: storeInfo.phone,
+          address: storeInfo.address,
+          instagram: storeInfo.instagram,
+          twitter: storeInfo.twitter,
+          facebook: storeInfo.facebook,
+          website: storeInfo.website,
+          language: storeInfo.language,
+          currency: storeInfo.currency,
+          timezone: storeInfo.timezone
+        })
+        .eq('id', storeData.id);
+      
+      if (error) throw error;
+      
       toast({
         title: "تم حفظ التغييرات",
         description: "تم تحديث معلومات المتجر بنجاح.",
       });
-    }, 1000);
+    } catch (error) {
+      console.error('Error updating store:', error);
+      toast({
+        variant: "destructive",
+        title: "فشل حفظ التغييرات",
+        description: "حدث خطأ أثناء تحديث المعلومات. الرجاء المحاولة مرة أخرى.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    const key = id.replace('store-', '').replace('social-', '');
+    
+    setStoreInfo(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+  
+  const handleSelectChange = (value: string, key: string) => {
+    setStoreInfo(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+  
+  const uploadFile = async (file: File, folder: string) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${storeData.id}_${Date.now()}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('store-assets')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
+    
+    if (uploadError) {
+      throw uploadError;
+    }
+    
+    const { data } = supabase.storage
+      .from('store-assets')
+      .getPublicUrl(filePath);
+    
+    return data.publicUrl;
+  };
+  
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    
+    const file = e.target.files[0];
+    
+    try {
+      setLogoUploading(true);
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('يرجى اختيار ملف صورة صالح');
+      }
+      
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        throw new Error('حجم الملف كبير جدًا. يجب أن يكون أقل من 2 ميجابايت');
+      }
+      
+      const publicUrl = await uploadFile(file, 'logos');
+      
+      setStoreInfo(prev => ({
+        ...prev,
+        logo_url: publicUrl
+      }));
+      
+      toast({
+        title: "تم رفع الشعار",
+        description: "تم رفع شعار المتجر بنجاح.",
+      });
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast({
+        variant: "destructive",
+        title: "فشل رفع الشعار",
+        description: error instanceof Error ? error.message : "حدث خطأ أثناء رفع الشعار. الرجاء المحاولة مرة أخرى.",
+      });
+    } finally {
+      setLogoUploading(false);
+      if (logoInputRef.current) {
+        logoInputRef.current.value = '';
+      }
+    }
+  };
+  
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    
+    const file = e.target.files[0];
+    
+    try {
+      setCoverUploading(true);
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('يرجى اختيار ملف صورة صالح');
+      }
+      
+      // Check file size (max 4MB)
+      if (file.size > 4 * 1024 * 1024) {
+        throw new Error('حجم الملف كبير جدًا. يجب أن يكون أقل من 4 ميجابايت');
+      }
+      
+      const publicUrl = await uploadFile(file, 'covers');
+      
+      setStoreInfo(prev => ({
+        ...prev,
+        cover_url: publicUrl
+      }));
+      
+      toast({
+        title: "تم رفع صورة الغلاف",
+        description: "تم رفع صورة غلاف المتجر بنجاح.",
+      });
+    } catch (error) {
+      console.error('Error uploading cover:', error);
+      toast({
+        variant: "destructive",
+        title: "فشل رفع صورة الغلاف",
+        description: error instanceof Error ? error.message : "حدث خطأ أثناء رفع صورة الغلاف. الرجاء المحاولة مرة أخرى.",
+      });
+    } finally {
+      setCoverUploading(false);
+      if (coverInputRef.current) {
+        coverInputRef.current.value = '';
+      }
+    }
   };
 
   return (
@@ -53,7 +239,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                 <Input 
                   id="store-name" 
                   placeholder="أدخل اسم المتجر" 
-                  defaultValue={storeData?.name || ''} 
+                  value={storeInfo.name}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="space-y-2">
@@ -65,7 +252,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                   <Input 
                     id="store-handle" 
                     placeholder="yourstore" 
-                    defaultValue={storeData?.handle?.replace('@', '') || ''} 
+                    value={storeInfo.handle}
+                    onChange={handleInputChange}
                     dir="ltr"
                     className="rounded-r-none"
                   />
@@ -80,7 +268,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                 id="store-description" 
                 placeholder="أدخل وصفاً لمتجرك" 
                 rows={4}
-                defaultValue={storeData?.description || ''} 
+                value={storeInfo.description}
+                onChange={handleInputChange}
               />
               <p className="text-sm text-gray-500">يظهر في صفحة المتجر ويساعد في تحسين ظهور متجرك في محركات البحث</p>
             </div>
@@ -89,23 +278,87 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
               <Label>شعار المتجر</Label>
               <div className="flex items-center gap-6">
                 <Avatar className="h-20 w-20">
-                  {storeData?.logo_url ? (
-                    <AvatarImage src={storeData.logo_url} alt={storeData?.name} />
+                  {storeInfo.logo_url ? (
+                    <AvatarImage src={storeInfo.logo_url} alt={storeInfo.name} />
                   ) : (
                     <AvatarFallback className="bg-gradient-to-br from-oksale-600 to-oksale-800 text-white text-2xl">
-                      {storeData?.name?.charAt(0) || 'S'}
+                      {storeInfo.name?.charAt(0) || 'S'}
                     </AvatarFallback>
                   )}
                 </Avatar>
                 <div>
-                  <Button variant="outline" className="mb-2">
+                  <input
+                    type="file"
+                    id="logo-upload"
+                    ref={logoInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                  />
+                  <Button 
+                    variant="outline" 
+                    className="mb-2"
+                    disabled={logoUploading}
+                    onClick={() => logoInputRef.current?.click()}
+                  >
                     <Upload className="h-4 w-4 ml-2" />
-                    رفع شعار جديد
+                    {logoUploading ? 'جارِ الرفع...' : 'رفع شعار جديد'}
                   </Button>
                   <p className="text-sm text-gray-500">
                     يفضل استخدام صورة مربعة بأبعاد 500×500 بيكسل بصيغة PNG أو JPG
                   </p>
                 </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>صورة غلاف المتجر</Label>
+              <div className="border border-dashed border-gray-300 rounded-md p-4">
+                {storeInfo.cover_url ? (
+                  <div className="relative">
+                    <img 
+                      src={storeInfo.cover_url} 
+                      alt="غلاف المتجر" 
+                      className="w-full h-48 object-cover rounded-md"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-md">
+                      <Button 
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => coverInputRef.current?.click()}
+                        disabled={coverUploading}
+                      >
+                        <Upload className="h-4 w-4 ml-2" />
+                        تغيير الصورة
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-48 bg-gray-50 rounded-md">
+                    <Image className="h-10 w-10 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-500 mb-2">لم يتم تحميل صورة غلاف بعد</p>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => coverInputRef.current?.click()}
+                      disabled={coverUploading}
+                    >
+                      <Upload className="h-4 w-4 ml-2" />
+                      {coverUploading ? 'جارِ الرفع...' : 'رفع صورة الغلاف'}
+                    </Button>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  id="cover-upload"
+                  ref={coverInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleCoverUpload}
+                />
+                <p className="text-sm text-gray-500 mt-2">
+                  يفضل استخدام صورة بنسبة عرض 3:1 مثل 1200×400 بيكسل بصيغة JPG أو PNG
+                </p>
               </div>
             </div>
           </CardContent>
@@ -129,7 +382,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     id="store-email" 
                     type="email"
                     placeholder="contact@yourstore.com" 
-                    defaultValue={storeData?.email || ''} 
+                    value={storeInfo.email}
+                    onChange={handleInputChange}
                     dir="ltr"
                     className="rounded-r-none"
                   />
@@ -144,7 +398,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                   <Input 
                     id="store-phone" 
                     placeholder="+966 55 123 4567" 
-                    defaultValue={storeData?.phone || ''} 
+                    value={storeInfo.phone}
+                    onChange={handleInputChange}
                     dir="ltr"
                     className="rounded-r-none"
                   />
@@ -161,7 +416,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                 <Input 
                   id="store-address" 
                   placeholder="أدخل عنوان المتجر" 
-                  defaultValue={storeData?.address || ''} 
+                  value={storeInfo.address}
+                  onChange={handleInputChange}
                   className="rounded-r-none"
                 />
               </div>
@@ -181,7 +437,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     <Input 
                       id="social-instagram" 
                       placeholder="yourstorename" 
-                      defaultValue={storeData?.instagram || ''} 
+                      value={storeInfo.instagram}
+                      onChange={handleInputChange}
                       dir="ltr"
                       className="rounded-r-none"
                     />
@@ -197,7 +454,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     <Input 
                       id="social-twitter" 
                       placeholder="yourstorename" 
-                      defaultValue={storeData?.twitter || ''} 
+                      value={storeInfo.twitter}
+                      onChange={handleInputChange}
                       dir="ltr"
                       className="rounded-r-none"
                     />
@@ -213,7 +471,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     <Input 
                       id="social-facebook" 
                       placeholder="yourstorename" 
-                      defaultValue={storeData?.facebook || ''} 
+                      value={storeInfo.facebook}
+                      onChange={handleInputChange}
                       dir="ltr"
                       className="rounded-r-none"
                     />
@@ -229,7 +488,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     <Input 
                       id="social-website" 
                       placeholder="https://www.yourwebsite.com" 
-                      defaultValue={storeData?.website || ''} 
+                      value={storeInfo.website}
+                      onChange={handleInputChange}
                       dir="ltr"
                       className="rounded-r-none"
                     />
@@ -250,7 +510,10 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="store-language">اللغة الأساسية</Label>
-                <Select defaultValue="ar">
+                <Select 
+                  value={storeInfo.language}
+                  onValueChange={(value) => handleSelectChange(value, 'language')}
+                >
                   <SelectTrigger id="store-language" className="w-full">
                     <SelectValue placeholder="اختر اللغة" />
                   </SelectTrigger>
@@ -264,7 +527,10 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
               
               <div className="space-y-2">
                 <Label htmlFor="store-currency">العملة</Label>
-                <Select defaultValue="sar">
+                <Select 
+                  value={storeInfo.currency}
+                  onValueChange={(value) => handleSelectChange(value, 'currency')}
+                >
                   <SelectTrigger id="store-currency" className="w-full">
                     <SelectValue placeholder="اختر العملة" />
                   </SelectTrigger>
@@ -283,7 +549,10 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                   <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
                     <Clock className="h-4 w-4" />
                   </span>
-                  <Select defaultValue="asia_riyadh">
+                  <Select 
+                    value={storeInfo.timezone}
+                    onValueChange={(value) => handleSelectChange(value, 'timezone')}
+                  >
                     <SelectTrigger id="store-timezone" className="w-full rounded-r-none border-r-0">
                       <SelectValue placeholder="المنطقة الزمنية" />
                     </SelectTrigger>
