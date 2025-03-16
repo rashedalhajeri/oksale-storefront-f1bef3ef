@@ -71,15 +71,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
         <PreviewHeader 
           open={open}
           setOpen={setOpen}
-        />
-        
-        <StoreInfo 
-          storeInfo={storeInfo}
-          logoLoaded={logoLoaded}
-          setLogoLoaded={setLogoLoaded}
-        />
-        
-        {open && (
+        >
           <EditStoreDialog 
             storeInfo={storeInfo}
             coverInputRef={coverInputRef}
@@ -89,7 +81,13 @@ const StorePreview: React.FC<StorePreviewProps> = ({
             handleInputChange={handleInputChange}
             handleSaveAndClose={handleSaveAndClose}
           />
-        )}
+        </PreviewHeader>
+        
+        <StoreInfo 
+          storeInfo={storeInfo}
+          logoLoaded={logoLoaded}
+          setLogoLoaded={setLogoLoaded}
+        />
         
         <InputFields 
           coverInputRef={coverInputRef}

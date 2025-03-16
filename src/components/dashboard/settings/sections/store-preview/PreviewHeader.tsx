@@ -10,9 +10,10 @@ import {
 interface PreviewHeaderProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  children: React.ReactNode;
 }
 
-const PreviewHeader: React.FC<PreviewHeaderProps> = ({ open, setOpen }) => {
+const PreviewHeader: React.FC<PreviewHeaderProps> = ({ open, setOpen, children }) => {
   return (
     <div className="absolute top-3 left-3 z-10">
       <Dialog open={open} onOpenChange={setOpen}>
@@ -26,6 +27,7 @@ const PreviewHeader: React.FC<PreviewHeaderProps> = ({ open, setOpen }) => {
             تعديل
           </Button>
         </DialogTrigger>
+        {children}
       </Dialog>
     </div>
   );
