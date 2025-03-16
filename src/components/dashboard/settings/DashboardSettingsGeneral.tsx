@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -103,26 +104,50 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   };
   
   const uploadFile = async (file: File, folder: string) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${storeData.id}_${Date.now()}.${fileExt}`;
-    const filePath = `${folder}/${fileName}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from('store-assets')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true
-      });
-    
-    if (uploadError) {
-      throw uploadError;
+    try {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('يرجى اختيار ملف صورة صالح');
+      }
+      
+      // Check file size (max 2MB for logos, 4MB for covers)
+      const maxSize = folder === 'logos' ? 2 * 1024 * 1024 : 4 * 1024 * 1024;
+      if (file.size > maxSize) {
+        throw new Error(`حجم الملف كبير جدًا. يجب أن يكون أقل من ${folder === 'logos' ? '2' : '4'} ميجابايت`);
+      }
+      
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${storeData.id}_${Date.now()}.${fileExt}`;
+      const filePath = `${folder}/${fileName}`;
+      
+      console.log(`Uploading file to store-assets/${filePath}`);
+      
+      // Upload file to Supabase storage
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from('store-assets')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error(`فشل رفع الملف: ${uploadError.message}`);
+      }
+      
+      // Get public URL
+      const { data } = supabase.storage
+        .from('store-assets')
+        .getPublicUrl(filePath);
+      
+      console.log('File uploaded successfully. Public URL:', data.publicUrl);
+      
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error in uploadFile function:', error);
+      throw error;
     }
-    
-    const { data } = supabase.storage
-      .from('store-assets')
-      .getPublicUrl(filePath);
-    
-    return data.publicUrl;
   };
   
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,16 +159,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     
     try {
       setLogoUploading(true);
-      
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        throw new Error('يرجى اختيار ملف صورة صالح');
-      }
-      
-      // Check file size (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        throw new Error('حجم الملف كبير جدًا. يجب أن يكون أقل من 2 ميجابايت');
-      }
+      console.log('Starting logo upload for file:', file.name);
       
       const publicUrl = await uploadFile(file, 'logos');
       
@@ -180,16 +196,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     
     try {
       setCoverUploading(true);
-      
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        throw new Error('يرجى اختيار ملف صورة صالح');
-      }
-      
-      // Check file size (max 4MB)
-      if (file.size > 4 * 1024 * 1024) {
-        throw new Error('حجم الملف كبير جدًا. يجب أن يكون أقل من 4 ميجابايت');
-      }
+      console.log('Starting cover upload for file:', file.name);
       
       const publicUrl = await uploadFile(file, 'covers');
       
@@ -338,7 +345,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     {logoUploading ? 'جارِ الرفع...' : 'رفع شعار جديد'}
                   </Button>
                   <p className="text-sm text-gray-500">
-                    يفضل استخدام صورة مربعة بأبعاد 500×500 بيكسل بصيغ�� PNG أو JPG
+                    يفضل استخدام صورة مربعة بأبعاد 500×500 بيكسل بصيغة PNG أو JPG
                   </p>
                 </div>
               </div>
