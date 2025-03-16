@@ -2,7 +2,7 @@
 import React from 'react';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Loader2 } from 'lucide-react';
 
 interface ProductsGridProps {
   products: any[];
@@ -11,6 +11,7 @@ interface ProductsGridProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   currency?: string;
+  loading?: boolean;
 }
 
 const ProductsGrid = ({ 
@@ -19,7 +20,8 @@ const ProductsGrid = ({
   setSelectedCategory,
   searchQuery,
   setSearchQuery,
-  currency = 'USD'
+  currency = 'USD',
+  loading = false
 }: ProductsGridProps) => {
   // Added heading with product count
   const renderHeading = () => {
@@ -35,6 +37,15 @@ const ProductsGrid = ({
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 md:py-16">
+        <Loader2 className="w-10 h-10 text-neutral-300 animate-spin mb-4" />
+        <h3 className="text-lg font-medium text-neutral-800 mb-2">Loading products...</h3>
+      </div>
+    );
+  }
 
   if (products.length > 0) {
     return (

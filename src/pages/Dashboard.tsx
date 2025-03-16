@@ -6,13 +6,9 @@ import {
   Users, 
   ShoppingCart, 
   Banknote,
-  TrendingUp,
-  Calendar,
   CheckCircle2,
   Clock,
-  AlertCircle,
-  ArrowUpRight,
-  BarChart4
+  AlertCircle
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -33,6 +29,24 @@ import DashboardSettingsPayment from '@/components/dashboard/settings/DashboardS
 import DashboardSettingsShipping from '@/components/dashboard/settings/DashboardSettingsShipping';
 import DashboardSettingsNotifications from '@/components/dashboard/settings/DashboardSettingsNotifications';
 import DashboardSettingsUsers from '@/components/dashboard/settings/DashboardSettingsUsers';
+import ChartSection from '@/components/dashboard/ChartSection';
+import StatisticsSection from '@/components/dashboard/StatisticsSection';
+import { 
+  fetchStoreStatistics, 
+  generateSalesData, 
+  getTopSellingProducts, 
+  getRecentOrders,
+  getOrderStatusStats,
+  calculateProgress
+} from '@/utils/dashboardUtils';
+import { 
+  Table, 
+  TableHeader, 
+  TableRow, 
+  TableHead, 
+  TableBody, 
+  TableCell 
+} from "@/components/ui/table";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -40,6 +54,21 @@ const Dashboard = () => {
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState("week");
+  const [dashboardStats, setDashboardStats] = useState({
+    productsCount: 0,
+    ordersCount: 0,
+    revenue: 0,
+    visitsCount: 0
+  });
+  const [salesData, setSalesData] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [orderStatusData, setOrderStatusData] = useState([]);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(true);
+  const [topProductsLoading, setTopProductsLoading] = useState(true);
+  const [recentOrdersLoading, setRecentOrdersLoading] = useState(true);
+  const [orderStatusLoading, setOrderStatusLoading] = useState(true);
 
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -66,6 +95,12 @@ const Dashboard = () => {
         }
 
         setStoreData(store);
+        
+        // Load initial dashboard data
+        if (store?.id) {
+          await loadDashboardData(store.id);
+        }
+        
       } catch (error) {
         console.error("Failed to fetch store data:", error);
         toast({
@@ -80,6 +115,72 @@ const Dashboard = () => {
 
     fetchStoreData();
   }, [navigate, toast]);
+  
+  // Load dashboard data based on the store ID
+  const loadDashboardData = async (storeId) => {
+    try {
+      // Load store statistics
+      setStatsLoading(true);
+      const stats = await fetchStoreStatistics(storeId);
+      setDashboardStats({
+        productsCount: stats.productsCount,
+        ordersCount: stats.ordersCount,
+        revenue: parseFloat(stats.revenue),
+        visitsCount: stats.visitsCount
+      });
+      
+      // Load sales chart data
+      setChartLoading(true);
+      const salesChartData = generateSalesData(stats.orders, timeframe);
+      setSalesData(salesChartData);
+      
+      // Load top products
+      setTopProductsLoading(true);
+      const topProductsData = await getTopSellingProducts(storeId);
+      setTopProducts(topProductsData);
+      
+      // Load recent orders
+      setRecentOrdersLoading(true);
+      const recentOrdersData = await getRecentOrders(storeId);
+      setRecentOrders(recentOrdersData);
+      
+      // Load order status
+      setOrderStatusLoading(true);
+      const orderStatusStats = await getOrderStatusStats(storeId);
+      setOrderStatusData(orderStatusStats);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+      toast({
+        variant: "destructive",
+        title: "فشل تحميل البيانات",
+        description: "حدث خطأ أثناء تحميل بيانات لوحة التحكم، يرجى المحاولة مرة أخرى.",
+      });
+    } finally {
+      setStatsLoading(false);
+      setChartLoading(false);
+      setTopProductsLoading(false);
+      setRecentOrdersLoading(false);
+      setOrderStatusLoading(false);
+    }
+  };
+  
+  // Reload data when timeframe changes
+  useEffect(() => {
+    if (storeData?.id) {
+      setChartLoading(true);
+      
+      // Fetch statistics again to get orders
+      fetchStoreStatistics(storeData.id).then(stats => {
+        // Generate new sales data based on the selected timeframe
+        const salesChartData = generateSalesData(stats.orders, timeframe);
+        setSalesData(salesChartData);
+        setChartLoading(false);
+      }).catch(error => {
+        console.error("Error reloading sales data:", error);
+        setChartLoading(false);
+      });
+    }
+  }, [timeframe, storeData?.id]);
 
   if (loading) {
     return (
@@ -112,66 +213,46 @@ const Dashboard = () => {
     );
   }
 
-  // Mock data for dashboard statistics
-  const statisticsData = [
+  // Calculate targets based on current values
+  const calculateTarget = (current: number) => Math.ceil(current * 1.2); // 20% higher than current
+
+  const statistics = [
     {
       name: "المنتجات",
-      value: storeData?.products_count ? storeData.products_count.toString() : "0",
+      value: dashboardStats.productsCount.toString(),
       icon: <Package className="h-5 w-5 text-indigo-600" />,
       description: "إجمالي المنتجات",
-      change: "+5% منذ آخر شهر",
-      trendUp: true
+      change: "+20% منذ آخر شهر",
+      trendUp: true,
+      progressValue: calculateProgress(dashboardStats.productsCount, calculateTarget(dashboardStats.productsCount))
     },
     {
       name: "الزيارات",
-      value: "1,432",
+      value: dashboardStats.visitsCount.toString(),
       icon: <Users className="h-5 w-5 text-blue-600" />,
       description: "زائر هذا الشهر",
-      change: "+12% منذ آخر شهر",
-      trendUp: true
+      change: "+15% منذ آخر شهر",
+      trendUp: true,
+      progressValue: calculateProgress(dashboardStats.visitsCount, calculateTarget(dashboardStats.visitsCount))
     },
     {
       name: "الطلبات",
-      value: storeData?.orders_count ? storeData.orders_count.toString() : "0",
+      value: dashboardStats.ordersCount.toString(),
       icon: <ShoppingCart className="h-5 w-5 text-green-600" />,
       description: "طلب هذا الشهر",
-      change: "+8% منذ آخر شهر",
-      trendUp: true
+      change: "+10% منذ آخر شهر",
+      trendUp: true,
+      progressValue: calculateProgress(dashboardStats.ordersCount, calculateTarget(dashboardStats.ordersCount))
     },
     {
       name: "الإيرادات",
-      value: storeData?.revenue ? `${storeData.revenue.toString()} ر.س` : "0 ر.س",
+      value: `${dashboardStats.revenue.toFixed(2)} ر.س`,
       icon: <Banknote className="h-5 w-5 text-emerald-600" />,
       description: "الإيرادات هذا الشهر",
-      change: "+15% منذ آخر شهر",
-      trendUp: true
-    },
-  ];
-
-  // Mock data for order status
-  const orderStatusData = [
-    { status: 'completed', count: 24, label: 'مكتمل', icon: <CheckCircle2 className="h-4 w-4 text-green-500" /> },
-    { status: 'processing', count: 13, label: 'قيد التجهيز', icon: <Clock className="h-4 w-4 text-blue-500" /> },
-    { status: 'pending', count: 7, label: 'قيد الانتظار', icon: <Clock className="h-4 w-4 text-yellow-500" /> },
-    { status: 'cancelled', count: 2, label: 'ملغي', icon: <AlertCircle className="h-4 w-4 text-red-500" /> },
-  ];
-
-  // Latest orders mock data
-  const latestOrders = [
-    { id: 'ORD-1234', customer: 'أحمد محمد', date: '15 مايو 2024', amount: '320.00 ر.س', status: 'completed' },
-    { id: 'ORD-1235', customer: 'سارة أحمد', date: '14 مايو 2024', amount: '145.50 ر.س', status: 'processing' },
-    { id: 'ORD-1236', customer: 'محمد علي', date: '14 مايو 2024', amount: '89.99 ر.س', status: 'pending' },
-    { id: 'ORD-1237', customer: 'فاطمة خالد', date: '13 مايو 2024', amount: '210.00 ر.س', status: 'completed' },
-    { id: 'ORD-1238', customer: 'عبدالله محمد', date: '12 مايو 2024', amount: '56.75 ر.س', status: 'cancelled' },
-  ];
-
-  // Top selling products mock data
-  const topProducts = [
-    { id: 1, name: 'هاتف ذكي XYZ', sales: 28, amount: '14,000.00 ر.س' },
-    { id: 2, name: 'سماعات لاسلكية', sales: 24, amount: '4,800.00 ر.س' },
-    { id: 3, name: 'حقيبة ظهر للسفر', sales: 22, amount: '3,300.00 ر.س' },
-    { id: 4, name: 'حذاء رياضي', sales: 19, amount: '3,800.00 ر.س' },
-    { id: 5, name: 'ساعة ذكية', sales: 17, amount: '5,100.00 ر.س' },
+      change: "+25% منذ آخر شهر",
+      trendUp: true,
+      progressValue: calculateProgress(dashboardStats.revenue, calculateTarget(dashboardStats.revenue))
+    }
   ];
 
   const MainDashboardContent = () => (
@@ -191,54 +272,16 @@ const Dashboard = () => {
         </TabsList>
       </Tabs>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {statisticsData.map((item, index) => (
-          <Card key={index} className="border-none shadow-sm">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div className="p-2 rounded-full bg-gray-50">{item.icon}</div>
-                <div className={`flex items-center text-xs font-medium ${item.trendUp ? 'text-green-600' : 'text-red-600'}`}>
-                  {item.change}
-                  <ArrowUpRight className={`h-3 w-3 ml-1 ${!item.trendUp && 'rotate-180'}`} />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pb-2">
-              <div className="text-2xl font-bold">{item.value}</div>
-              <p className="text-gray-500 text-sm">{item.description}</p>
-            </CardContent>
-            <CardFooter className="pt-0">
-              <div className="w-full">
-                <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                  <span>التقدم</span>
-                  <span>78%</span>
-                </div>
-                <Progress value={78} className="h-1" />
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+      {/* Statistics Section */}
+      <StatisticsSection statistics={statistics} loading={statsLoading} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}
-        <Card className="col-span-2 border-none shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center">
-              <BarChart4 className="h-5 w-5 mr-2 text-oksale-600" />
-              تحليل المبيعات
-            </CardTitle>
-            <CardDescription>
-              مقارنة المبيعات والإيرادات
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center h-64 bg-gray-50 rounded-md border border-dashed border-gray-200">
-              <p className="text-gray-500">مخطط المبيعات</p>
-            </div>
-          </CardContent>
-        </Card>
+        <ChartSection 
+          salesData={salesData} 
+          loading={chartLoading}
+          timeframe={timeframe}
+        />
 
         {/* Order Status */}
         <Card className="border-none shadow-sm">
@@ -249,29 +292,51 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {orderStatusData.map((item) => (
-                <div key={item.status} className="flex items-center">
-                  <div className="bg-gray-100 p-2 rounded-full mr-3">
-                    {item.icon}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">{item.label}</span>
-                      <span className="text-sm font-medium">{item.count}</span>
+            {orderStatusLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-gray-200 rounded-full mr-3"></div>
+                      <div className="flex-1">
+                        <div className="h-2 bg-gray-200 rounded w-full mb-2"></div>
+                        <div className="h-1.5 bg-gray-100 rounded w-full"></div>
+                      </div>
                     </div>
-                    <Progress 
-                      value={(item.count / orderStatusData.reduce((acc, curr) => acc + curr.count, 0)) * 100} 
-                      className={`h-1.5 ${
-                        item.status === 'completed' ? 'bg-green-100' : 
-                        item.status === 'processing' ? 'bg-blue-100' : 
-                        item.status === 'pending' ? 'bg-yellow-100' : 'bg-red-100'
-                      }`}
-                    />
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {orderStatusData.map((item) => (
+                  <div key={item.status} className="flex items-center">
+                    <div className="bg-gray-100 p-2 rounded-full mr-3">
+                      {item.status === 'completed' ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      ) : item.status === 'cancelled' ? (
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                      ) : (
+                        <Clock className="h-4 w-4 text-blue-500" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium">{item.label}</span>
+                        <span className="text-sm font-medium">{item.count}</span>
+                      </div>
+                      <Progress 
+                        value={(item.count / orderStatusData.reduce((acc, curr) => acc + curr.count, 0)) * 100} 
+                        className={`h-1.5 ${
+                          item.status === 'completed' ? 'bg-green-100' : 
+                          item.status === 'processing' ? 'bg-blue-100' : 
+                          item.status === 'pending' ? 'bg-yellow-100' : 'bg-red-100'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -286,43 +351,53 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-xs text-gray-500 border-b">
-                    <th className="pb-2 font-medium text-right">رقم الطلب</th>
-                    <th className="pb-2 font-medium text-right">العميل</th>
-                    <th className="pb-2 font-medium text-right">التاريخ</th>
-                    <th className="pb-2 font-medium text-right">المبلغ</th>
-                    <th className="pb-2 font-medium text-right">الحالة</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {latestOrders.map((order) => (
-                    <tr key={order.id} className="text-sm border-b">
-                      <td className="py-3 pr-2">{order.id}</td>
-                      <td className="py-3">{order.customer}</td>
-                      <td className="py-3">{order.date}</td>
-                      <td className="py-3">{order.amount}</td>
-                      <td className="py-3">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          order.status === 'completed' ? 'bg-green-100 text-green-700' : 
-                          order.status === 'processing' ? 'bg-blue-100 text-blue-700' : 
-                          order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          {
-                            order.status === 'completed' ? 'مكتمل' : 
-                            order.status === 'processing' ? 'قيد التجهيز' : 
-                            order.status === 'pending' ? 'قيد الانتظار' : 'ملغي'
-                          }
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {recentOrdersLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-full mb-4"></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>رقم الطلب</TableHead>
+                      <TableHead>العميل</TableHead>
+                      <TableHead>التاريخ</TableHead>
+                      <TableHead>المبلغ</TableHead>
+                      <TableHead>الحالة</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentOrders.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell>{order.id}</TableCell>
+                        <TableCell>{order.customer}</TableCell>
+                        <TableCell>{order.date}</TableCell>
+                        <TableCell>{order.amount}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            order.status === 'completed' ? 'bg-green-100 text-green-700' : 
+                            order.status === 'processing' ? 'bg-blue-100 text-blue-700' : 
+                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {
+                              order.status === 'completed' ? 'مكتمل' : 
+                              order.status === 'processing' ? 'قيد التجهيز' : 
+                              order.status === 'pending' ? 'قيد الانتظار' : 'ملغي'
+                            }
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -335,26 +410,36 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-xs text-gray-500 border-b">
-                    <th className="pb-2 font-medium text-right">المنتج</th>
-                    <th className="pb-2 font-medium text-right">عدد المبيعات</th>
-                    <th className="pb-2 font-medium text-right">المبلغ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topProducts.map((product) => (
-                    <tr key={product.id} className="text-sm border-b">
-                      <td className="py-3 pr-2">{product.name}</td>
-                      <td className="py-3">{product.sales}</td>
-                      <td className="py-3">{product.amount}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {topProductsLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-full mb-4"></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>المنتج</TableHead>
+                      <TableHead>عدد المبيعات</TableHead>
+                      <TableHead>المبلغ</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {topProducts.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>{product.sales}</TableCell>
+                        <TableCell>{product.amount} ر.س</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
