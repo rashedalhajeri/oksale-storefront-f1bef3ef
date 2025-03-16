@@ -47,15 +47,19 @@ const StoreHeader = ({
     <div className="relative">
       {/* Cover image container with fixed height */}
       <div className="h-[30vh] md:h-[45vh] overflow-hidden">
-        <img 
-          src={store.coverImage} 
-          alt={`${store.name} cover`} 
-          className={cn(
-            "w-full h-full object-cover transition-opacity duration-700", 
-            coverLoaded ? "opacity-100" : "opacity-0"
-          )} 
-          onLoad={() => setCoverLoaded(true)} 
-        />
+        {store.coverImage ? (
+          <img 
+            src={store.coverImage} 
+            alt={`${store.name} cover`} 
+            className={cn(
+              "w-full h-full object-cover transition-opacity duration-700", 
+              coverLoaded ? "opacity-100" : "opacity-0"
+            )} 
+            onLoad={() => setCoverLoaded(true)} 
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-t from-[#8E9196] to-[#F6F6F7]"></div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
       </div>
       
@@ -100,7 +104,7 @@ const StoreHeader = ({
                 </div>
                 
                 {/* Social links - only show if they exist */}
-                {Object.values(socialLinks).some(Boolean) && (
+                {(socialLinks.instagram || socialLinks.twitter || socialLinks.facebook) && (
                   <div className="flex items-center gap-3 md:gap-4 mt-2">
                     {socialLinks.instagram && (
                       <a 
