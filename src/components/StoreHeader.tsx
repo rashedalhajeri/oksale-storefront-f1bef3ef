@@ -51,16 +51,13 @@ const StoreHeader = ({
   // Check if there's no cover image
   const hasCover = !!store.coverImage;
 
-  // Filter social links to only show a maximum of 3
+  // Get all active social links without limiting to 3
   const getSocialLinks = () => {
     if (!store.socialLinks) return [];
     
-    // Include all social media types in the filtering
-    const links = Object.entries(store.socialLinks)
-      .filter(([_, value]) => !!value)
-      .slice(0, 3); // Limit to 3 social links
-    
-    return links;
+    // Get all social media links that have values
+    return Object.entries(store.socialLinks)
+      .filter(([_, value]) => !!value);
   };
 
   return (
@@ -127,9 +124,9 @@ const StoreHeader = ({
                   </div>
                 )}
                 
-                {/* Social links - display maximum 3 social media links */}
+                {/* Social links - display all available social media links */}
                 {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
-                  <div className="flex items-center gap-3 md:gap-4 mt-2">
+                  <div className="flex items-center gap-3 md:gap-4 mt-2 flex-wrap">
                     {getSocialLinks().map(([type, username]) => {
                       if (!username) return null;
                       
