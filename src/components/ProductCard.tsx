@@ -45,7 +45,7 @@ const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
         {/* Out of stock overlay */}
         {!product.inStock && (
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-            <span className="bg-white text-oksale-800 px-3 py-1 rounded-md font-medium text-xs">
+            <span className="bg-white text-neutral-800 px-3 py-1 rounded-md font-medium text-xs">
               Out of Stock
             </span>
           </div>
@@ -56,7 +56,7 @@ const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
           <Button 
             variant="secondary" 
             size="sm" 
-            className="bg-white hover:bg-oksale-50 text-oksale-700"
+            className="bg-white hover:bg-neutral-50 text-neutral-700"
             disabled={!product.inStock}
           >
             <ShoppingBag className="h-4 w-4 mr-1" />
@@ -67,14 +67,14 @@ const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
       
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-medium text-oksale-800 text-base line-clamp-2 h-[48px] leading-tight">{product.name}</h3>
+          <h3 className="font-medium text-neutral-800 text-base line-clamp-2 h-[48px] leading-tight">{product.name}</h3>
         </div>
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-oksale-700">{formattedPrice}</span>
+          <span className="font-semibold text-neutral-700">{formattedPrice}</span>
           <Button 
             variant="ghost" 
             size="icon" 
-            className="hover:bg-oksale-50 text-oksale-700 h-8 w-8"
+            className="hover:bg-neutral-50 text-neutral-700 h-8 w-8"
             disabled={!product.inStock}
           >
             <ShoppingBag className="h-4 w-4" />

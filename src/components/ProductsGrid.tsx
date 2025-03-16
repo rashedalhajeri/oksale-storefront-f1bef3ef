@@ -26,9 +26,9 @@ const ProductsGrid = ({
     const title = selectedCategory === 'All' ? 'All' : selectedCategory;
     return (
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-medium text-indigo-900 flex items-center">
+        <h2 className="text-lg font-medium text-neutral-900 flex items-center">
           {title}
-          <span className="ml-2 text-sm font-normal text-indigo-500">
+          <span className="ml-2 text-sm font-normal text-neutral-500">
             ({products.length} items)
           </span>
         </h2>
