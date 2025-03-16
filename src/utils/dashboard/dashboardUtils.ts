@@ -305,12 +305,25 @@ export const processMyFatoorahPayment = async (
       .eq('id', storeId)
       .single();
 
-    if (storeError || !storeData?.payment_gateways?.myfatoorah?.enabled) {
-      console.error('بوابة ماي فاتورة غير مفعلة أو حدث خطأ:', storeError);
+    if (storeError) {
+      console.error('خطأ في الحصول على إعدادات المتجر:', storeError);
       return null;
     }
 
-    const { api_key, test_mode, currency = 'KWD' } = storeData.payment_gateways.myfatoorah;
+    // التحقق من وجود إعدادات بوابات الدفع ونوعها
+    if (!storeData?.payment_gateways || typeof storeData.payment_gateways === 'string') {
+      console.error('إعدادات بوابات الدفع غير موجودة أو بتنسيق غير صحيح');
+      return null;
+    }
+
+    const paymentGateways = storeData.payment_gateways as Record<string, any>;
+    
+    if (!paymentGateways.myfatoorah?.enabled) {
+      console.error('بوابة ماي فاتورة غير مفعلة');
+      return null;
+    }
+
+    const { api_key, test_mode, currency = 'KWD' } = paymentGateways.myfatoorah;
     
     if (!api_key) {
       console.error('مفتاح API غير موجود لبوابة ماي فاتورة');
@@ -405,12 +418,25 @@ export const processTapPayment = async (
       .eq('id', storeId)
       .single();
 
-    if (storeError || !storeData?.payment_gateways?.tap?.enabled) {
-      console.error('بوابة تاب غير مفعلة أو حدث خطأ:', storeError);
+    if (storeError) {
+      console.error('خطأ في الحصول على إعدادات المتجر:', storeError);
       return null;
     }
 
-    const { secret_key, test_mode, currency = 'KWD' } = storeData.payment_gateways.tap;
+    // التحقق من وجود إعدادات بوابات الدفع ونوعها
+    if (!storeData?.payment_gateways || typeof storeData.payment_gateways === 'string') {
+      console.error('إعدادات بوابات الدفع غير موجودة أو بتنسيق غير صحيح');
+      return null;
+    }
+
+    const paymentGateways = storeData.payment_gateways as Record<string, any>;
+    
+    if (!paymentGateways.tap?.enabled) {
+      console.error('بوابة تاب غير مفعلة');
+      return null;
+    }
+
+    const { secret_key, test_mode, currency = 'KWD' } = paymentGateways.tap;
     
     if (!secret_key) {
       console.error('المفتاح السري غير موجود لبوابة تاب');

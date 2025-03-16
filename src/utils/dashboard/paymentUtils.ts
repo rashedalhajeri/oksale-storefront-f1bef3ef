@@ -17,13 +17,27 @@ export const getPaymentGatewayStatus = async (storeId: string) => {
     
     if (error) throw error;
     
-    return data.payment_gateways || {
-      myfatoorah: { enabled: false, test_mode: true },
-      tap: { enabled: false, test_mode: true }
+    // إذا لم تكن إعدادات بوابات الدفع موجودة أو كانت عبارة عن نص، نعيد القيمة الافتراضية
+    if (!data.payment_gateways || typeof data.payment_gateways === 'string') {
+      return {
+        myfatoorah: { enabled: false, test_mode: true },
+        tap: { enabled: false, test_mode: true }
+      };
+    }
+    
+    // التأكد من نوع البيانات
+    const paymentGateways = data.payment_gateways as Record<string, any>;
+    
+    return {
+      myfatoorah: paymentGateways.myfatoorah || { enabled: false, test_mode: true },
+      tap: paymentGateways.tap || { enabled: false, test_mode: true }
     };
   } catch (error) {
     console.error('خطأ في الحصول على حالة بوابات الدفع:', error);
-    return null;
+    return {
+      myfatoorah: { enabled: false, test_mode: true },
+      tap: { enabled: false, test_mode: true }
+    };
   }
 };
 
