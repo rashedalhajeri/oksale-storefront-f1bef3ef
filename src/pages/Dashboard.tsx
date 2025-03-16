@@ -5,12 +5,12 @@ import {
   Routes, 
   Route, 
   Navigate, 
-  useLocation,
-  Outlet 
+  useLocation
 } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
+import useDashboardData from '@/hooks/useDashboardData';
 
 // Dashboard Layout
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -47,6 +47,22 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState('week');
+
+  // Fetch dashboard data
+  const { 
+    statistics, 
+    salesData, 
+    recentOrders, 
+    topProducts, 
+    orderStatusData,
+    statsLoading,
+    chartLoading,
+    recentOrdersLoading,
+    topProductsLoading,
+    orderStatusLoading,
+    currency
+  } = useDashboardData(storeData?.id, timeframe);
 
   // Fetch store data only once on component mount
   useEffect(() => {
@@ -131,7 +147,23 @@ const Dashboard = () => {
     <DashboardLayout storeData={memoizedStoreData}>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route index element={<MainDashboard storeData={memoizedStoreData} />} />
+          <Route index element={
+            <MainDashboard 
+              statistics={statistics}
+              salesData={salesData}
+              timeframe={timeframe}
+              setTimeframe={setTimeframe}
+              recentOrders={recentOrders || []}
+              topProducts={topProducts || []}
+              orderStatusData={orderStatusData || []}
+              statsLoading={statsLoading}
+              chartLoading={chartLoading}
+              recentOrdersLoading={recentOrdersLoading}
+              topProductsLoading={topProductsLoading}
+              orderStatusLoading={orderStatusLoading}
+              currency={currency || 'SAR'}
+            />
+          } />
           <Route path="products" element={<DashboardProducts storeData={memoizedStoreData} />} />
           <Route path="orders" element={<DashboardOrders storeData={memoizedStoreData} />} />
           <Route path="customers" element={<DashboardCustomers storeData={memoizedStoreData} />} />
