@@ -32,9 +32,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
   logoLoaded, 
   setLogoLoaded 
 }) => {
-  const displayHandle = storeInfo.handle.startsWith('@') 
+  const displayHandle = storeInfo.handle && (storeInfo.handle.startsWith('@') 
     ? storeInfo.handle
-    : `@${storeInfo.handle}`;
+    : `@${storeInfo.handle}`);
 
   const getActiveSocialLinks = () => {
     const links: Array<[SocialMediaType, string]> = [];
@@ -81,9 +81,11 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
                 </Badge>
               </div>
               
-              <div className="flex items-center gap-1 text-white text-xs md:text-sm text-shadow">
-                <span className="ltr-text inline-block" dir="ltr">{displayHandle}</span>
-              </div>
+              {displayHandle && (
+                <div className="flex items-center gap-1 text-white text-xs md:text-sm text-shadow">
+                  <span className="ltr-text inline-block" dir="ltr">{displayHandle}</span>
+                </div>
+              )}
               
               {storeInfo.address && (
                 <div className="flex items-center gap-1 text-white text-xs md:text-sm mt-1 text-shadow">

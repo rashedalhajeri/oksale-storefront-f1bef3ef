@@ -20,7 +20,7 @@ const PreviewHeader: React.FC<PreviewHeaderProps> = ({ open, setOpen }) => {
           <Button 
             variant="secondary" 
             size="sm"
-            className="text-xs font-medium flex items-center gap-1.5 shadow-md"
+            className="text-xs font-medium flex items-center gap-1.5 shadow-md bg-white/80 hover:bg-white backdrop-blur-sm transition-all"
           >
             {open ? <PenSquare className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
             {open ? 'تعديل' : 'معاينة'}

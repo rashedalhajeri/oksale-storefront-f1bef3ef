@@ -1,28 +1,57 @@
-
 import { Order } from './orderTypes';
 import { formatCurrencyWithSettings } from './dashboardUtils';
 import { getOrderStatusText, getOrderStatusColors } from './orderStatus';
+import { formatRelativeTime, getTimeColor } from './dashboardUtils';
 
-// Format orders for display
+// Format orders for display with better memoization support
 export const formatOrders = (orders: any[], currency: string): Order[] => {
-  if (!orders) return [];
+  if (!orders || orders.length === 0) return [];
 
   return orders.map(order => {
     const statusColors = getOrderStatusColors(order.status);
     const statusText = getOrderStatusText(order.status);
+    const relativeTime = formatRelativeTime(order.created_at);
+    const timeColor = getTimeColor(order.created_at, order.status);
     
     return {
       id: order.id,
+      rawId: order.id, // Store original ID for database operations
       customer: order.customer_name || 'عميل',
       amount: formatCurrencyWithSettings(Number(order.total_amount), currency),
       created_at: order.created_at,
       status: order.status,
       statusText,
       statusColors,
-      relativeTime: '',  // Will be filled by the component
-      timeColor: '',     // Will be filled by the component
+      relativeTime,
+      timeColor,
       rawAmount: Number(order.total_amount),
-      currency
+      currency,
+      email: order.customer_email,
+      phone: order.customer_phone
     };
   });
+};
+
+// Add a cache to reduce redundant calculations
+const orderFormatCache = new Map();
+
+// Cached version of formatOrders for performance optimization
+export const getCachedFormattedOrders = (orders: any[], currency: string): Order[] => {
+  // Create a cache key based on order IDs and update timestamps
+  const cacheKey = orders.map(o => `${o.id}-${o.updated_at || o.created_at}`).join('|') + currency;
+  
+  if (orderFormatCache.has(cacheKey)) {
+    return orderFormatCache.get(cacheKey);
+  }
+  
+  const formattedOrders = formatOrders(orders, currency);
+  orderFormatCache.set(cacheKey, formattedOrders);
+  
+  // Keep cache size manageable
+  if (orderFormatCache.size > 50) {
+    const firstKey = orderFormatCache.keys().next().value;
+    orderFormatCache.delete(firstKey);
+  }
+  
+  return formattedOrders;
 };

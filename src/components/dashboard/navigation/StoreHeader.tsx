@@ -29,7 +29,7 @@ const StoreHeader: React.FC<StoreHeaderProps> = ({ storeData }) => {
           )}
         </div>
         <div className="overflow-hidden">
-          <h2 className="text-lg font-semibold truncate">{storeData?.name || 'New Store'}</h2>
+          <h2 className="text-lg font-medium truncate">{storeData?.name || 'New Store'}</h2>
           {storeData?.handle && (
             <div className="text-xs text-white/70 truncate">
               <span className="ltr-text inline-block" dir="ltr">
