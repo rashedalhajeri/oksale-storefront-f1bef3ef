@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   ShoppingBag, 
@@ -40,6 +39,8 @@ interface StorePreviewProps {
     snapchat?: string;
     tiktok?: string;
     whatsapp?: string;
+    useCustomColors?: boolean;
+    customColor?: string;
   };
   coverInputRef: React.RefObject<HTMLInputElement>;
   logoInputRef: React.RefObject<HTMLInputElement>;
@@ -81,7 +82,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
     setOpen(false);
   };
 
-  // Get active social media links (maximum of 3)
   const getActiveSocialLinks = () => {
     const links: Array<[SocialMediaType, string]> = [];
     

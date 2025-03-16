@@ -255,7 +255,18 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
       <div className="space-y-6">
         <StorePreview 
           storeInfo={{
-            ...storeInfo,
+            name: storeInfo.name,
+            handle: storeInfo.handle,
+            logo_url: storeInfo.logo_url,
+            cover_url: storeInfo.cover_url,
+            instagram: storeInfo.instagram,
+            twitter: storeInfo.twitter,
+            facebook: storeInfo.facebook,
+            website: storeInfo.website,
+            address: storeInfo.address,
+            snapchat: storeInfo.snapchat,
+            tiktok: storeInfo.tiktok,
+            whatsapp: storeInfo.whatsapp,
             useCustomColors: storeInfo.use_custom_colors,
             customColor: storeInfo.custom_color
           }}
