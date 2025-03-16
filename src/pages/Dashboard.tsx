@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useMemo } from 'react';
 import { 
   useNavigate, 
   Routes, 
@@ -15,7 +15,6 @@ import { supabase } from '@/integrations/supabase/client';
 // Dashboard Layout
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Loader2 } from 'lucide-react';
-import { useDashboardData } from '@/hooks/useDashboardData';
 
 // Lazy load components for better performance
 const MainDashboard = lazy(() => import('@/components/dashboard/MainDashboard'));
@@ -42,15 +41,6 @@ const PageLoader = () => (
   </div>
 );
 
-// DashboardContent component that serves as an Outlet container
-const DashboardContent = ({ storeData }: { storeData: any }) => {
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <Outlet context={storeData} />
-    </Suspense>
-  );
-};
-
 // Main Dashboard Container component
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -58,6 +48,7 @@ const Dashboard = () => {
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Fetch store data only once on component mount
   useEffect(() => {
     const fetchStoreData = async () => {
       setLoading(true);
@@ -98,6 +89,9 @@ const Dashboard = () => {
     fetchStoreData();
   }, [navigate, toast]);
 
+  // Memoize the store data to prevent unnecessary re-renders
+  const memoizedStoreData = useMemo(() => storeData, [storeData?.id]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -132,71 +126,29 @@ const Dashboard = () => {
     );
   }
 
+  // More efficient rendering with proper route structure
   return (
-    <DashboardLayout storeData={storeData}>
-      <Routes>
-        <Route path="/" element={<DashboardContent storeData={storeData} />}>
-          <Route index element={<DashboardMain storeData={storeData} />} />
-          <Route path="products" element={<DashboardProducts storeData={storeData} />} />
-          <Route path="orders" element={<DashboardOrders storeData={storeData} />} />
-          <Route path="customers" element={<DashboardCustomers storeData={storeData} />} />
-          <Route path="categories" element={<DashboardCategories storeData={storeData} />} />
-          <Route path="marketing" element={<DashboardOffers storeData={storeData} />} />
-          <Route path="settings/general" element={<DashboardSettingsGeneral storeData={storeData} />} />
-          <Route path="settings/appearance" element={<DashboardSettingsAppearance storeData={storeData} />} />
-          <Route path="settings/payment" element={<DashboardSettingsPayment storeData={storeData} />} />
-          <Route path="settings/shipping" element={<DashboardSettingsShipping storeData={storeData} />} />
-          <Route path="settings/notifications" element={<DashboardSettingsNotifications storeData={storeData} />} />
-          <Route path="settings/whatsapp" element={<DashboardSettingsWhatsApp storeData={storeData} />} />
-          <Route path="settings/users" element={<DashboardSettingsUsers storeData={storeData} />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+    <DashboardLayout storeData={memoizedStoreData}>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route index element={<MainDashboard storeData={memoizedStoreData} />} />
+          <Route path="products" element={<DashboardProducts storeData={memoizedStoreData} />} />
+          <Route path="orders" element={<DashboardOrders storeData={memoizedStoreData} />} />
+          <Route path="customers" element={<DashboardCustomers storeData={memoizedStoreData} />} />
+          <Route path="categories" element={<DashboardCategories storeData={memoizedStoreData} />} />
+          <Route path="marketing" element={<DashboardOffers storeData={memoizedStoreData} />} />
+          <Route path="settings/general" element={<DashboardSettingsGeneral storeData={memoizedStoreData} />} />
+          <Route path="settings/appearance" element={<DashboardSettingsAppearance storeData={memoizedStoreData} />} />
+          <Route path="settings/payment" element={<DashboardSettingsPayment storeData={memoizedStoreData} />} />
+          <Route path="settings/shipping" element={<DashboardSettingsShipping storeData={memoizedStoreData} />} />
+          <Route path="settings/notifications" element={<DashboardSettingsNotifications storeData={memoizedStoreData} />} />
+          <Route path="settings/whatsapp" element={<DashboardSettingsWhatsApp storeData={memoizedStoreData} />} />
+          <Route path="settings/users" element={<DashboardSettingsUsers storeData={memoizedStoreData} />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Suspense>
     </DashboardLayout>
   );
 };
-
-// Inner component for the main dashboard content
-interface DashboardMainProps {
-  storeData: any;
-}
-
-const DashboardMain: React.FC<DashboardMainProps> = React.memo(({ storeData }) => {
-  const {
-    timeframe,
-    setTimeframe,
-    statistics,
-    salesData,
-    topProducts,
-    recentOrders,
-    orderStatusData,
-    statsLoading,
-    chartLoading,
-    topProductsLoading,
-    recentOrdersLoading,
-    orderStatusLoading,
-    currency
-  } = useDashboardData(storeData.id);
-
-  return (
-    <MainDashboard
-      statistics={statistics}
-      salesData={salesData}
-      timeframe={timeframe}
-      setTimeframe={setTimeframe}
-      recentOrders={recentOrders}
-      topProducts={topProducts}
-      orderStatusData={orderStatusData}
-      statsLoading={statsLoading}
-      chartLoading={chartLoading}
-      recentOrdersLoading={recentOrdersLoading}
-      topProductsLoading={topProductsLoading}
-      orderStatusLoading={orderStatusLoading}
-      currency={currency}
-    />
-  );
-});
-
-DashboardMain.displayName = 'DashboardMain';
 
 export default Dashboard;
