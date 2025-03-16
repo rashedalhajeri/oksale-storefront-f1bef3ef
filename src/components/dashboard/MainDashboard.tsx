@@ -1,9 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, AlertCircle, Clock, LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 import StatisticsSection from './StatisticsSection';
 import ChartSection from './ChartSection';
 import OrderStatusCard from './OrderStatusCard';

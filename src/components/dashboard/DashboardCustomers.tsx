@@ -1,12 +1,24 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserRound, Mail, Phone, Calendar, ShoppingBag, ArrowUpRight } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useState } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Users, Search, Filter, Plus, MoreHorizontal, CheckCircle, Pencil, Trash2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 interface DashboardCustomersProps {
   storeData: any;
@@ -17,255 +29,250 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
   const customers = [
     { 
       id: 1, 
-      name: 'أحمد محمد', 
-      email: 'ahmed@example.com', 
-      phone: '+966 55 123 4567', 
-      totalOrders: 8, 
-      totalSpent: '2,345.00 ر.س', 
-      lastOrder: '12 مايو 2024',
-      avatar: null
+      name: 'راشد الراجحي', 
+      email: 'rhajri965@gmail.com', 
+      phone: '96566605014', 
+      registrationDate: 'منذ ثانية',
+      totalOrders: 0, 
     },
     { 
       id: 2, 
       name: 'فاطمة علي', 
       email: 'fatima@example.com', 
-      phone: '+966 50 765 4321', 
-      totalOrders: 5, 
-      totalSpent: '1,250.00 ر.س', 
-      lastOrder: '10 مايو 2024',
-      avatar: null
+      phone: '96650765432', 
+      registrationDate: 'منذ دقيقة',
+      totalOrders: 3, 
     },
     { 
       id: 3, 
       name: 'محمد عبدالله', 
       email: 'mohammed@example.com', 
-      phone: '+966 54 987 6543', 
-      totalOrders: 12, 
-      totalSpent: '4,780.00 ر.س', 
-      lastOrder: '8 مايو 2024',
-      avatar: null
+      phone: '96654987654', 
+      registrationDate: 'منذ ساعة',
+      totalOrders: 7, 
     },
     { 
       id: 4, 
       name: 'نورة سالم', 
       email: 'noura@example.com', 
-      phone: '+966 56 456 7890', 
-      totalOrders: 3, 
-      totalSpent: '870.00 ر.س', 
-      lastOrder: '5 مايو 2024',
-      avatar: null
-    },
-    { 
-      id: 5, 
-      name: 'خالد إبراهيم', 
-      email: 'khalid@example.com', 
-      phone: '+966 58 234 5678', 
-      totalOrders: 7, 
-      totalSpent: '1,920.00 ر.س', 
-      lastOrder: '3 مايو 2024',
-      avatar: null
+      phone: '96656456789', 
+      registrationDate: 'منذ يوم',
+      totalOrders: 2, 
     },
   ];
 
+  const [selectedCustomers, setSelectedCustomers] = useState<number[]>([]);
+  const [contextMenuCustomer, setContextMenuCustomer] = useState<number | null>(null);
+
+  const toggleCustomerSelection = (customerId: number) => {
+    if (selectedCustomers.includes(customerId)) {
+      setSelectedCustomers(selectedCustomers.filter(id => id !== customerId));
+    } else {
+      setSelectedCustomers([...selectedCustomers, customerId]);
+    }
+  };
+
+  const selectAllCustomers = () => {
+    if (selectedCustomers.length === customers.length) {
+      setSelectedCustomers([]);
+    } else {
+      setSelectedCustomers(customers.map(customer => customer.id));
+    }
+  };
+
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">العملاء</h1>
-        <p className="text-gray-600">إدارة قائمة العملاء في متجرك</p>
+    <div className="space-y-4">
+      <div className="bg-gray-50 p-4 rounded-md">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-bold text-right">العملاء</h1>
+            <p className="text-gray-500 text-sm text-right">عدد العملاء: {customers.length}</p>
+          </div>
+        </div>
       </div>
 
-      <Tabs defaultValue="all" className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <TabsList>
-            <TabsTrigger value="all">جميع العملاء</TabsTrigger>
-            <TabsTrigger value="active">العملاء النشطين</TabsTrigger>
-            <TabsTrigger value="new">العملاء الجدد</TabsTrigger>
-          </TabsList>
-          <div className="flex items-center gap-2">
-            <Input 
-              placeholder="بحث عن عميل..." 
-              className="w-60"
-            />
-            <Button variant="outline">تصدير</Button>
-            <Button>إضافة عميل</Button>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="md:col-span-1">
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <Input placeholder="بحث..." className="pr-10" />
           </div>
         </div>
 
-        <TabsContent value="all" className="mt-0">
-          <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="text-xs text-gray-500 border-b bg-gray-50">
-                      <th className="py-3 px-4 font-medium text-right">العميل</th>
-                      <th className="py-3 px-4 font-medium text-right">البريد الإلكتروني</th>
-                      <th className="py-3 px-4 font-medium text-right">رقم الهاتف</th>
-                      <th className="py-3 px-4 font-medium text-right">عدد الطلبات</th>
-                      <th className="py-3 px-4 font-medium text-right">إجمالي المصروف</th>
-                      <th className="py-3 px-4 font-medium text-right">آخر طلب</th>
-                      <th className="py-3 px-4 font-medium text-right">الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customers.map((customer) => (
-                      <tr key={customer.id} className="text-sm border-b hover:bg-gray-50">
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              {customer.avatar ? (
-                                <AvatarImage src={customer.avatar} alt={customer.name} />
-                              ) : (
-                                <AvatarFallback className="bg-oksale-100 text-oksale-700">
-                                  {customer.name.charAt(0)}
-                                </AvatarFallback>
-                              )}
-                            </Avatar>
-                            <span>{customer.name}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-1">
-                            <Mail className="h-4 w-4 text-gray-400" />
-                            <span>{customer.email}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-1">
-                            <Phone className="h-4 w-4 text-gray-400" />
-                            <span>{customer.phone}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-1">
-                            <ShoppingBag className="h-4 w-4 text-gray-400" />
-                            <span>{customer.totalOrders}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">{customer.totalSpent}</td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4 text-gray-400" />
-                            <span>{customer.lastOrder}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm">عرض</Button>
-                            <Button variant="outline" size="sm">تحرير</Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        <div className="md:col-span-1">
+          <Select>
+            <SelectTrigger>
+              <div className="flex justify-between items-center w-full">
+                <Filter size={16} className="ml-2 text-gray-400" />
+                <SelectValue placeholder="فلترة" />
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="active" className="mt-0">
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center py-8">
-                <UserRound className="h-16 w-16 mx-auto text-gray-300 mb-3" />
-                <h3 className="text-lg font-medium mb-2">العملاء النشطين</h3>
-                <p className="text-gray-500 mb-4">هنا ستظهر قائمة بالعملاء النشطين في متجرك.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="new" className="mt-0">
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center py-8">
-                <UserRound className="h-16 w-16 mx-auto text-gray-300 mb-3" />
-                <h3 className="text-lg font-medium mb-2">العملاء الجدد</h3>
-                <p className="text-gray-500 mb-4">هنا ستظهر قائمة بالعملاء الجدد في متجرك.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع العملاء</SelectItem>
+              <SelectItem value="active">العملاء النشطين</SelectItem>
+              <SelectItem value="new">العملاء الجدد</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-      {/* Customer Insights */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">نظرة عامة على العملاء</CardTitle>
-            <CardDescription>إحصائيات وبيانات العملاء في متجرك</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-500">إجمالي العملاء</div>
-                  <div className="text-2xl font-bold">243</div>
-                </div>
-                <div className="bg-oksale-50 p-2 rounded-full">
-                  <UserRound className="h-6 w-6 text-oksale-600" />
-                </div>
+        <div className="md:col-span-1">
+          <Select>
+            <SelectTrigger>
+              <div className="flex justify-between items-center w-full">
+                <Users size={16} className="ml-2 text-gray-400" />
+                <span className="text-gray-600">2</span>
+                <SelectValue placeholder="جميع العملاء" />
               </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-500">العملاء الجدد هذا الشهر</div>
-                  <div className="text-2xl font-bold">28</div>
-                </div>
-                <div className="flex items-center text-green-600 text-xs">
-                  <ArrowUpRight className="h-3 w-3 mr-1" />
-                  <span>+12% عن الشهر الماضي</span>
-                </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع العملاء</SelectItem>
+              <SelectItem value="selected">العملاء المحددين</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="md:col-span-1">
+          <Select>
+            <SelectTrigger>
+              <div className="flex justify-between items-center w-full">
+                <CheckCircle size={16} className="ml-2 text-gray-400" />
+                <SelectValue placeholder="إجراءات" />
               </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-500">متوسط قيمة الطلب</div>
-                  <div className="text-2xl font-bold">215 ر.س</div>
-                </div>
-                <div className="flex items-center text-green-600 text-xs">
-                  <ArrowUpRight className="h-3 w-3 mr-1" />
-                  <span>+5% عن الشهر الماضي</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">أفضل العملاء</CardTitle>
-            <CardDescription>العملاء الأكثر إنفاقاً في متجرك</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {customers.slice(0, 4).map((customer, index) => (
-                <div key={customer.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 text-xs font-medium">
-                      {index + 1}
-                    </div>
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-oksale-100 text-oksale-700">
-                        {customer.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{customer.name}</div>
-                      <div className="text-xs text-gray-500">{customer.email}</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">{customer.totalSpent}</div>
-                    <div className="text-xs text-gray-500">{customer.totalOrders} طلبات</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="export">تصدير العملاء</SelectItem>
+              <SelectItem value="delete">حذف العملاء المحددين</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
+
+      <div className="md:col-span-1 flex justify-end">
+        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+          <Plus size={16} className="ml-2" /> إضافة عميل
+        </Button>
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b">
+                  <th className="py-3 px-4 text-right">
+                    <Checkbox 
+                      checked={selectedCustomers.length === customers.length && customers.length > 0}
+                      onCheckedChange={selectAllCustomers}
+                    />
+                  </th>
+                  <th className="py-3 px-4 font-medium text-gray-500 text-right">الاسم</th>
+                  <th className="py-3 px-4 font-medium text-gray-500 text-right">رقم الجوال</th>
+                  <th className="py-3 px-4 font-medium text-gray-500 text-right">تاريخ التسجيل</th>
+                  <th className="py-3 px-4 font-medium text-gray-500 text-right">البريد الإلكتروني</th>
+                  <th className="py-3 px-4 font-medium text-gray-500 text-right">عدد الطلبات</th>
+                  <th className="py-3 px-4 font-medium text-gray-500 text-right">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {customers.map((customer) => (
+                  <ContextMenuTrigger key={customer.id} id={`customer-${customer.id}`}>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <Checkbox 
+                          checked={selectedCustomers.includes(customer.id)}
+                          onCheckedChange={() => toggleCustomerSelection(customer.id)}
+                        />
+                      </td>
+                      <td className="py-3 px-4 font-medium">{customer.name}</td>
+                      <td className="py-3 px-4">{customer.phone}</td>
+                      <td className="py-3 px-4">{customer.registrationDate}</td>
+                      <td className="py-3 px-4">{customer.email}</td>
+                      <td className="py-3 px-4">{customer.totalOrders}</td>
+                      <td className="py-3 px-4">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal size={18} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-[160px]">
+                            <DropdownMenuItem className="flex items-center gap-2 text-sm">
+                              <Pencil size={14} className="text-gray-500" />
+                              <span>عرض</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="flex items-center gap-2 text-sm">
+                              <Pencil size={14} className="text-gray-500" />
+                              <span>تعديل</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="flex items-center gap-2 text-sm text-red-600">
+                              <Trash2 size={14} className="text-red-500" />
+                              <span>حذف</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  </ContextMenuTrigger>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="p-4 flex justify-between items-center">
+            <div>
+              <Select defaultValue="10">
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="10" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationLink>السابق</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink isActive>1</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink>2</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink>3</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink>التالي</PaginationLink>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Context Menu For Right-Click */}
+      <ContextMenu>
+        <ContextMenuContent>
+          <ContextMenuItem className="flex items-center gap-2">
+            <Pencil size={14} className="text-gray-500" />
+            <span>عرض</span>
+          </ContextMenuItem>
+          <ContextMenuItem className="flex items-center gap-2">
+            <Pencil size={14} className="text-gray-500" />
+            <span>تعديل</span>
+          </ContextMenuItem>
+          <ContextMenuItem className="flex items-center gap-2 text-red-600">
+            <Trash2 size={14} className="text-red-500" />
+            <span>حذف</span>
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     </div>
   );
 };
