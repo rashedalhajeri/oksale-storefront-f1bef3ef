@@ -115,9 +115,7 @@ const StoreHeader = ({
                   )}
                 </div>
                 
-                <div className="flex items-center gap-1 text-white text-xs md:text-sm text-shadow">
-                  <span className="truncate">{displayHandle}</span>
-                </div>
+                {/* Removed the handle/username display completely */}
                 
                 {/* Display address if available */}
                 {store.address && (
