@@ -16,7 +16,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = React.memo(({ storeData }) => {
   const isMobile = useIsMobile();
   
-  // تحسين أداء الروابط باستخدام useMemo
+  // Optimize store preview link rendering with useMemo
   const storePreviewLink = useMemo(() => {
     if (!storeData?.handle) return null;
     
@@ -56,7 +56,7 @@ const Sidebar: React.FC<SidebarProps> = React.memo(({ storeData }) => {
     </div>
   );
 }, (prevProps, nextProps) => {
-  // تحسين المقارنة لمنع إعادة التحميل غير الضرورية
+  // Optimize re-rendering with improved comparison
   return prevProps.storeData?.id === nextProps.storeData?.id && 
          prevProps.storeData?.handle === nextProps.storeData?.handle &&
          prevProps.storeData?.name === nextProps.storeData?.name;

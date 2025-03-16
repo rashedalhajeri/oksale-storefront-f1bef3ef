@@ -1,7 +1,7 @@
 
-/* تحسينات أداء لوحة التحكم */
+/* Dashboard performance optimizations */
 
-/* تحسين التمرير */
+/* Improve scrolling */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -11,7 +11,7 @@
   scrollbar-width: none;
 }
 
-/* تأثيرات الانتقال */
+/* Transition effects */
 .animate-in {
   animation-duration: 150ms;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -32,7 +32,7 @@
   }
 }
 
-/* تحسين أداء الانتقالات */
+/* Performance optimizations */
 .will-change-transform {
   will-change: transform;
 }
@@ -41,7 +41,7 @@
   will-change: opacity;
 }
 
-/* تحسين أداء القوائم */
+/* Menu item optimizations */
 .menu-item {
   transition: all 100ms ease;
 }
@@ -50,7 +50,7 @@
   transform: translateX(-2px);
 }
 
-/* تحسين أداء البطاقات */
+/* Card hover optimizations */
 .card-hover {
   transition: transform 150ms ease, box-shadow 150ms ease;
   will-change: transform, box-shadow;
@@ -59,4 +59,17 @@
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* Text direction utilities */
+.ltr-text {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+
+.rtl-text {
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: isolate;
 }
