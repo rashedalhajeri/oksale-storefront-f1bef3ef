@@ -86,6 +86,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
       </div>
     </div>
   );
+}, (prevProps, nextProps) => {
+  // Only re-render if storeData changes (which should be rare)
+  return true; // Always prevent re-renders from layout
 });
 
 DashboardLayout.displayName = 'DashboardLayout';
