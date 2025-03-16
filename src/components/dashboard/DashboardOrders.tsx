@@ -147,7 +147,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       setLoading(true);
       try {
         let sortBy = 'created_at';
-        let sortDirection = 'desc';
+        let sortDirection: 'asc' | 'desc' = 'desc';
         
         switch (sortOption) {
           case 'newest':
@@ -180,7 +180,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         
         if (fetchedOrders.length === 0 && !searchTerm && tabValue === 'all' && pagination.page === 1) {
           const mockData = generateMockOrders(storeData.id);
-          setOrders(mockData as Order[]);
+          setOrders(mockData);
           setPagination({
             total: mockData.length,
             page: 1,
@@ -200,7 +200,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         });
         
         const mockData = generateMockOrders(storeData.id);
-        setOrders(mockData as Order[]);
+        setOrders(mockData);
         setPagination({
           total: mockData.length,
           page: 1,
