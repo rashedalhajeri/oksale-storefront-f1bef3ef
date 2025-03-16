@@ -1,173 +1,113 @@
-
-import React, { Suspense } from 'react';
-import { Loader2 } from 'lucide-react';
+import React from 'react';
 import { useDashboardContext } from '@/context/DashboardContext';
 
-// Lazy load dashboard components
-import MainDashboard from '@/components/dashboard/MainDashboard';
-import DashboardProducts from '@/components/dashboard/DashboardProducts';
-import DashboardOrders from '@/components/dashboard/DashboardOrders';
-import DashboardCustomers from '@/components/dashboard/DashboardCustomers';
-import DashboardCategories from '@/components/dashboard/DashboardCategories';
-import DashboardOffers from '@/components/dashboard/DashboardOffers';
-import DashboardSettingsGeneral from '@/components/dashboard/settings/DashboardSettingsGeneral';
-import DashboardSettingsAppearance from '@/components/dashboard/settings/DashboardSettingsAppearance';
-import DashboardSettingsPayment from '@/components/dashboard/settings/DashboardSettingsPayment';
-import DashboardSettingsShipping from '@/components/dashboard/settings/DashboardSettingsShipping';
-import DashboardSettingsNotifications from '@/components/dashboard/settings/DashboardSettingsNotifications';
-import DashboardSettingsWhatsApp from '@/components/dashboard/settings/DashboardSettingsWhatsApp';
-import DashboardSettingsUsers from '@/components/dashboard/settings/DashboardSettingsUsers';
+// Original components
+import MainDashboard from '../MainDashboard';
+import DashboardProducts from '../DashboardProducts';
+import DashboardOrders from '../DashboardOrders';
+import DashboardCustomers from '../DashboardCustomers';
+import DashboardCategories from '../DashboardCategories';
+import DashboardOffers from '../DashboardMarketingOffers';
 
-// Loading component for dashboard pages
-export const PageLoader = () => (
-  <div className="flex items-center justify-center h-full min-h-[400px]">
-    <div className="flex flex-col items-center">
-      <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
-      <p className="mt-4 text-sm text-gray-500">جارِ تحميل الصفحة...</p>
-    </div>
-  </div>
-);
+// Settings components
+import DashboardSettingsGeneral from '../settings/DashboardSettingsGeneral';
+import DashboardSettingsAppearance from '../settings/DashboardSettingsAppearance';
+import DashboardSettingsPayment from '../settings/DashboardSettingsPayment';
+import DashboardSettingsShipping from '../settings/DashboardSettingsShipping';
+import DashboardSettingsNotifications from '../settings/DashboardSettingsNotifications';
+import DashboardSettingsWhatsApp from '../settings/DashboardSettingsWhatsApp';
+import DashboardSettingsUsers from '../settings/DashboardSettingsUsers';
 
-// Main Dashboard with context
+// Wrapper for MainDashboard
 export const MainDashboardWithContext = () => {
-  const context = useDashboardContext();
+  const contextValues = useDashboardContext();
+  
   return (
-    <Suspense fallback={<PageLoader />}>
-      <MainDashboard 
-        statistics={context.statistics || []}
-        salesData={context.salesData || []}
-        timeframe={context.timeframe || 'week'}
-        setTimeframe={context.setTimeframe || (() => {})}
-        recentOrders={context.recentOrders || []}
-        topProducts={context.topProducts || []}
-        orderStatusData={context.orderStatusData || []}
-        statsLoading={context.statsLoading || false}
-        chartLoading={context.chartLoading || false}
-        recentOrdersLoading={context.recentOrdersLoading || false}
-        topProductsLoading={context.topProductsLoading || false}
-        orderStatusLoading={context.orderStatusLoading || false}
-        currency={context.currency || 'SAR'}
-      />
-    </Suspense>
+    <MainDashboard 
+      statistics={contextValues.statistics || []}
+      salesData={contextValues.salesData || []}
+      timeframe={contextValues.timeframe || 'week'}
+      setTimeframe={contextValues.setTimeframe || (() => {})}
+      recentOrders={contextValues.recentOrders || []}
+      topProducts={contextValues.topProducts || []}
+      orderStatusData={contextValues.orderStatusData || []}
+      statsLoading={contextValues.statsLoading || false}
+      chartLoading={contextValues.chartLoading || false}
+      recentOrdersLoading={contextValues.recentOrdersLoading || false}
+      topProductsLoading={contextValues.topProductsLoading || false}
+      orderStatusLoading={contextValues.orderStatusLoading || false}
+      currency={contextValues.currency || 'SAR'}
+    />
   );
 };
 
-// Products Dashboard with context
+// Wrapper for DashboardProducts
 export const DashboardProductsWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardProducts storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardProducts storeData={contextValues.storeData} />;
 };
 
-// Orders Dashboard with context
+// Wrapper for DashboardOrders
 export const DashboardOrdersWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardOrders storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardOrders storeData={contextValues.storeData} />;
 };
 
-// Customers Dashboard with context
+// Wrapper for DashboardCustomers
 export const DashboardCustomersWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardCustomers storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardCustomers storeData={contextValues.storeData} />;
 };
 
-// Categories Dashboard with context
+// Wrapper for DashboardCategories
 export const DashboardCategoriesWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardCategories storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardCategories storeData={contextValues.storeData} />;
 };
 
-// Offers Dashboard with context
+// Wrapper for DashboardOffers
 export const DashboardOffersWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardOffers storeData={storeData} />
-    </Suspense>
-  );
+  return <DashboardOffers />;
 };
 
-// Settings General with context
+// Wrapper for DashboardSettingsGeneral
 export const DashboardSettingsGeneralWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardSettingsGeneral storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardSettingsGeneral storeData={contextValues.storeData} />;
 };
 
-// Settings Appearance with context
+// Wrapper for DashboardSettingsAppearance
 export const DashboardSettingsAppearanceWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardSettingsAppearance storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardSettingsAppearance storeData={contextValues.storeData} />;
 };
 
-// Settings Payment with context
+// Wrapper for DashboardSettingsPayment
 export const DashboardSettingsPaymentWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardSettingsPayment storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardSettingsPayment storeData={contextValues.storeData} />;
 };
 
-// Settings Shipping with context
+// Wrapper for DashboardSettingsShipping
 export const DashboardSettingsShippingWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardSettingsShipping storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardSettingsShipping storeData={contextValues.storeData} />;
 };
 
-// Settings Notifications with context
+// Wrapper for DashboardSettingsNotifications
 export const DashboardSettingsNotificationsWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardSettingsNotifications storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardSettingsNotifications storeData={contextValues.storeData} />;
 };
 
-// Settings WhatsApp with context
+// Wrapper for DashboardSettingsWhatsApp
 export const DashboardSettingsWhatsAppWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardSettingsWhatsApp storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardSettingsWhatsApp storeData={contextValues.storeData} />;
 };
 
-// Settings Users with context
+// Wrapper for DashboardSettingsUsers
 export const DashboardSettingsUsersWithContext = () => {
-  const { storeData } = useDashboardContext();
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <DashboardSettingsUsers storeData={storeData} />
-    </Suspense>
-  );
+  const contextValues = useDashboardContext();
+  return <DashboardSettingsUsers storeData={contextValues.storeData} />;
 };
