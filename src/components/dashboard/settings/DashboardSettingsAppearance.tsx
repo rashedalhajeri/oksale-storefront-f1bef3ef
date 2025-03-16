@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
-import { Palette, Layout, EyeIcon, Image, Type } from 'lucide-react';
+import { Palette, Layout, EyeIcon, Type } from 'lucide-react';
 
 interface DashboardSettingsAppearanceProps {
   storeData: any;
@@ -143,66 +143,6 @@ const DashboardSettingsAppearance: React.FC<DashboardSettingsAppearanceProps> = 
                   <p className="text-sm text-gray-500">عرض قائمة بالمنتجات التي شاهدها العميل مؤخراً</p>
                 </div>
                 <Switch id="show-recently-viewed" defaultChecked />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Image and Media Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <Image className="h-5 w-5 mr-2 text-oksale-600" />
-              الصور والوسائط
-            </CardTitle>
-            <CardDescription>إعدادات عرض الصور والوسائط في المتجر</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="image-ratio">نسبة أبعاد صور المنتجات</Label>
-                <Select defaultValue="square">
-                  <SelectTrigger id="image-ratio">
-                    <SelectValue placeholder="اختر نسبة الأبعاد" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="square">مربع (1:1)</SelectItem>
-                    <SelectItem value="portrait">طولي (3:4)</SelectItem>
-                    <SelectItem value="landscape">عرضي (4:3)</SelectItem>
-                    <SelectItem value="widescreen">شاشة عريضة (16:9)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="image-quality">جودة الصور</Label>
-                <Select defaultValue="high">
-                  <SelectTrigger id="image-quality">
-                    <SelectValue placeholder="اختر جودة الصور" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="high">عالية</SelectItem>
-                    <SelectItem value="medium">متوسطة</SelectItem>
-                    <SelectItem value="low">منخفضة</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="lazy-loading">تحميل الصور بشكل تدريجي</Label>
-                  <p className="text-sm text-gray-500">تحميل الصور عند ظهورها في الشاشة لتسريع تحميل الصفحة</p>
-                </div>
-                <Switch id="lazy-loading" defaultChecked />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="enable-zoom">تمكين تكبير صور المنتجات</Label>
-                  <p className="text-sm text-gray-500">السماح للعملاء بتكبير صور المنتجات عند الضغط عليها</p>
-                </div>
-                <Switch id="enable-zoom" defaultChecked />
               </div>
             </div>
           </CardContent>
