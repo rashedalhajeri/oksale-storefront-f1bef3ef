@@ -8,7 +8,7 @@ import DashboardProducts from '../DashboardProducts';
 import DashboardOrders from '../DashboardOrders';
 import DashboardCustomers from '../DashboardCustomers';
 import DashboardCategories from '../DashboardCategories';
-import DashboardOffers from '../DashboardMarketingOffers';
+import DashboardMarketingOffers from '../DashboardMarketingOffers';
 
 // Settings components
 import DashboardSettingsGeneral from '../settings/DashboardSettingsGeneral';
@@ -37,7 +37,7 @@ export const MainDashboardWithContext = () => {
       recentOrdersLoading={contextValues.recentOrdersLoading || false}
       topProductsLoading={contextValues.topProductsLoading || false}
       orderStatusLoading={contextValues.orderStatusLoading || false}
-      currency={contextValues.currency || 'SAR'}
+      currency={contextValues.currency || 'KWD'}
     />
   );
 };
@@ -69,7 +69,7 @@ export const DashboardCategoriesWithContext = () => {
 // Wrapper for DashboardOffers
 export const DashboardOffersWithContext = () => {
   const contextValues = useDashboardContext();
-  return <DashboardOffers />;
+  return <DashboardMarketingOffers />;
 };
 
 // Wrapper for DashboardSettingsGeneral
