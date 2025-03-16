@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   ShoppingCart, 
@@ -62,7 +63,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
 import { formatRelativeTime, formatOrderTime, translateOrderStatus, getOrderStatusColor, generateUniqueOrderNumber, formatOrderNumber, getTimeColor } from '@/utils/dashboard/dashboardUtils';
-import { getOrders, getOrderDetails, OrderOptions } from '@/utils/dashboard/orders';
+import { getOrders, getOrderDetails, OrderOptions, generateMockOrders } from '@/utils/dashboard/orders';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Order {
@@ -882,4 +883,49 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 <h3 className="font-medium mb-2 text-sm">تحديث حالة الطلب</h3>
                 <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2'} gap-2`}>
                   <Button 
-                    variant={selectedOrder.status === 'pending' ? 'default' : '
+                    variant={selectedOrder.status === 'pending' ? 'default' : 'outline'}
+                    onClick={() => handleUpdateStatus('pending')}
+                    size="sm"
+                    className="text-xs justify-start"
+                  >
+                    <Clock className="h-3.5 w-3.5 text-yellow-500 mr-1" />
+                    قيد الانتظار
+                  </Button>
+                  <Button 
+                    variant={selectedOrder.status === 'processing' ? 'default' : 'outline'}
+                    onClick={() => handleUpdateStatus('processing')}
+                    size="sm"
+                    className="text-xs justify-start"
+                  >
+                    <Clock className="h-3.5 w-3.5 text-blue-500 mr-1" />
+                    قيد التجهيز
+                  </Button>
+                  <Button 
+                    variant={selectedOrder.status === 'completed' ? 'default' : 'outline'}
+                    onClick={() => handleUpdateStatus('completed')}
+                    size="sm"
+                    className="text-xs justify-start"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mr-1" />
+                    مكتمل
+                  </Button>
+                  <Button 
+                    variant={selectedOrder.status === 'cancelled' ? 'default' : 'outline'}
+                    onClick={() => handleUpdateStatus('cancelled')}
+                    size="sm"
+                    className="text-xs justify-start"
+                  >
+                    <AlertCircle className="h-3.5 w-3.5 text-red-500 mr-1" />
+                    ملغي
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+};
+
+export default DashboardOrders;
