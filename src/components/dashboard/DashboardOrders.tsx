@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   ShoppingCart, 
@@ -69,15 +68,25 @@ import { useIsMobile } from '@/hooks/use-mobile';
 interface Order {
   id: string;
   rawId?: string;
-  store_id: string;
-  total_amount: number;
-  created_at: string;
-  updated_at: string;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string | null;
+  customer: string;
+  email: string;
+  phone: string | null;
+  date: string;
+  relativeTime: string;
+  timeColor: string;
+  amount: string;
+  rawAmount: number;
   status: string;
-  // Additional properties for the mock data
+  statusText: string;
+  statusColors: { bg: string; text: string; icon: string };
+  currency: string;
+  created_at: string;
+  store_id?: string;
+  total_amount?: number;
+  updated_at?: string;
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
   items?: Array<{
     id: string;
     name: string;
@@ -86,9 +95,6 @@ interface Order {
   }>;
   payment_method?: string;
   shipping_address?: string;
-  // additional properties from formatting
-  timeColor?: string;
-  relativeTime?: string;
 }
 
 interface DashboardOrdersProps {
@@ -124,7 +130,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     fetchOrders();
   }, [storeData, pagination.page, tabValue, sortOption]);
 
-  // Debounced search
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (pagination.page === 1) {
@@ -141,7 +146,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     if (storeData?.id) {
       setLoading(true);
       try {
-        // Determine sorting
         let sortBy = 'created_at';
         let sortDirection = 'desc';
         
@@ -164,7 +168,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
             break;
         }
         
-        // Fetch orders with pagination
         const status = tabValue !== 'all' ? tabValue : null;
         const { orders: fetchedOrders, pagination: fetchedPagination } = await getOrders(storeData.id, {
           page: pagination.page,
@@ -175,10 +178,9 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
           sortDirection
         });
         
-        // If we don't have real data, generate mock data
         if (fetchedOrders.length === 0 && !searchTerm && tabValue === 'all' && pagination.page === 1) {
           const mockData = generateMockOrders(storeData.id);
-          setOrders(mockData);
+          setOrders(mockData as Order[]);
           setPagination({
             total: mockData.length,
             page: 1,
@@ -186,7 +188,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
             totalPages: Math.ceil(mockData.length / pagination.limit)
           });
         } else {
-          setOrders(fetchedOrders);
+          setOrders(fetchedOrders as Order[]);
           setPagination(fetchedPagination);
         }
       } catch (error) {
@@ -197,9 +199,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
           description: "حدث خطأ أثناء تحميل الطلبات، يرجى المحاولة مرة أخرى.",
         });
         
-        // Add some mock orders for demonstration
         const mockData = generateMockOrders(storeData.id);
-        setOrders(mockData);
+        setOrders(mockData as Order[]);
         setPagination({
           total: mockData.length,
           page: 1,
@@ -234,7 +235,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         throw error;
       }
 
-      // Update local state
       setOrders(orders.map(order => 
         order.id === selectedOrder.id 
           ? { ...order, status, updated_at: new Date().toISOString() }
@@ -303,7 +303,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   };
 
   const formatDate = (dateString: string) => {
-    // Format date in Gregorian calendar with English numerals
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
       year: 'numeric',
@@ -316,7 +315,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   };
 
   const formatShortDate = (dateString: string) => {
-    // Format short date in Gregorian calendar with English numerals (day/month only)
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
       month: 'short',
@@ -333,24 +331,19 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     const { page, totalPages } = pagination;
     const items = [];
     
-    // Always show first and last page, and 1-2 pages around the current page
     const pageNumbers = new Set<number>();
-    pageNumbers.add(1); // First page
-    pageNumbers.add(totalPages); // Last page
+    pageNumbers.add(1);
+    pageNumbers.add(totalPages);
     
-    // Pages around current
     for (let i = Math.max(2, page - 1); i <= Math.min(page + 1, totalPages - 1); i++) {
       pageNumbers.add(i);
     }
     
-    // Convert to sorted array
     const sortedPageNumbers = Array.from(pageNumbers).sort((a, b) => a - b);
     
-    // Create pagination items with ellipses where needed
     for (let i = 0; i < sortedPageNumbers.length; i++) {
       const pageNum = sortedPageNumbers[i];
       
-      // Add ellipsis if there's a gap
       if (i > 0 && sortedPageNumbers[i] - sortedPageNumbers[i - 1] > 1) {
         items.push(
           <PaginationItem key={`ellipsis-${i}`}>
@@ -359,7 +352,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         );
       }
       
-      // Add the page number
       items.push(
         <PaginationItem key={pageNum}>
           <PaginationLink
@@ -389,7 +381,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         )}
       </div>
 
-      {/* Mobile Filters */}
       {isMobile && (
         <div className="mb-4 flex gap-2">
           <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
@@ -494,7 +485,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         </div>
       )}
 
-      {/* Desktop Filters */}
       {!isMobile && (
         <Card className="mb-4 border-none shadow-sm">
           <CardContent className="p-3">
@@ -527,7 +517,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         </Card>
       )}
 
-      {/* Desktop Tabs */}
       {!isMobile && (
         <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
           <TabsList className="mb-3 w-full overflow-x-auto flex-nowrap justify-start">
@@ -662,7 +651,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         </Tabs>
       )}
 
-      {/* Mobile orders list */}
       {isMobile && (
         <div className="mb-4">
           {loading ? (
@@ -790,7 +778,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         </div>
       )}
 
-      {/* Order Details Sheet - Optimized for both desktop and mobile */}
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <SheetContent className={`w-full ${isMobile ? 'max-w-full' : 'sm:max-w-md'} overflow-y-auto p-4`}>
           <SheetHeader className="text-right">
@@ -822,7 +809,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               <Separator className="my-3" />
               
               <div className="space-y-3">
-                {/* Customer Info */}
                 <div>
                   <h3 className="font-medium flex items-center gap-1.5 mb-1.5 text-sm">
                     <User className="h-3.5 w-3.5 text-gray-500" />
@@ -837,7 +823,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   </div>
                 </div>
                 
-                {/* Order Items */}
                 <div>
                   <h3 className="font-medium flex items-center gap-1.5 mb-1.5 text-sm">
                     <Package className="h-3.5 w-3.5 text-gray-500" />
@@ -851,18 +836,17 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                           <p className="text-[10px] text-gray-500">الكمية: {item.quantity}</p>
                         </div>
                         <div className="font-medium text-xs ltr">
-                          {formatCurrency(item.price * item.quantity, storeData?.currency || 'SAR')}
+                          {formatCurrency(item.price * item.quantity, selectedOrder.currency)}
                         </div>
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-between items-center mt-3 font-bold text-sm">
                     <span>الإجمالي</span>
-                    <span className="ltr">{formatCurrency(selectedOrder.total_amount, storeData?.currency || 'SAR')}</span>
+                    <span className="ltr">{formatCurrency(selectedOrder.total_amount, selectedOrder.currency)}</span>
                   </div>
                 </div>
                 
-                {/* Shipping Address - shown in a more compact way on mobile */}
                 {selectedOrder.shipping_address && (
                   <div>
                     <h3 className="font-medium flex items-center gap-1.5 mb-1.5 text-sm">
@@ -875,7 +859,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   </div>
                 )}
                 
-                {/* Payment Method */}
                 {selectedOrder.payment_method && (
                   <div>
                     <h3 className="font-medium flex items-center gap-1.5 mb-1.5 text-sm">
@@ -946,7 +929,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   );
 };
 
-// Mock data helpers
 const mockProductNames = [
   'هاتف ذكي XYZ Pro',
   'سماعات بلوتوث لاسلكية',
@@ -968,33 +950,26 @@ const mockAddresses = [
 ];
 
 const generateMockOrders = (storeId: string): Order[] => {
-  // Generate 25 mock orders
   return Array.from({ length: 25 }).map((_, index) => {
     const now = new Date();
-    // Set random dates within the last 30 days for different orders
     const createdDate = new Date(now);
     
     if (index < 3) {
-      // For the first 3 orders, set times within the last few hours
       const hoursAgo = [0.5, 1.5, 3][index];
       createdDate.setHours(createdDate.getHours() - hoursAgo);
     } else if (index < 5) {
-      // For the next 2 orders, set times within the last day
       const hoursAgo = [8, 20][index - 3];
       createdDate.setHours(createdDate.getHours() - hoursAgo);
     } else {
-      // For the rest, set random dates within the last month
       createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 30));
     }
     
-    // Create a unique store-specific order number
     const orderNumber = generateUniqueOrderNumber(storeId, createdDate);
     
     const totalAmount = parseFloat((Math.random() * 1000 + 100).toFixed(2));
     const statusOptions = ['pending', 'processing', 'completed', 'cancelled'];
     const status = statusOptions[Math.floor(Math.random() * statusOptions.length)];
     
-    // Create some random mock items for this order
     const itemCount = Math.floor(Math.random() * 4) + 1;
     const items = Array.from({ length: itemCount }).map((_, itemIndex) => ({
       id: `item-${orderNumber}-${itemIndex}`,
@@ -1010,15 +985,24 @@ const generateMockOrders = (storeId: string): Order[] => {
       total_amount: totalAmount,
       created_at: createdDate.toISOString(),
       updated_at: createdDate.toISOString(),
+      customer: ['أحمد محمد', 'سارة أحمد', 'محمد علي', 'فاطمة خالد'][Math.floor(Math.random() * 4)],
       customer_name: ['أحمد محمد', 'سارة أحمد', 'محمد علي', 'فاطمة خالد'][Math.floor(Math.random() * 4)],
+      email: ['ahmed@example.com', 'sara@example.com', 'mohammad@example.com', 'fatima@example.com'][Math.floor(Math.random() * 4)],
       customer_email: ['ahmed@example.com', 'sara@example.com', 'mohammad@example.com', 'fatima@example.com'][Math.floor(Math.random() * 4)],
+      phone: `05${Math.floor(Math.random() * 90000000) + 10000000}`,
       customer_phone: `05${Math.floor(Math.random() * 90000000) + 10000000}`,
-      status,
+      date: new Date(createdDate).toLocaleDateString('ar-SA'),
+      relativeTime: formatOrderTime(createdDate.toISOString(), status),
+      timeColor: getTimeColor(createdDate.toISOString(), status),
+      amount: formatCurrency(totalAmount, 'SAR'),
+      rawAmount: totalAmount,
+      status: status,
+      statusText: translateOrderStatus(status),
+      statusColors: getOrderStatusColor(status),
+      currency: 'SAR',
       items,
       payment_method: Math.random() > 0.5 ? 'بطاقة ائتمان' : 'الدفع عند الاستلام',
       shipping_address: mockAddresses[Math.floor(Math.random() * mockAddresses.length)],
-      relativeTime: formatOrderTime(createdDate.toISOString(), status),
-      timeColor: getTimeColor(createdDate.toISOString(), status)
     };
   });
 };

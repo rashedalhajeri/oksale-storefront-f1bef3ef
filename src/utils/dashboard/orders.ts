@@ -51,9 +51,26 @@ export const getRecentOrders = async (storeId: string, limit = 5) => {
   }
 };
 
+// Type definition for options parameter
+interface OrderOptions {
+  page?: number;
+  limit?: number;
+  status?: string | null;
+  search?: string | null;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+}
+
 // الحصول على الطلبات مع دعم الصفحات والبحث والفلترة
-export const getOrders = async (storeId: string, options = {}) => {
-  const { page = 1, limit = 20, status = null, search = null, sortBy = 'created_at', sortDirection = 'desc' } = options;
+export const getOrders = async (storeId: string, options: OrderOptions = {}) => {
+  const { 
+    page = 1, 
+    limit = 20, 
+    status = null, 
+    search = null, 
+    sortBy = 'created_at', 
+    sortDirection = 'desc' 
+  } = options;
   
   try {
     // أولاً، نحصل على معلومات المتجر للحصول على العملة
@@ -73,7 +90,7 @@ export const getOrders = async (storeId: string, options = {}) => {
     // بداية بناء الاستعلام
     let query = supabase
       .from('orders')
-      .select('id, customer_name, customer_email, customer_phone, total_amount, created_at, status, count(*)::int', { count: 'exact' })
+      .select('id, customer_name, customer_email, customer_phone, total_amount, created_at, status, count()', { count: 'exact' })
       .eq('store_id', storeId);
     
     // إضافة فلتر الحالة إذا تم تحديده
