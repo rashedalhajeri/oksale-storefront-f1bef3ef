@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -52,27 +51,21 @@ const StorePreview: React.FC<StorePreviewProps> = ({
     ? storeInfo.handle
     : `@${storeInfo.handle}`;
 
-  // Default cover image if none is provided
   const defaultCoverUrl = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
 
-  // Check if there's no cover image
   const hasCover = !!storeInfo.cover_url;
 
   return (
     <Card className="overflow-hidden">
       <div className="relative">
-        {/* Cover image container with fixed height */}
         <div className="h-[30vh] overflow-hidden">
-          {/* Always show an image - either the store's cover or the default one */}
           <img 
             src={hasCover ? storeInfo.cover_url : defaultCoverUrl} 
             alt={`${storeInfo.name} cover`} 
             className="w-full h-full object-cover"
           />
-          {/* Removed the gradient overlay as requested */}
         </div>
         
-        {/* Edit button in the top right corner */}
         <div className="absolute top-3 right-3">
           <Dialog>
             <DialogTrigger asChild>
@@ -91,7 +84,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
               </DialogHeader>
               
               <div className="space-y-6 py-3">
-                {/* Store name input */}
                 <div className="space-y-2">
                   <Label htmlFor="store-name">اسم المتجر</Label>
                   <Input 
@@ -102,7 +94,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                   />
                 </div>
                 
-                {/* Logo upload */}
                 <div className="space-y-2">
                   <Label>شعار المتجر</Label>
                   <div className="flex items-center gap-4">
@@ -128,7 +119,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                   </div>
                 </div>
                 
-                {/* Cover upload */}
                 <div className="space-y-2">
                   <Label>صورة الغلاف</Label>
                   <div className="flex flex-col gap-3">
@@ -138,7 +128,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                         alt={`${storeInfo.name} cover`} 
                         className="w-full h-full object-cover"
                       />
-                      {/* Removed the gradient overlay here too */}
                     </div>
                     <div className="flex items-center text-sm text-amber-600 bg-amber-50 p-2 rounded-md border border-amber-200">
                       <Info className="h-4 w-4 mr-2 flex-shrink-0" />
@@ -182,13 +171,10 @@ const StorePreview: React.FC<StorePreviewProps> = ({
           />
         </div>
         
-        {/* Store info container with improved positioning */}
         <div className="absolute bottom-0 left-0 right-0 pb-5 flex items-end text-white">
           <div className="w-full px-3 md:px-6">
             <div className="flex items-center justify-between">
-              {/* Store logo and info */}
               <div className="flex items-center gap-3 md:gap-6">
-                {/* Logo with consistent size */}
                 <div className="relative w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white flex-shrink-0">
                   {storeInfo.logo_url ? (
                     <img 
@@ -203,7 +189,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                   )}
                 </div>
                 
-                {/* Store details with consistent text sizes */}
                 <div>
                   <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
                     <h1 className="text-lg md:text-2xl font-bold truncate">{storeInfo.name || 'اسم المتجر'}</h1>
@@ -216,7 +201,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                     <span className="truncate">{displayHandle}</span>
                   </div>
                   
-                  {/* Address if available */}
                   {storeInfo.address && (
                     <div className="flex items-center gap-1 text-white text-xs md:text-sm mt-1">
                       <MapPin className="w-3 h-3 md:w-4 md:h-4" />
@@ -224,7 +208,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                     </div>
                   )}
                   
-                  {/* Social links - only show if they exist */}
                   <div className="flex items-center gap-3 md:gap-4 mt-2">
                     {storeInfo.instagram && (
                       <a 
