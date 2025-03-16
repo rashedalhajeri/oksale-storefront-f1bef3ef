@@ -35,7 +35,7 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => fetchStoreStatistics(storeId),
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes, previously cacheTime
     refetchOnWindowFocus: false,
     meta: {
       onSuccess: (data: any) => {
@@ -73,7 +73,7 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => getTopSellingProducts(storeId),
     enabled: !!storeId,
     staleTime: 10 * 60 * 1000, // 10 minutes
-    cacheTime: 15 * 60 * 1000, // 15 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes, previously cacheTime
     refetchOnWindowFocus: false,
   });
   
@@ -86,7 +86,7 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => getRecentOrders(storeId, 15),
     enabled: !!storeId,
     staleTime: 2 * 60 * 1000, // 2 minutes
-    cacheTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes, previously cacheTime
     refetchOnWindowFocus: false,
   });
   
@@ -99,7 +99,7 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => getOrderStatusStats(storeId),
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes, previously cacheTime
     refetchOnWindowFocus: false,
   });
 
