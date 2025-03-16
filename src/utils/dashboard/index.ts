@@ -6,3 +6,4 @@ export * from './products';
 export * from './orders';
 export * from './statusStats';
 export * from './progress';
+export * from './currencyUtils';

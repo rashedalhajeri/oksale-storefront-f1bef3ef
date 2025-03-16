@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/components/ui/use-toast";
+import { formatCurrency } from '@/utils/dashboard/currencyUtils';
 
 import { 
   fetchStoreStatistics, 
@@ -18,7 +20,8 @@ export const useDashboardData = (storeId: string) => {
     productsCount: 0,
     ordersCount: 0,
     revenue: 0,
-    visitsCount: 0
+    visitsCount: 0,
+    currency: 'SAR'
   });
   const [salesData, setSalesData] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
@@ -30,7 +33,7 @@ export const useDashboardData = (storeId: string) => {
   const [recentOrdersLoading, setRecentOrdersLoading] = useState(true);
   const [orderStatusLoading, setOrderStatusLoading] = useState(true);
 
-  const calculateTarget = (current: number) => Math.ceil(current * 1.2); // 20% higher than current
+  const calculateTarget = (current: number) => Math.ceil(current * 1.2); // أعلى بنسبة 20% من الحالي
 
   const loadDashboardData = async () => {
     try {
@@ -40,7 +43,8 @@ export const useDashboardData = (storeId: string) => {
         productsCount: stats.productsCount,
         ordersCount: stats.ordersCount,
         revenue: parseFloat(stats.revenue),
-        visitsCount: stats.visitsCount
+        visitsCount: stats.visitsCount,
+        currency: stats.currency || 'SAR'
       });
       
       setChartLoading(true);
@@ -125,7 +129,7 @@ export const useDashboardData = (storeId: string) => {
     },
     {
       name: "الإيرادات",
-      value: `${dashboardStats.revenue.toFixed(2)} ر.س`,
+      value: formatCurrency(dashboardStats.revenue, dashboardStats.currency),
       icon: "revenue",
       description: "الإيرادات هذا الشهر",
       change: "+25% منذ آخر شهر",

@@ -1,10 +1,25 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { formatCurrency } from './currencyUtils';
 
-// Fetch store statistics
+// الحصول على إحصائيات المتجر
 export const fetchStoreStatistics = async (storeId: string) => {
   try {
-    // Fetch products count
+    // الحصول على معلومات المتجر للحصول على العملة
+    const { data: storeData, error: storeError } = await supabase
+      .from('stores')
+      .select('currency')
+      .eq('id', storeId)
+      .single();
+    
+    if (storeError) {
+      console.error('Error fetching store data:', storeError);
+      throw storeError;
+    }
+    
+    const currency = storeData?.currency || 'SAR';
+    
+    // عدد المنتجات
     const { count: productsCount, error: productsError } = await supabase
       .from('products')
       .select('*', { count: 'exact', head: true })
@@ -12,7 +27,7 @@ export const fetchStoreStatistics = async (storeId: string) => {
     
     if (productsError) throw productsError;
     
-    // Fetch orders count and revenue
+    // عدد الطلبات والإيرادات
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
       .select('id, total_amount, created_at')
@@ -22,8 +37,8 @@ export const fetchStoreStatistics = async (storeId: string) => {
     
     const totalRevenue = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
     
-    // Calculate estimated visits (in a real app, this would come from analytics)
-    // Here we're just making up a number based on orders and products
+    // حساب الزيارات التقديرية (في تطبيق حقيقي، ستأتي من التحليلات)
+    // هنا نقوم فقط بتوليد رقم بناءً على الطلبات والمنتجات
     const estimatedVisits = Math.max(orders.length * 10, productsCount * 5);
     
     return {
@@ -31,6 +46,7 @@ export const fetchStoreStatistics = async (storeId: string) => {
       ordersCount: orders.length,
       revenue: totalRevenue.toFixed(2),
       visitsCount: estimatedVisits,
+      currency: currency,
       orders
     };
   } catch (error) {

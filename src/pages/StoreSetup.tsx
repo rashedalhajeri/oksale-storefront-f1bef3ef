@@ -12,6 +12,7 @@ import StoreFormStep from '@/components/signup/StoreFormStep';
 
 const StoreSetup = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [hasStore, setHasStore] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   
   const form = useForm<StoreSetupValues>({
@@ -37,9 +38,30 @@ const StoreSetup = () => {
   
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-      setIsLoading(false);
+      setIsLoading(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const isAuth = !!session;
+        setIsAuthenticated(isAuth);
+        
+        // التحقق مما إذا كان المستخدم يملك متجر بالفعل
+        if (isAuth && session?.user?.id) {
+          const { data: store, error } = await supabase
+            .from('stores')
+            .select('id')
+            .eq('owner_id', session.user.id)
+            .maybeSingle();
+            
+          // إذا وجد متجر للمستخدم
+          if (store) {
+            setHasStore(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking authentication status:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     
     checkAuth();
@@ -57,6 +79,12 @@ const StoreSetup = () => {
     );
   }
   
+  // إعادة توجيه المستخدم إلى لوحة التحكم إذا كان يملك متجر بالفعل
+  if (hasStore) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول إذا لم يكن مسجلاً
   if (isAuthenticated === false) {
     return <Navigate to="/signin" replace />;
   }
