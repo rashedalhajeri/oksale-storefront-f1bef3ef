@@ -85,8 +85,8 @@ const StoreHeader = ({
           <div className="flex items-center justify-between">
             {/* Store logo and info */}
             <div className="flex items-center gap-3 md:gap-6">
-              {/* Logo with consistent size */}
-              <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white flex-shrink-0">
+              {/* Logo with increased size */}
+              <div className="w-16 h-16 md:w-28 md:h-28 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white flex-shrink-0">
                 {store.logo ? (
                   <img 
                     src={store.logo} 
@@ -104,10 +104,10 @@ const StoreHeader = ({
                 )}
               </div>
               
-              {/* Store details with consistent text sizes and enhanced text shadow for readability */}
+              {/* Store details with smaller and more elegant text sizes */}
               <div className="glass-card px-3 py-2 rounded-lg backdrop-blur-sm bg-black/20">
                 <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
-                  <h1 className="text-lg md:text-2xl font-bold truncate text-shadow">{store.name}</h1>
+                  <h1 className="text-base md:text-xl font-bold truncate text-shadow">{store.name}</h1>
                   {store.featured && (
                     <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
                       <CheckCircle2 className="w-2 h-2 md:w-3 md:h-3" />
