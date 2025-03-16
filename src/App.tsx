@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -15,8 +15,34 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import StoreSetup from "./pages/StoreSetup"; 
 import Dashboard from "./pages/Dashboard";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { supabase } from "./integrations/supabase/client";
+import { Loader2 } from "lucide-react";
+
+// Lazy load dashboard components
+const MainDashboard = lazy(() => import('@/components/dashboard/MainDashboard'));
+const DashboardProducts = lazy(() => import('@/components/dashboard/DashboardProducts'));
+const DashboardOrders = lazy(() => import('@/components/dashboard/DashboardOrders'));
+const DashboardCustomers = lazy(() => import('@/components/dashboard/DashboardCustomers'));
+const DashboardCategories = lazy(() => import('@/components/dashboard/DashboardCategories'));
+const DashboardOffers = lazy(() => import('@/components/dashboard/DashboardOffers'));
+const DashboardSettingsGeneral = lazy(() => import('@/components/dashboard/settings/DashboardSettingsGeneral'));
+const DashboardSettingsAppearance = lazy(() => import('@/components/dashboard/settings/DashboardSettingsAppearance'));
+const DashboardSettingsPayment = lazy(() => import('@/components/dashboard/settings/DashboardSettingsPayment'));
+const DashboardSettingsShipping = lazy(() => import('@/components/dashboard/settings/DashboardSettingsShipping'));
+const DashboardSettingsNotifications = lazy(() => import('@/components/dashboard/settings/DashboardSettingsNotifications'));
+const DashboardSettingsWhatsApp = lazy(() => import('@/components/dashboard/settings/DashboardSettingsWhatsApp'));
+const DashboardSettingsUsers = lazy(() => import('@/components/dashboard/settings/DashboardSettingsUsers'));
+
+// Loading component for dashboard pages
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-full min-h-[400px]">
+    <div className="flex flex-col items-center">
+      <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
+      <p className="mt-4 text-sm text-gray-500">جارِ تحميل الصفحة...</p>
+    </div>
+  </div>
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,6 +89,34 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/signin" replace />;
 };
 
+// DashboardRoutes component to handle nested dashboard routes
+const DashboardRoutes = () => {
+  return (
+    <ProtectedRoute>
+      <Dashboard>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="" element={<MainDashboard />} />
+            <Route path="products" element={<DashboardProducts />} />
+            <Route path="orders" element={<DashboardOrders />} />
+            <Route path="customers" element={<DashboardCustomers />} />
+            <Route path="categories" element={<DashboardCategories />} />
+            <Route path="marketing" element={<DashboardOffers />} />
+            <Route path="settings/general" element={<DashboardSettingsGeneral />} />
+            <Route path="settings/appearance" element={<DashboardSettingsAppearance />} />
+            <Route path="settings/payment" element={<DashboardSettingsPayment />} />
+            <Route path="settings/shipping" element={<DashboardSettingsShipping />} />
+            <Route path="settings/notifications" element={<DashboardSettingsNotifications />} />
+            <Route path="settings/whatsapp" element={<DashboardSettingsWhatsApp />} />
+            <Route path="settings/users" element={<DashboardSettingsUsers />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Suspense>
+      </Dashboard>
+    </ProtectedRoute>
+  );
+};
+
 // Component to conditionally render navbar based on route
 const AppRoutes = () => {
   const location = useLocation();
@@ -107,11 +161,7 @@ const AppRoutes = () => {
             <StoreSetup />
           </ProtectedRoute>
         } />
-        <Route path="/dashboard/*" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } />
+        <Route path="/dashboard/*" element={<DashboardRoutes />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
