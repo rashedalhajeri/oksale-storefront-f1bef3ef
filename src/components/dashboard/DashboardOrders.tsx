@@ -6,6 +6,8 @@ import {
   CheckCircle2, 
   Clock,
   AlertCircle,
+  FileText,
+  Package
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +26,14 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
@@ -39,7 +49,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 // Import refactored components
 import OrderFilterSheet from './orders/OrderFilterSheet';
-import OrderCard from './orders/OrderCard';
 import OrderCardMobile from './orders/OrderCardMobile';
 import OrderDetailSheet from './orders/OrderDetailSheet';
 import OrderPagination from './orders/OrderPagination';
@@ -180,7 +189,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   }, [storeData?.id, pagination.page, pagination.limit, tabValue, sortOption, searchTerm, toast]);
 
-  // Fetch orders on filter or pagination change
+  // Fetch orders on filter or pagination change - reduce dependencies to prevent duplicate loading
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
@@ -196,7 +205,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }, 500);
     
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, fetchOrders]);
+  }, [searchTerm]);
 
   // Handle viewing order details
   const handleViewOrder = (order: Order) => {
@@ -299,38 +308,87 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
+  // Render table for desktop view
+  const renderOrdersTable = () => {
+    return (
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="font-bold">رقم الطلب</TableHead>
+              <TableHead className="font-bold">العميل</TableHead>
+              <TableHead className="font-bold">المبلغ</TableHead>
+              <TableHead className="font-bold">التاريخ</TableHead>
+              <TableHead className="font-bold">الحالة</TableHead>
+              <TableHead className="text-left">إجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => (
+              <TableRow key={order.id} className="hover:bg-muted/50">
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-gray-500" />
+                    {order.id}
+                  </div>
+                </TableCell>
+                <TableCell>{order.customer}</TableCell>
+                <TableCell className="font-semibold">{order.amount}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-sm">{formatDate(order.created_at)}</span>
+                    <span className={`text-xs ${order.timeColor}`}>{order.relativeTime}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{getStatusBadge(order.status)}</TableCell>
+                <TableCell>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleViewOrder(order)}
+                    className="hover:bg-gray-100"
+                  >
+                    <FileText className="h-4 w-4 ml-1" />
+                    عرض التفاصيل
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   // Render the appropriate order content based on filters and device type
   const renderOrderContent = () => {
     if (loading) {
-      return <OrderLoadingState isMobile={isMobile} count={isMobile ? 4 : undefined} />;
+      return <OrderLoadingState isMobile={isMobile} count={isMobile ? 4 : 6} />;
     }
 
     if (orders.length === 0) {
       return <OrderEmptyState onReset={resetFilters} isMobile={isMobile} />;
     }
 
-    return (
-      <>
-        <div className={isMobile ? "space-y-2" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"}>
+    if (isMobile) {
+      return (
+        <div className="space-y-2">
           {orders.map((order) => (
-            isMobile ? (
-              <OrderCardMobile 
-                key={order.id} 
-                order={order}
-                onViewOrder={handleViewOrder}
-                getStatusBadge={getStatusBadge}
-              />
-            ) : (
-              <OrderCard 
-                key={order.id} 
-                order={order}
-                onViewOrder={handleViewOrder}
-                getStatusIcon={getStatusIcon}
-              />
-            )
+            <OrderCardMobile 
+              key={order.id} 
+              order={order}
+              onViewOrder={handleViewOrder}
+              getStatusBadge={getStatusBadge}
+            />
           ))}
         </div>
-        
+      );
+    }
+
+    // Desktop view - table layout
+    return (
+      <>
+        {renderOrdersTable()}
         <OrderPagination 
           pagination={pagination}
           handlePageChange={handlePageChange}

@@ -34,7 +34,7 @@ export const useDashboardData = (storeId: string) => {
     currency: 'SAR'
   });
   
-  // تحسين استخدام React Query مع خيارات الكاش
+  // Optimize React Query with improved cache options
   const { 
     data: statsData, 
     isLoading: statsLoading,
@@ -43,9 +43,9 @@ export const useDashboardData = (storeId: string) => {
     queryKey: ['dashboard-stats', storeId, timeframe],
     queryFn: () => fetchStoreStatistics(storeId),
     enabled: !!storeId,
-    staleTime: 2 * 60 * 1000, // تقليل وقت التقادم
-    gcTime: 5 * 60 * 1000, // وقت جمع القمامة
-    refetchOnWindowFocus: true, // تفعيل إعادة الجلب عند التركيز
+    staleTime: 5 * 60 * 1000, // Increase stale time to 5 minutes
+    gcTime: 10 * 60 * 1000, // Increase GC time to 10 minutes
+    refetchOnWindowFocus: false, // Don't refetch on window focus to prevent duplicate fetches
     meta: {
       onSuccess: (data: any) => {
         if (data) {
@@ -69,13 +69,13 @@ export const useDashboardData = (storeId: string) => {
     }
   });
   
-  // تحسين استخدام useMemo لتجنب إعادة الحساب غير الضروري
+  // Optimize useMemo to avoid unnecessary recalculations
   const salesData = useMemo(() => {
     if (!statsData?.orders?.length) return [];
     return generateSalesData(statsData.orders, timeframe);
   }, [statsData?.orders, timeframe]);
   
-  // تحسين استعلامات React Query الأخرى
+  // Optimize other React Query calls
   const { 
     data: topProducts = [], 
     isLoading: topProductsLoading 
@@ -85,10 +85,10 @@ export const useDashboardData = (storeId: string) => {
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
   
-  // Modified to handle and transform the data correctly
+  // Optimize recent orders query with improved caching
   const { 
     data: recentOrdersResponse,
     isLoading: recentOrdersLoading 
@@ -96,9 +96,9 @@ export const useDashboardData = (storeId: string) => {
     queryKey: ['recent-orders', storeId],
     queryFn: () => getRecentOrders(storeId, 10),
     enabled: !!storeId,
-    staleTime: 1 * 60 * 1000,
-    gcTime: 3 * 60 * 1000,
-    refetchOnWindowFocus: true,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
   
   // Process the recent orders to ensure we always have an array
@@ -132,6 +132,7 @@ export const useDashboardData = (storeId: string) => {
     return [];
   }, [recentOrdersResponse]);
   
+  // Optimize order status query
   const { 
     data: orderStatusData = [], 
     isLoading: orderStatusLoading 
@@ -139,12 +140,12 @@ export const useDashboardData = (storeId: string) => {
     queryKey: ['order-status', storeId, timeframe],
     queryFn: () => getOrderStatusStats(storeId),
     enabled: !!storeId,
-    staleTime: 3 * 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 7 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
-  // تحسين الأداء باستخدام useMemo لإحصائيات الداشبورد
+  // Optimize statistics with useMemo
   const statistics = useMemo(() => [
     {
       name: "المنتجات",
@@ -176,7 +177,7 @@ export const useDashboardData = (storeId: string) => {
     }
   ], [dashboardStats]);
 
-  // تحسين أداء وظيفة تحميل البيانات
+  // Optimize data loading function
   const loadDashboardData = useCallback(() => {
     refetchStats();
   }, [refetchStats]);
