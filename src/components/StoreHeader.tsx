@@ -76,6 +76,9 @@ const StoreHeader = ({
         />
       </div>
       
+      {/* Dark gradient overlay for better text visibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+      
       {/* Store info container with improved positioning */}
       <div className="absolute bottom-0 left-0 right-0 pb-5 md:pb-8 flex items-end text-white">
         <div className="w-full max-w-5xl mx-auto px-3 md:px-8">
@@ -101,10 +104,10 @@ const StoreHeader = ({
                 )}
               </div>
               
-              {/* Store details with consistent text sizes */}
-              <div>
+              {/* Store details with consistent text sizes and enhanced text shadow for readability */}
+              <div className="glass-card px-3 py-2 rounded-lg backdrop-blur-sm bg-black/20">
                 <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
-                  <h1 className="text-lg md:text-2xl font-bold truncate">{store.name}</h1>
+                  <h1 className="text-lg md:text-2xl font-bold truncate text-shadow">{store.name}</h1>
                   {store.featured && (
                     <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
                       <CheckCircle2 className="w-2 h-2 md:w-3 md:h-3" />
@@ -112,13 +115,13 @@ const StoreHeader = ({
                   )}
                 </div>
                 
-                <div className="flex items-center gap-1 text-white text-xs md:text-sm">
+                <div className="flex items-center gap-1 text-white text-xs md:text-sm text-shadow">
                   <span className="truncate">{displayHandle}</span>
                 </div>
                 
                 {/* Display address if available */}
                 {store.address && (
-                  <div className="flex items-center gap-1 text-white text-xs md:text-sm mt-1">
+                  <div className="flex items-center gap-1 text-white text-xs md:text-sm mt-1 text-shadow">
                     <MapPin className="w-3 h-3 md:w-4 md:h-4" />
                     <span className="truncate">{store.address}</span>
                   </div>

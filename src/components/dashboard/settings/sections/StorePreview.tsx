@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   ShoppingBag, 
@@ -110,6 +111,9 @@ const StorePreview: React.FC<StorePreviewProps> = ({
             onLoad={() => setCoverLoaded(true)}
           />
         </div>
+        
+        {/* Dark gradient overlay for better text visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
         
         <div className="absolute top-3 right-3">
           <Dialog open={open} onOpenChange={setOpen}>
@@ -241,20 +245,20 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                   )}
                 </div>
                 
-                <div>
+                <div className="glass-card px-3 py-2 rounded-lg backdrop-blur-sm">
                   <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
-                    <h1 className="text-lg md:text-2xl font-bold truncate">{storeInfo.name || 'اسم المتجر'}</h1>
+                    <h1 className="text-lg md:text-2xl font-bold truncate text-shadow">{storeInfo.name || 'اسم المتجر'}</h1>
                     <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
                       <CheckCircle2 className="w-2 h-2 md:w-3 md:h-3" />
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center gap-1 text-white text-xs md:text-sm">
+                  <div className="flex items-center gap-1 text-white text-xs md:text-sm text-shadow">
                     <span className="truncate">{displayHandle}</span>
                   </div>
                   
                   {storeInfo.address && (
-                    <div className="flex items-center gap-1 text-white text-xs md:text-sm mt-1">
+                    <div className="flex items-center gap-1 text-white text-xs md:text-sm mt-1 text-shadow">
                       <MapPin className="w-3 h-3 md:w-4 md:h-4" />
                       <span className="truncate">{storeInfo.address}</span>
                     </div>
