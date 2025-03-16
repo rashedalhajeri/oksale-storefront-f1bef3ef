@@ -38,7 +38,7 @@ const StoreAbout = ({ store }: StoreAboutProps) => {
               variant="outline"
               size="sm"
               className="h-9 border-neutral-200 text-neutral-700 hover:bg-neutral-50"
-              onClick={() => window.open(`https://instagram.com/${socialLinks.instagram}`, '_blank')}
+              onClick={() => window.open(socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://instagram.com/${socialLinks.instagram}`, '_blank')}
             >
               <Instagram className="w-4 h-4 mr-2 text-pink-500" />
               Instagram
@@ -50,7 +50,7 @@ const StoreAbout = ({ store }: StoreAboutProps) => {
               variant="outline"
               size="sm"
               className="h-9 border-neutral-200 text-neutral-700 hover:bg-neutral-50"
-              onClick={() => window.open(`https://twitter.com/${socialLinks.twitter}`, '_blank')}
+              onClick={() => window.open(socialLinks.twitter.startsWith('http') ? socialLinks.twitter : `https://twitter.com/${socialLinks.twitter}`, '_blank')}
             >
               <Twitter className="w-4 h-4 mr-2 text-blue-400" />
               Twitter
@@ -62,7 +62,7 @@ const StoreAbout = ({ store }: StoreAboutProps) => {
               variant="outline"
               size="sm"
               className="h-9 border-neutral-200 text-neutral-700 hover:bg-neutral-50"
-              onClick={() => window.open(`https://facebook.com/${socialLinks.facebook}`, '_blank')}
+              onClick={() => window.open(socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://facebook.com/${socialLinks.facebook}`, '_blank')}
             >
               <Facebook className="w-4 h-4 mr-2 text-blue-600" />
               Facebook

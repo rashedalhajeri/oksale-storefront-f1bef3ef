@@ -40,6 +40,9 @@ const StoreHeader = ({
     ? store.handle
     : `@${store.handle}`;
 
+  // Ensure we have valid socialLinks object
+  const socialLinks = store.socialLinks || {};
+
   return (
     <div className="relative">
       {/* Cover image container with fixed height */}
@@ -96,39 +99,41 @@ const StoreHeader = ({
                   <span className="truncate">{displayHandle}</span>
                 </div>
                 
-                {/* Social links with consistent spacing */}
-                <div className="flex items-center gap-3 md:gap-4 mt-2">
-                  {store.socialLinks?.instagram && (
-                    <a 
-                      href={`https://instagram.com/${store.socialLinks.instagram}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-white hover:text-blue-200 transition-colors"
-                    >
-                      <Instagram className="w-4 h-4 md:w-5 md:h-5" />
-                    </a>
-                  )}
-                  {store.socialLinks?.twitter && (
-                    <a 
-                      href={`https://twitter.com/${store.socialLinks.twitter}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-white hover:text-blue-200 transition-colors"
-                    >
-                      <Twitter className="w-4 h-4 md:w-5 md:h-5" />
-                    </a>
-                  )}
-                  {store.socialLinks?.facebook && (
-                    <a 
-                      href={`https://facebook.com/${store.socialLinks.facebook}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-white hover:text-blue-200 transition-colors"
-                    >
-                      <Facebook className="w-4 h-4 md:w-5 md:h-5" />
-                    </a>
-                  )}
-                </div>
+                {/* Social links - only show if they exist */}
+                {Object.values(socialLinks).some(Boolean) && (
+                  <div className="flex items-center gap-3 md:gap-4 mt-2">
+                    {socialLinks.instagram && (
+                      <a 
+                        href={socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://instagram.com/${socialLinks.instagram}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-white hover:text-blue-200 transition-colors"
+                      >
+                        <Instagram className="w-4 h-4 md:w-5 md:h-5" />
+                      </a>
+                    )}
+                    {socialLinks.twitter && (
+                      <a 
+                        href={socialLinks.twitter.startsWith('http') ? socialLinks.twitter : `https://twitter.com/${socialLinks.twitter}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-white hover:text-blue-200 transition-colors"
+                      >
+                        <Twitter className="w-4 h-4 md:w-5 md:h-5" />
+                      </a>
+                    )}
+                    {socialLinks.facebook && (
+                      <a 
+                        href={socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://facebook.com/${socialLinks.facebook}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-white hover:text-blue-200 transition-colors"
+                      >
+                        <Facebook className="w-4 h-4 md:w-5 md:h-5" />
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
