@@ -1,8 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, ShoppingBag, User, ClipboardList } from 'lucide-react';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { Home, Search, ShoppingBag, ClipboardList, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MobileNavigationProps {
   className?: string;
@@ -12,6 +15,30 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const location = useLocation();
+  const { handle } = useParams<{ handle: string }>();
+  const [cartCount, setCartCount] = useState(3); // Start with 3 items for demo
+
+  // Query for store data to ensure navigation is store-specific
+  const { data: storeData } = useQuery({
+    queryKey: ['store-basic', handle],
+    queryFn: async () => {
+      if (!handle) return null;
+      const cleanHandle = handle.startsWith('@') ? handle : `@${handle}`;
+      const { data, error } = await supabase
+        .from('stores')
+        .select('id, handle')
+        .eq('handle', cleanHandle)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching store data for navigation:', error);
+        return null;
+      }
+      
+      return data;
+    },
+    enabled: !!handle
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,33 +58,52 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  // Get the base path for store-specific links
+  const getStoreBasePath = () => {
+    if (!handle) return '';
+    return `/${handle.startsWith('@') ? handle.slice(1) : handle}`;
+  };
+
+  const storeBasePath = getStoreBasePath();
+
   const navItems = [
     { 
       icon: <Home className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'Home', 
-      href: '/' 
+      label: 'الرئيسية', 
+      href: storeBasePath || '/' 
     },
     { 
       icon: <Search className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'Search', 
-      href: '/search' 
+      label: 'البحث', 
+      href: `${storeBasePath}/search` 
     },
     { 
       icon: <ShoppingBag className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'Cart', 
-      href: '/cart' 
-    },
-    { 
-      icon: <User className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'Account', 
-      href: '/dashboard' 
+      label: 'السلة', 
+      href: `${storeBasePath}/cart`,
+      hasBadge: true,
+      badgeCount: cartCount
     },
     { 
       icon: <ClipboardList className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'Orders', 
-      href: '/dashboard/orders' 
+      label: 'طلباتي', 
+      href: `${storeBasePath}/orders` 
+    },
+    { 
+      icon: <User className="w-6 h-6" strokeWidth={1.5} />, 
+      label: 'حسابي', 
+      href: `${storeBasePath}/account` 
     }
   ];
+
+  // If there's an error with store data or we're on a non-store page, 
+  // redirect to the error page or store homepage
+  const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!storeData && handle) {
+      e.preventDefault();
+      window.location.href = storeBasePath || '/';
+    }
+  };
 
   return (
     <div 
@@ -75,6 +121,7 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
             <Link 
               key={index} 
               to={item.href}
+              onClick={(e) => handleNavLinkClick(e, item.href)}
               className={cn(
                 "flex flex-col items-center justify-center py-2 relative",
                 isActive ? "text-black" : "text-neutral-500 hover:text-black"
@@ -82,7 +129,15 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
             >
               <div className="relative">
                 {item.icon}
+                {item.hasBadge && item.badgeCount > 0 && (
+                  <Badge 
+                    className="absolute -top-1.5 -right-1.5 h-5 w-5 flex items-center justify-center p-0 text-[10px] bg-red-500 text-white border-white border"
+                  >
+                    {item.badgeCount > 99 ? '99+' : item.badgeCount}
+                  </Badge>
+                )}
               </div>
+              <span className="text-xs mt-1">{item.label}</span>
               {isActive && (
                 <div className="absolute bottom-0 w-8 h-1 bg-black rounded-full"></div>
               )}
