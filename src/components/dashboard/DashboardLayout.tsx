@@ -1,10 +1,9 @@
-
 import React, { ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from './navigation/Sidebar';
 import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import '../styles/dashboard.css'; // استيراد تحسينات CSS
+import '@/styles/dashboard.css'; // تصحيح مسار استيراد تحسينات CSS
 
 interface DashboardLayoutProps {
   children: ReactNode;
