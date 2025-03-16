@@ -30,11 +30,13 @@ const StoreHeader: React.FC<StoreHeaderProps> = ({ storeData }) => {
         </div>
         <div className="overflow-hidden">
           <h2 className="text-lg font-semibold truncate">{storeData?.name || 'New Store'}</h2>
-          <div className="text-xs text-white/70 truncate">
-            <span className="ltr-text inline-block" dir="ltr">
-              {storeData?.handle ? `@${storeData.handle}` : '@store'}
-            </span>
-          </div>
+          {storeData?.handle && (
+            <div className="text-xs text-white/70 truncate">
+              <span className="ltr-text inline-block" dir="ltr">
+                @{storeData.handle}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

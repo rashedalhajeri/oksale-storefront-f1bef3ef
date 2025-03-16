@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Eye, Edit } from 'lucide-react';
+import { Eye, Edit, PenSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { 
   Dialog,
@@ -22,8 +22,8 @@ const PreviewHeader: React.FC<PreviewHeaderProps> = ({ open, setOpen }) => {
             size="sm"
             className="text-xs font-medium flex items-center gap-1.5 shadow-md"
           >
-            {open ? <Edit className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-            {open ? 'تعديل' : 'معاينة وتعديل'}
+            {open ? <PenSquare className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+            {open ? 'تعديل' : 'معاينة'}
           </Button>
         </DialogTrigger>
       </Dialog>
