@@ -20,10 +20,14 @@ const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   
   // Format price based on the provided currency
-  const formattedPrice = new Intl.NumberFormat('en-US', {
+  const formattedPrice = new Intl.NumberFormat('ar-SA', {
     style: 'currency',
     currency: currency,
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
   }).format(product.price);
+
+  console.log(`Formatting price ${product.price} with currency ${currency}: ${formattedPrice}`);
 
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">

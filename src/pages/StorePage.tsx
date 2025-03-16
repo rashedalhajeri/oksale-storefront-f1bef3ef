@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+
 const StorePage = () => {
   const {
     handle
@@ -200,7 +201,13 @@ const StorePage = () => {
     return <div className="md:hidden flex items-center mb-4">
         <Sheet>
           <SheetTrigger asChild>
-            
+            <Button variant="outline" className="w-full flex justify-between items-center border-neutral-200 shadow-sm">
+              <div className="flex items-center">
+                <Tag className="mr-2 h-4 w-4 text-indigo-600" />
+                <span>{selectedCategory === 'All' ? 'All Products' : selectedCategory}</span>
+              </div>
+              <Menu className="h-4 w-4" />
+            </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl">
             <div className="pt-4 px-2">
@@ -263,6 +270,7 @@ const StorePage = () => {
       </div>;
   }
   const storeCurrency = activeStore.currency || 'SAR';
+  console.log('Store currency:', storeCurrency);
   const store = {
     id: activeStore.id,
     name: activeStore.name,
@@ -313,7 +321,18 @@ const StorePage = () => {
               <div className="hidden md:block mb-6">
                 <Tabs defaultValue="All" value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
                   <ScrollArea className="w-full">
-                    
+                    <TabsList className="w-full justify-start border-b rounded-none p-0">
+                      <TabsTrigger value="All" className="rounded-md data-[state=active]:bg-indigo-600 data-[state=active]:text-white py-2">
+                        <ShoppingBag className="mr-1.5 h-4 w-4" />
+                        All Products
+                      </TabsTrigger>
+                      {categories.map((category, index) => (
+                        <TabsTrigger key={index} value={category} className="rounded-md data-[state=active]:bg-indigo-600 data-[state=active]:text-white py-2">
+                          {getCategoryIcon(category)}
+                          {category}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
                   </ScrollArea>
                 </Tabs>
               </div>
@@ -344,4 +363,5 @@ const StorePage = () => {
       </main>
     </div>;
 };
+
 export default StorePage;
