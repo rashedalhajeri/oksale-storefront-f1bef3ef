@@ -9,6 +9,7 @@ import {
   TableBody, 
   TableCell 
 } from "@/components/ui/table";
+import { ShoppingBag } from 'lucide-react';
 
 interface TopProductsCardProps {
   topProducts: any[];
@@ -18,12 +19,19 @@ interface TopProductsCardProps {
 
 const TopProductsCard: React.FC<TopProductsCardProps> = ({ topProducts, loading, currency = 'SAR' }) => {
   return (
-    <Card className="border-none shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">أفضل المنتجات مبيعاً</CardTitle>
-        <CardDescription>
-          المنتجات الأكثر مبيعاً في متجرك
-        </CardDescription>
+    <Card className="border-none shadow-md h-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <div className="p-2 bg-emerald-50 rounded-full">
+            <ShoppingBag className="h-5 w-5 text-emerald-600" />
+          </div>
+          <div>
+            <CardTitle className="text-lg font-semibold">أفضل المنتجات مبيعاً</CardTitle>
+            <CardDescription className="text-sm text-muted-foreground">
+              المنتجات الأكثر مبيعاً في متجرك
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -36,24 +44,34 @@ const TopProductsCard: React.FC<TopProductsCardProps> = ({ topProducts, loading,
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>المنتج</TableHead>
-                  <TableHead>عدد المبيعات</TableHead>
-                  <TableHead>المبلغ</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topProducts.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>{product.name}</TableCell>
-                    <TableCell>{product.sales}</TableCell>
-                    <TableCell>{product.amount} {currency}</TableCell>
+            {topProducts.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-gray-500 dark:text-gray-400">لا يوجد بيانات للمنتجات</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-right">المنتج</TableHead>
+                    <TableHead className="text-center">عدد المبيعات</TableHead>
+                    <TableHead className="text-left">المبلغ</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {topProducts.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-medium text-right">{product.name}</TableCell>
+                      <TableCell className="text-center">
+                        <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
+                          {product.sales}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-left">{product.amount} {currency}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </div>
         )}
       </CardContent>

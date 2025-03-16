@@ -21,15 +21,15 @@ const Sidebar: React.FC<SidebarProps> = ({ storeData }) => {
       "dark:bg-gray-900 dark:border-gray-800",
       isMobile ? "w-full" : "w-64"
     )}>
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 pt-1">
         <StoreHeader storeData={storeData} />
-        <Separator className="mb-2" />
+        <Separator className="my-2" />
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-2 py-2">
         <SidebarNavigation storeData={storeData} />
       </div>
       <div className="flex-shrink-0 mt-auto">
-        <Separator className="mt-2" />
+        <Separator className="my-2" />
         <UserActions />
       </div>
     </div>

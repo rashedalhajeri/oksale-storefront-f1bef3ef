@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart4 } from 'lucide-react';
+import { BarChart4, TrendingUp, FileBarChart } from 'lucide-react';
 import { 
   Card, 
   CardHeader, 
@@ -66,25 +66,29 @@ const ChartSection: React.FC<ChartSectionProps> = ({
   currency
 }) => {
   const chartConfig = {
-    sales: { label: "المبيعات", color: "#6366f1" },
+    sales: { label: "المبيعات", color: "#8B5CF6" }, // Updated to a more vibrant purple
     revenue: { label: "الإيرادات", color: "#10b981" },
   };
 
   if (loading) {
     return (
       <Card className="col-span-2 border-none shadow-md">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center">
-            <BarChart4 className="h-5 w-5 mr-2 text-indigo-600" />
-            تحليل المبيعات
-          </CardTitle>
-          <CardDescription>
-            مقارنة المبيعات والإيرادات
-          </CardDescription>
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-purple-50 rounded-full">
+              <BarChart4 className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold">تحليل المبيعات</CardTitle>
+              <CardDescription className="text-sm">
+                مقارنة المبيعات والإيرادات
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-64 bg-gray-50 rounded-md border border-dashed border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-            <div className="animate-spin w-6 h-6 border-2 border-indigo-700 border-t-transparent rounded-full"></div>
+            <div className="animate-spin w-6 h-6 border-2 border-purple-700 border-t-transparent rounded-full"></div>
           </div>
         </CardContent>
       </Card>
@@ -108,18 +112,23 @@ const ChartSection: React.FC<ChartSectionProps> = ({
 
   return (
     <Card className="col-span-2 border-none shadow-md">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold flex items-center">
-          <BarChart4 className="h-5 w-5 mr-2 text-indigo-600" />
-          تحليل المبيعات
-        </CardTitle>
-        <CardDescription>
-          مقارنة المبيعات والإيرادات حسب {getLabel()}
-        </CardDescription>
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          <div className="p-2 bg-purple-50 rounded-full">
+            <TrendingUp className="h-5 w-5 text-purple-600" />
+          </div>
+          <div>
+            <CardTitle className="text-lg font-semibold">تحليل المبيعات</CardTitle>
+            <CardDescription className="text-sm">
+              مقارنة المبيعات والإيرادات حسب {getLabel()}
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {salesData.length === 0 ? (
-          <div className="flex items-center justify-center h-64 bg-gray-50 rounded-md border border-dashed border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-md border border-dashed border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <FileBarChart className="h-10 w-10 text-gray-400 mb-2" />
             <p className="text-gray-500 dark:text-gray-400">لا توجد بيانات للفترة المحددة</p>
           </div>
         ) : (
@@ -144,20 +153,23 @@ const ChartSection: React.FC<ChartSectionProps> = ({
                   iconType="circle" 
                   iconSize={8}
                   formatter={(value) => <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{value}</span>}
+                  wrapperStyle={{ paddingTop: 10 }}
                 />
                 <Bar
                   name={chartConfig.sales.label}
                   dataKey="sales"
                   fill={chartConfig.sales.color}
                   radius={[4, 4, 0, 0]}
-                  maxBarSize={50}
+                  maxBarSize={40}
+                  animationDuration={1000}
                 />
                 <Bar
                   name={chartConfig.revenue.label}
                   dataKey="revenue"
                   fill={chartConfig.revenue.color}
                   radius={[4, 4, 0, 0]}
-                  maxBarSize={50}
+                  maxBarSize={40}
+                  animationDuration={1500}
                 />
               </BarChart>
             </ResponsiveContainer>

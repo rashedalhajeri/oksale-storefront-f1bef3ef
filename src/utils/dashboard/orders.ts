@@ -34,9 +34,11 @@ export const getRecentOrders = async (storeId: string, limit = 5) => {
       customer: order.customer_name,
       date: new Date(order.created_at).toLocaleDateString('ar-SA'),
       amount: formatCurrency(order.total_amount, currency),
+      rawAmount: order.total_amount,
       status: order.status,
       statusText: translateOrderStatus(order.status),
-      statusColors: getOrderStatusColor(order.status)
+      statusColors: getOrderStatusColor(order.status),
+      currency: currency
     }));
   } catch (error) {
     console.error('Error fetching recent orders:', error);
@@ -58,7 +60,23 @@ export const getOrderDetails = async (orderId: string) => {
     
     if (error) throw error;
     
-    return order;
+    // الحصول على معلومات المتجر للحصول على العملة
+    const { data: storeData, error: storeError } = await supabase
+      .from('stores')
+      .select('currency')
+      .eq('id', order.store_id)
+      .single();
+      
+    if (storeError) throw storeError;
+    
+    const currency = storeData?.currency || 'SAR';
+    
+    // إضافة معلومات العملة إلى البيانات المُرجعة
+    return {
+      ...order,
+      currency,
+      formattedAmount: formatCurrency(order.total_amount, currency)
+    };
   } catch (error) {
     console.error('Error fetching order details:', error);
     return null;

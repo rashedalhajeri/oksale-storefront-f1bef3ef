@@ -27,12 +27,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
-      {/* Mobile Sidebar Toggle */}
+      {/* Toggle Button for Mobile */}
       {isMobile && (
         <div className="fixed top-4 right-4 z-50">
           <button 
             onClick={toggleSidebar}
-            className="p-2 rounded-full bg-white shadow-md dark:bg-gray-800"
+            className="p-2.5 rounded-full bg-white shadow-md dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             aria-label={sidebarOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             {sidebarOpen ? 
@@ -57,7 +57,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       {/* Overlay for mobile when sidebar is open */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -66,7 +66,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       <div 
         className={cn(
           "flex-1 transition-all duration-300",
-          isMobile ? "p-4" : "p-6 md:mr-64"
+          isMobile ? "p-4 pt-14" : "p-6 md:mr-64"
         )}
       >
         <div className="w-full max-w-7xl mx-auto">

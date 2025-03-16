@@ -3,7 +3,7 @@ import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Clock, LayoutDashboard } from 'lucide-react';
 import StatisticsSection from './StatisticsSection';
 import ChartSection from './ChartSection';
 import OrderStatusCard from './OrderStatusCard';
@@ -44,8 +44,15 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">مرحباً بك في لوحة التحكم</h1>
-        <p className="text-gray-600 dark:text-gray-400">هذه نظرة عامة على أداء متجرك</p>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="p-2 bg-indigo-50 rounded-full">
+            <LayoutDashboard className="h-5 w-5 text-indigo-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">لوحة التحكم</h1>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">نظرة عامة على أداء متجرك</p>
+          </div>
+        </div>
       </div>
 
       {/* Time Frame Tabs */}
