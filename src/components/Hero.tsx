@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
 
 const Hero = () => {
   const textRef = useRef<HTMLDivElement>(null);
@@ -32,44 +32,56 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center py-20 px-6 md:px-10 overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white to-indigo-50/30"></div>
-      
+    <div className="relative min-h-screen flex items-center justify-center py-24 px-6 md:px-10 overflow-hidden animated-bg">
       {/* Decorative elements */}
-      <div className="absolute top-20 right-[10%] w-64 h-64 rounded-full bg-indigo-100/50 blur-3xl opacity-60"></div>
-      <div className="absolute bottom-20 left-[5%] w-72 h-72 rounded-full bg-purple-200/50 blur-3xl opacity-50"></div>
+      <div className="absolute top-20 right-[10%] w-64 h-64 rounded-full bg-bluesky-100/50 blur-3xl opacity-60 animate-floating"></div>
+      <div className="absolute bottom-20 left-[5%] w-72 h-72 rounded-full bg-purple-200/50 blur-3xl opacity-50 animate-floating"></div>
+      
+      {/* Floating circles */}
+      <div className="absolute top-1/4 right-1/4 w-8 h-8 rounded-full bg-bluesky-300/70 animate-pulse-light"></div>
+      <div className="absolute bottom-1/3 left-1/3 w-6 h-6 rounded-full bg-purple-400/70 animate-pulse-light"></div>
+      
+      {/* Animated ring */}
+      <div className="absolute top-1/3 right-1/3 w-32 h-32 rounded-full border-4 border-dashed border-bluesky-200 animate-spin-slow opacity-40"></div>
       
       <div ref={textRef} className="max-w-4xl mx-auto text-center relative z-10">
-        <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight text-reveal" style={{ transitionDelay: '0.2s' }}>
-          <span className="text-black">منتجاتك.</span>
+        <div className="inline-block p-2 px-4 mb-6 rounded-full bg-white/80 backdrop-blur-sm shadow-sm">
+          <div className="flex items-center gap-2 text-sm font-medium text-bluesky-700">
+            <Sparkles size={18} className="text-purple-500" />
+            <span>نظام متكامل لإدارة المتاجر الإلكترونية</span>
+          </div>
+        </div>
+        
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-tight text-reveal" style={{ transitionDelay: '0.2s' }}>
+          <span className="text-bluesky-950">أنشئ متجرك الإلكتروني</span>
           <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">متجرك الإلكتروني</span>
-          <br />
-          <span className="text-black">بتصميم احترافي</span>
+          <span className="gradient-text">بتصميم احترافي في دقائق</span>
         </h1>
         
-        <p className="text-gray-600 text-lg md:text-xl mb-8 max-w-xl mx-auto text-reveal" style={{ transitionDelay: '0.3s' }}>
-          أنشئ متجرك الإلكتروني في دقائق واعرض منتجاتك بسهولة واستقبل المدفوعات بشكل مباشر.
+        <p className="text-bluesky-700 text-lg mb-8 max-w-xl mx-auto text-reveal" style={{ transitionDelay: '0.3s' }}>
+          منصة متكاملة تمكنك من إدارة متجرك بسهولة واستقبال المدفوعات فوراً
         </p>
         
-        <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 sm:space-x-reverse text-reveal" style={{ transitionDelay: '0.4s' }}>
-          <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all">
-            إنشاء متجرك الآن
+        <div className="flex flex-col sm:flex-row justify-center gap-4 text-reveal" style={{ transitionDelay: '0.4s' }}>
+          <Button className="h-14 px-8 text-base rounded-xl shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-bluesky-600 to-bluesky-700 hover:from-bluesky-700 hover:to-bluesky-800 glow-button">
+            <span className="mr-2">إنشاء متجرك الآن</span>
+            <ArrowRight size={18} />
           </Button>
-          <Button variant="outline" className="border-indigo-300 bg-white/80 hover:bg-indigo-50 px-8 py-6 text-lg rounded-xl">
+          <Button variant="outline" className="h-14 px-8 text-base rounded-xl border-bluesky-200 bg-white/80 backdrop-blur-sm hover:bg-bluesky-50 hover-lift">
             استكشاف المتاجر
           </Button>
         </div>
         
-        <div className="mt-10 flex items-center justify-center space-x-4 space-x-reverse text-reveal" style={{ transitionDelay: '0.5s' }}>
+        <div className="mt-10 flex items-center justify-center space-x-4 space-x-reverse glass-morphism py-3 px-6 rounded-full mx-auto w-fit text-reveal" style={{ transitionDelay: '0.5s' }}>
           <div className="flex -space-x-3 -space-x-reverse">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 border-2 border-white"></div>
+              <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-r from-bluesky-500 to-purple-500 border-2 border-white flex items-center justify-center text-xs text-white">
+                {i}
+              </div>
             ))}
           </div>
-          <p className="text-gray-700">
-            يستخدمه أكثر من <span className="font-semibold">2,000+</span> متجر
+          <p className="text-bluesky-700 text-sm font-medium">
+            يستخدمه أكثر من <span className="font-bold">2,000+</span> متجر
           </p>
         </div>
       </div>

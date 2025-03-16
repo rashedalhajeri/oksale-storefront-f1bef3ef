@@ -65,55 +65,55 @@ export default {
 				},
 				// تحديث الألوان لتتناسب مع الثيم الجديد
 				oksale: {
-					50: "#F5F7FF",
-					100: "#E0E7FF",
-					200: "#C7D2FE",
-					300: "#A5B4FC",
-					400: "#818CF8",
-					500: "#6366F1",
-					600: "#4F46E5",
-					700: "#4338CA",
-					800: "#3730A3",
-					900: "#312E81"
+					50: "#F0F7FF",
+					100: "#DBE9FF",
+					200: "#B8D4FF",
+					300: "#8BBDFF",
+					400: "#5296FF",
+					500: "#3366FF",
+					600: "#2952CC",
+					700: "#1F3F99",
+					800: "#152C66",
+					900: "#0A1433"
 				},
-				// تغيير ألوان indigo لتكون أقرب للألوان في الصورة
-				indigo: {
-					50: "#F5F7FF",
-					100: "#E0E7FF",
-					200: "#C7D2FE",
-					300: "#A5B4FC",
-					400: "#818CF8",
-					500: "#6366F1",
-					600: "#4F46E5",
-					700: "#4338CA",
-					800: "#3730A3",
-					900: "#312E81"
+				// ألوان الـ bluesky بناء على الصورة المرفقة
+				bluesky: {
+					50: "#F5F9FF",
+					100: "#E0EFFF",
+					200: "#C7DFFF",
+					300: "#94C6FF",
+					400: "#5BA4FF",
+					500: "#3366FF",
+					600: "#2541FF", 
+					700: "#1B31CC",
+					800: "#132099",
+					900: "#0A1433"
 				},
-				// إضافة ألوان أرجوانية
+				// ألوان أرجوانية تناسب الثيم الجديد
 				purple: {
-					50: "#FAF5FF",
-					100: "#F3E8FF",
-					200: "#E9D5FF",
-					300: "#D8B4FE",
-					400: "#C084FC",
-					500: "#A855F7",
-					600: "#9333EA",
-					700: "#7E22CE",
-					800: "#6B21A8",
-					900: "#581C87"
+					50: "#F9F5FF",
+					100: "#EFEBFF",
+					200: "#E4D9FF",
+					300: "#C9B8FE",
+					400: "#A78BFA",
+					500: "#8B5CF6",
+					600: "#7C3AED",
+					700: "#6D28D9",
+					800: "#5B21B6",
+					900: "#4C1D95"
 				},
 				// ألوان محايدة
 				neutral: {
 					50: "#FAFAFA",
-					100: "#F5F5F5",
-					200: "#E5E5E5",
-					300: "#D4D4D4",
-					400: "#A3A3A3",
-					500: "#737373",
-					600: "#525252",
-					700: "#404040",
-					800: "#262626",
-					900: "#171717"
+					100: "#F4F4F5",
+					200: "#E4E4E7",
+					300: "#D4D4D8",
+					400: "#A1A1AA",
+					500: "#71717A",
+					600: "#52525B",
+					700: "#3F3F46",
+					800: "#27272A",
+					900: "#18181B"
 				},
 				blur: "rgba(255, 255, 255, 0.8)"
 			},
@@ -158,6 +158,19 @@ export default {
 				'slide-down': {
 					'0%': { transform: 'translateY(-20px)', opacity: '0' },
 					'100%': { transform: 'translateY(0)', opacity: '1' }
+				},
+				'floating': {
+					'0%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' },
+					'100%': { transform: 'translateY(0px)' }
+				},
+				'pulse-light': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' }
+				},
+				'spin-slow': {
+					'0%': { transform: 'rotate(0deg)' },
+					'100%': { transform: 'rotate(360deg)' }
 				}
 			},
 			animation: {
@@ -167,10 +180,13 @@ export default {
 				'fade-out': 'fade-out 0.5s ease-out',
 				'scale-in': 'scale-in 0.4s ease-out',
 				'slide-up': 'slide-up 0.6s ease-out',
-				'slide-down': 'slide-down 0.6s ease-out'
+				'slide-down': 'slide-down 0.6s ease-out',
+				'floating': 'floating 3s ease-in-out infinite',
+				'pulse-light': 'pulse-light 3s ease-in-out infinite',
+				'spin-slow': 'spin-slow 10s linear infinite'
 			},
 			fontFamily: {
-				sans: ['SF Pro Display', 'Inter', 'system-ui', 'sans-serif'],
+				sans: ['Tajawal', 'SF Pro Display', 'Inter', 'system-ui', 'sans-serif'],
 				serif: ['SF Pro Text', 'Georgia', 'serif']
 			}
 		}
