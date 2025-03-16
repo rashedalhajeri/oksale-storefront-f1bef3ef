@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -22,12 +23,8 @@ import { DEFAULT_COVER_IMAGE } from '@/components/StoreHeader';
 
 type AuthMode = 'login' | 'register' | 'forgot-password';
 
-interface StoreAuthProps {
-  mode?: AuthMode;
-}
-
-const StoreAuth: React.FC<StoreAuthProps> = ({ mode = 'login' }) => {
-  const { handle } = useParams<{ handle: string }>();
+const StoreAuth: React.FC = () => {
+  const { handle, mode = 'login' } = useParams<{ handle: string; mode: AuthMode }>();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

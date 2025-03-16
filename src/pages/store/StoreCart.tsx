@@ -1,5 +1,4 @@
 
-// Just making a small fix for the typo in a function name
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';

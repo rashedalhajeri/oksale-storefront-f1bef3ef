@@ -9,26 +9,12 @@ import StoreHeader, { DEFAULT_COVER_IMAGE } from '@/components/StoreHeader';
 import ProductsGrid from '@/components/ProductsGrid';
 import StoreSidebar from '@/components/StoreSidebar';
 import MobileNavigation from '@/components/MobileNavigation';
-import { Search, Filter, ShoppingBag, Tag, Sparkles, Clock, Bookmark, Folder, User, Edit, Menu, ChevronRight, ShoppingCart } from 'lucide-react';
+import { Search, Filter, ShoppingBag, Tag, Sparkles, Clock, Bookmark, Folder, User, Edit, Menu, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Link } from 'react-router-dom';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-  inStock: boolean;
-  category: string;
-  isNew: boolean;
-  discount: number | null;
-  rating: number;
-}
 
 const StorePage = () => {
   const {
@@ -123,7 +109,7 @@ const StorePage = () => {
     }
   }, [userStore, storeData, handle]);
   
-  const products: Product[] = [{
+  const products = [{
     id: 1,
     name: 'Classic White Shirt',
     price: 59.99,
@@ -323,24 +309,6 @@ const StorePage = () => {
     }
   };
   
-  const getCartCount = () => {
-    try {
-      const storeKey = `cart-${activeStore.id}`;
-      const savedCart = localStorage.getItem(storeKey);
-      
-      if (savedCart) {
-        const cartItems = JSON.parse(savedCart);
-        return cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
-      }
-    } catch (e) {
-      console.error("Error getting cart count", e);
-    }
-    
-    return 0;
-  };
-  
-  const cartCount = getCartCount();
-  
   return <div className="min-h-screen flex flex-col bg-neutral-50 pb-16 md:pb-0">
       <main className="flex-grow">
         <StoreHeader store={store} />
@@ -407,22 +375,6 @@ const StorePage = () => {
                   Filters
                   <ChevronRight className={`w-4 h-4 ml-1 transition-transform ${showFilters ? 'rotate-90' : ''}`} />
                 </Button>
-                
-                <Link to={`/${handle}/cart`}>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="relative h-10 px-4 bg-white border-neutral-100 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-200 shadow-sm"
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-1.5" />
-                    Cart
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
               </div>
             </div>
             
