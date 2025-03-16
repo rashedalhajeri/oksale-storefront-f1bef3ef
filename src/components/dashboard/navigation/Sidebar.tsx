@@ -13,13 +13,13 @@ interface SidebarProps {
   storeData: any;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ storeData }) => {
+const Sidebar: React.FC<SidebarProps> = React.memo(({ storeData }) => {
   const isMobile = useIsMobile();
   
   return (
     <div className={cn(
       "flex flex-col h-screen transition-all duration-300",
-      "bg-[#0E1632] text-white",
+      "bg-[#0E1632] text-white will-change-transform",
       isMobile ? "w-full" : "w-64"
     )}>
       <div className="flex-shrink-0 py-5 px-5">
@@ -46,6 +46,8 @@ const Sidebar: React.FC<SidebarProps> = ({ storeData }) => {
       </div>
     </div>
   );
-};
+});
+
+Sidebar.displayName = 'Sidebar';
 
 export default Sidebar;

@@ -21,10 +21,7 @@ const MemoizedSidebar = React.memo(
 
 MemoizedSidebar.displayName = 'MemoizedSidebar';
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
-  children,
-  storeData
-}) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
 
@@ -76,7 +73,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
       {/* Overlay for mobile when sidebar is open */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 backdrop-blur-sm will-change-opacity" 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 backdrop-blur-sm will-change-opacity animate-in fade-in duration-200" 
           onClick={() => setSidebarOpen(false)} 
         />
       )}
@@ -95,11 +92,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
       </div>
     </div>
   );
-}, (prevProps, nextProps) => {
+};
+
+// Optimize the component with React.memo and prevent unnecessary re-renders
+export default React.memo(DashboardLayout, (prevProps, nextProps) => {
   // Only re-render if storeData ID changes (not on every reference change)
   return prevProps.storeData?.id === nextProps.storeData?.id;
 });
-
-DashboardLayout.displayName = 'DashboardLayout';
-
-export default DashboardLayout;

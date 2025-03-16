@@ -23,7 +23,7 @@ interface MainDashboardProps {
   currency: string;
 }
 
-const MainDashboard: React.FC<MainDashboardProps> = ({
+const MainDashboard: React.FC<MainDashboardProps> = React.memo(({
   statistics,
   salesData,
   timeframe,
@@ -90,6 +90,8 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
       </div>
     </div>
   );
-};
+});
+
+MainDashboard.displayName = 'MainDashboard';
 
 export default MainDashboard;

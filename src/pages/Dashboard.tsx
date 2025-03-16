@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,7 @@ import DashboardLayout from '@/components/dashboard/DashboardLayout';
 // Main Dashboard Container component
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,9 @@ const Dashboard = () => {
   // Fetch store data only once on component mount
   useEffect(() => {
     const fetchStoreData = async () => {
+      // Don't fetch again if we already have store data
+      if (storeData) return;
+      
       setLoading(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -148,7 +152,7 @@ const Dashboard = () => {
     );
   }
 
-  // More efficient rendering with proper layout
+  // More efficient rendering with proper layout and context
   return (
     <DashboardLayout storeData={storeData}>
       {/* Create a provider that will pass props to all children */}

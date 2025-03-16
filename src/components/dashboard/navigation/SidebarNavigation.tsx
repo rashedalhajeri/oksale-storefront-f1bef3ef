@@ -77,7 +77,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
   ], []);
   
   return (
-    <div className="flex-1 overflow-y-auto will-change-transform">
+    <div className="flex-1 overflow-y-auto will-change-transform scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
       {/* Main Navigation */}
       <ul className="space-y-2">
         {navigationItems.map((item) => (

@@ -25,7 +25,7 @@ export const useDashboardData = (storeId: string) => {
     currency: 'SAR'
   });
   
-  // Fetch statistics using React Query - fixed onSuccess usage
+  // Fetch statistics using React Query with proper caching
   const { 
     data: statsData, 
     isLoading: statsLoading,
@@ -35,8 +35,9 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => fetchStoreStatistics(storeId),
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
     meta: {
-      // Using callbacks object inside meta for newer React Query version
       onSuccess: (data: any) => {
         setDashboardStats({
           productsCount: data.productsCount,
@@ -57,26 +58,13 @@ export const useDashboardData = (storeId: string) => {
     }
   });
   
-  // Effect to update stats when data comes in - fallback for meta callbacks
-  useEffect(() => {
-    if (statsData) {
-      setDashboardStats({
-        productsCount: statsData.productsCount,
-        ordersCount: statsData.ordersCount,
-        revenue: parseFloat(statsData.revenue),
-        soldProductsCount: statsData.soldProductsCount || 0,
-        currency: statsData.currency || 'SAR'
-      });
-    }
-  }, [statsData]);
-  
-  // Generate sales chart data
+  // Generate sales chart data with proper memoization
   const salesData = useMemo(() => {
     if (!statsData?.orders) return [];
     return generateSalesData(statsData.orders, timeframe);
   }, [statsData?.orders, timeframe]);
   
-  // Fetch top products using React Query
+  // Fetch top products with proper caching
   const { 
     data: topProducts = [], 
     isLoading: topProductsLoading 
@@ -85,9 +73,11 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => getTopSellingProducts(storeId),
     enabled: !!storeId,
     staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
   });
   
-  // Fetch recent orders using React Query
+  // Fetch recent orders with proper caching
   const { 
     data: recentOrders = [], 
     isLoading: recentOrdersLoading 
@@ -96,9 +86,11 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => getRecentOrders(storeId, 15),
     enabled: !!storeId,
     staleTime: 2 * 60 * 1000, // 2 minutes
+    cacheTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
   
-  // Fetch order status stats using React Query
+  // Fetch order status stats with proper caching
   const { 
     data: orderStatusData = [], 
     isLoading: orderStatusLoading 
@@ -107,6 +99,8 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => getOrderStatusStats(storeId),
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
   });
 
   // Compute statistics with useMemo to avoid unnecessary recalculation
@@ -144,27 +138,6 @@ export const useDashboardData = (storeId: string) => {
   const loadDashboardData = useCallback(() => {
     refetchStats();
   }, [refetchStats]);
-
-  // Effect for timeframe changes
-  useEffect(() => {
-    if (statsData?.orders) {
-      // We don't need to do anything here as salesData is computed with useMemo
-    }
-  }, [timeframe, statsData]);
-
-  // Using useEffect to update the dashboard stats when the data changes
-  useEffect(() => {
-    if (statsData) {
-      setDashboardStats(prev => ({
-        ...prev,
-        productsCount: statsData.productsCount,
-        ordersCount: statsData.ordersCount,
-        revenue: parseFloat(statsData.revenue),
-        soldProductsCount: statsData.soldProductsCount || 0,
-        currency: statsData.currency || 'SAR'
-      }));
-    }
-  }, [statsData]);
 
   return {
     timeframe,
