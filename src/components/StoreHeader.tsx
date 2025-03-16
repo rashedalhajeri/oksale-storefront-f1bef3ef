@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -41,7 +42,7 @@ const StoreHeader = ({
     ? store.handle
     : `@${store.handle}`;
 
-  // Default cover image if none is provided - a gradient that works well for any new store
+  // Default cover image if none is provided
   const defaultCoverUrl = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
 
   // Check if there's no cover image
@@ -50,23 +51,17 @@ const StoreHeader = ({
   return (
     <div className="relative">
       {/* Cover image container with fixed height */}
-      <div className="h-[30vh] md:h-[45vh] overflow-hidden bg-gradient-to-br from-indigo-800 via-blue-700 to-purple-800">
-        {/* Only render the image if there is a cover image */}
-        {hasCover ? (
-          <img 
-            src={store.coverImage} 
-            alt={`${store.name} cover`} 
-            className={cn(
-              "w-full h-full object-cover transition-opacity duration-700", 
-              coverLoaded ? "opacity-100" : "opacity-0"
-            )} 
-            onLoad={() => setCoverLoaded(true)} 
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-white/20 font-bold text-3xl overflow-hidden">
-            {store.name}
-          </div>
-        )}
+      <div className="h-[30vh] md:h-[45vh] overflow-hidden">
+        {/* Always show an image - either the store's cover or the default one */}
+        <img 
+          src={hasCover ? store.coverImage : defaultCoverUrl} 
+          alt={`${store.name} cover`} 
+          className={cn(
+            "w-full h-full object-cover transition-opacity duration-700", 
+            coverLoaded ? "opacity-100" : "opacity-0"
+          )} 
+          onLoad={() => setCoverLoaded(true)} 
+        />
         
         {/* Always apply the gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>

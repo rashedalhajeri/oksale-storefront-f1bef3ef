@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,9 @@ const StorePreview: React.FC<StorePreviewProps> = ({
     ? storeInfo.handle
     : `@${storeInfo.handle}`;
 
+  // Default cover image if none is provided
+  const defaultCoverUrl = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
+
   // Check if there's no cover image
   const hasCover = !!storeInfo.cover_url;
 
@@ -58,19 +62,13 @@ const StorePreview: React.FC<StorePreviewProps> = ({
     <Card className="overflow-hidden">
       <div className="relative">
         {/* Cover image container with fixed height */}
-        <div className="h-[30vh] overflow-hidden bg-gradient-to-br from-indigo-800 via-blue-700 to-purple-800">
-          {/* Only render the image if there is a cover image */}
-          {hasCover ? (
-            <img 
-              src={storeInfo.cover_url} 
-              alt={`${storeInfo.name} cover`} 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-white/20 font-bold text-3xl overflow-hidden">
-              {storeInfo.name || 'اسم المتجر'}
-            </div>
-          )}
+        <div className="h-[30vh] overflow-hidden">
+          {/* Always show an image - either the store's cover or the default one */}
+          <img 
+            src={hasCover ? storeInfo.cover_url : defaultCoverUrl} 
+            alt={`${storeInfo.name} cover`} 
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
         </div>
         
@@ -134,18 +132,12 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                 <div className="space-y-2">
                   <Label>صورة الغلاف</Label>
                   <div className="flex flex-col gap-3">
-                    <div className="w-full h-36 rounded-lg overflow-hidden bg-gradient-to-br from-indigo-800 via-blue-700 to-purple-800">
-                      {hasCover ? (
-                        <img 
-                          src={storeInfo.cover_url} 
-                          alt={`${storeInfo.name} cover`} 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-white/20 font-bold text-xl overflow-hidden">
-                          {storeInfo.name || 'اسم المتجر'}
-                        </div>
-                      )}
+                    <div className="w-full h-36 rounded-lg overflow-hidden">
+                      <img 
+                        src={hasCover ? storeInfo.cover_url : defaultCoverUrl} 
+                        alt={`${storeInfo.name} cover`} 
+                        className="w-full h-full object-cover"
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                     </div>
                     <div className="flex items-center text-sm text-amber-600 bg-amber-50 p-2 rounded-md border border-amber-200">
