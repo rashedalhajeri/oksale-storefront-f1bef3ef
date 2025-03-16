@@ -1,28 +1,39 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useNavigate, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 
 // Dashboard Components
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import DashboardProducts from '@/components/dashboard/DashboardProducts';
-import DashboardOrders from '@/components/dashboard/DashboardOrders';
-import DashboardCustomers from '@/components/dashboard/DashboardCustomers';
-import DashboardCategories from '@/components/dashboard/DashboardCategories';
-import DashboardOffers from '@/components/dashboard/DashboardOffers';
-import DashboardSettingsGeneral from '@/components/dashboard/settings/DashboardSettingsGeneral';
-import DashboardSettingsAppearance from '@/components/dashboard/settings/DashboardSettingsAppearance';
-import DashboardSettingsPayment from '@/components/dashboard/settings/DashboardSettingsPayment';
-import DashboardSettingsShipping from '@/components/dashboard/settings/DashboardSettingsShipping';
-import DashboardSettingsNotifications from '@/components/dashboard/settings/DashboardSettingsNotifications';
-import DashboardSettingsUsers from '@/components/dashboard/settings/DashboardSettingsUsers';
-import MainDashboard from '@/components/dashboard/MainDashboard';
+import { Loader2 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
+
+// Lazy load components for better performance
+const MainDashboard = React.lazy(() => import('@/components/dashboard/MainDashboard'));
+const DashboardProducts = React.lazy(() => import('@/components/dashboard/DashboardProducts'));
+const DashboardOrders = React.lazy(() => import('@/components/dashboard/DashboardOrders'));
+const DashboardCustomers = React.lazy(() => import('@/components/dashboard/DashboardCustomers'));
+const DashboardCategories = React.lazy(() => import('@/components/dashboard/DashboardCategories'));
+const DashboardOffers = React.lazy(() => import('@/components/dashboard/DashboardOffers'));
+const DashboardSettingsGeneral = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsGeneral'));
+const DashboardSettingsAppearance = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsAppearance'));
+const DashboardSettingsPayment = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsPayment'));
+const DashboardSettingsShipping = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsShipping'));
+const DashboardSettingsNotifications = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsNotifications'));
+const DashboardSettingsUsers = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsUsers'));
+
+// Loading component
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-full min-h-[400px]">
+    <Loader2 className="h-10 w-10 text-oksale-600 animate-spin" />
+  </div>
+);
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -100,20 +111,22 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout storeData={storeData}>
-      <Routes>
-        <Route path="/" element={<DashboardMain storeData={storeData} />} />
-        <Route path="/products" element={<DashboardProducts storeData={storeData} />} />
-        <Route path="/orders" element={<DashboardOrders storeData={storeData} />} />
-        <Route path="/customers" element={<DashboardCustomers storeData={storeData} />} />
-        <Route path="/categories" element={<DashboardCategories storeData={storeData} />} />
-        <Route path="/offers" element={<DashboardOffers storeData={storeData} />} />
-        <Route path="/settings/general" element={<DashboardSettingsGeneral storeData={storeData} />} />
-        <Route path="/settings/appearance" element={<DashboardSettingsAppearance storeData={storeData} />} />
-        <Route path="/settings/payment" element={<DashboardSettingsPayment storeData={storeData} />} />
-        <Route path="/settings/shipping" element={<DashboardSettingsShipping storeData={storeData} />} />
-        <Route path="/settings/notifications" element={<DashboardSettingsNotifications storeData={storeData} />} />
-        <Route path="/settings/users" element={<DashboardSettingsUsers storeData={storeData} />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<DashboardMain storeData={storeData} />} />
+          <Route path="/products" element={<DashboardProducts storeData={storeData} />} />
+          <Route path="/orders" element={<DashboardOrders storeData={storeData} />} />
+          <Route path="/customers" element={<DashboardCustomers storeData={storeData} />} />
+          <Route path="/categories" element={<DashboardCategories storeData={storeData} />} />
+          <Route path="/offers" element={<DashboardOffers storeData={storeData} />} />
+          <Route path="/settings/general" element={<DashboardSettingsGeneral storeData={storeData} />} />
+          <Route path="/settings/appearance" element={<DashboardSettingsAppearance storeData={storeData} />} />
+          <Route path="/settings/payment" element={<DashboardSettingsPayment storeData={storeData} />} />
+          <Route path="/settings/shipping" element={<DashboardSettingsShipping storeData={storeData} />} />
+          <Route path="/settings/notifications" element={<DashboardSettingsNotifications storeData={storeData} />} />
+          <Route path="/settings/users" element={<DashboardSettingsUsers storeData={storeData} />} />
+        </Routes>
+      </Suspense>
     </DashboardLayout>
   );
 };

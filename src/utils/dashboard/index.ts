@@ -7,3 +7,4 @@ export * from './orders';
 export * from './statusStats';
 export * from './progress';
 export * from './currencyUtils';
+export * from './dashboardUtils';

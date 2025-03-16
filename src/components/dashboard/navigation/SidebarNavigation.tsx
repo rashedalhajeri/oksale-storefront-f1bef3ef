@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Package, 
@@ -12,11 +12,13 @@ import {
   ChevronDown,
   ChevronRight,
   PenSquare,
-  Store
+  Store,
+  ExternalLink
 } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SidebarNavigationProps {
   storeData: any;
@@ -25,6 +27,14 @@ interface SidebarNavigationProps {
 const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
   const location = useLocation();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const isMobile = useIsMobile();
+  
+  // Automatically open settings submenu if on a settings page
+  useEffect(() => {
+    if (location.pathname.includes('/dashboard/settings')) {
+      setIsSettingsOpen(true);
+    }
+  }, [location.pathname]);
 
   const navigationItems = [
     { 
@@ -56,11 +66,6 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
       name: 'العروض', 
       path: '/dashboard/offers', 
       icon: <Percent className="h-5 w-5" /> 
-    },
-    { 
-      name: 'إعدادات المتجر', 
-      path: '/dashboard/settings/general', 
-      icon: <Settings className="h-5 w-5" /> 
     }
   ];
 
@@ -74,12 +79,10 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
   ];
 
   const isActive = (path: string) => {
-    return location.pathname === path || 
-      (path !== '/dashboard' && location.pathname.startsWith(path));
-  };
-
-  const isSettingsPath = () => {
-    return location.pathname.includes('/dashboard/settings');
+    if (path === '/dashboard') {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
   };
   
   return (
@@ -91,21 +94,22 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
             نشط
           </div>
           <div className="flex gap-1">
-            <Link 
+            <NavLink 
               to="/dashboard/settings/general"
-              className="text-xs flex items-center gap-1 border border-oksale-500 text-oksale-700 hover:bg-oksale-50 px-2 py-1 rounded"
+              className="text-xs flex items-center gap-1 border border-oksale-500 text-oksale-700 hover:bg-oksale-50 px-2 py-1 rounded transition-colors"
             >
               <PenSquare className="h-3 w-3" />
               تحرير المتجر
-            </Link>
-            <Link 
-              to={`/${storeData?.handle}`} 
-              className="text-xs flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-100"
+            </NavLink>
+            <a 
+              href={`/${storeData?.handle}`} 
+              className="text-xs flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-100 transition-colors"
               target="_blank"
+              rel="noopener noreferrer"
             >
-              <Store className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3" />
               زيارة
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -116,45 +120,63 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
       <ul className="space-y-1 mt-4">
         {navigationItems.map((item) => (
           <li key={item.path}>
-            <Link
+            <NavLink
               to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                isActive(item.path)
+              className={({ isActive }) => cn(
+                "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all",
+                isActive
                   ? "bg-oksale-50 text-oksale-700"
                   : "text-gray-700 hover:bg-gray-100"
               )}
+              end={item.path === '/dashboard'}
             >
               {item.icon}
               <span>{item.name}</span>
-            </Link>
+            </NavLink>
           </li>
         ))}
-      </ul>
-      
-      {/* Settings Sub-navigation - Only visible when on settings pages */}
-      {isSettingsPath() && (
-        <div className="mt-4 mr-4 border-r border-gray-200 pr-3">
-          <p className="text-xs text-gray-500 mb-2 pr-3">إعدادات المتجر</p>
-          <ul className="space-y-1">
-            {settingsItems.map((item) => (
-              <li key={item.path}>
-                <Link
+        
+        {/* Settings with dropdown */}
+        <li>
+          <Collapsible
+            open={isSettingsOpen}
+            onOpenChange={setIsSettingsOpen}
+            className="w-full"
+          >
+            <CollapsibleTrigger className={cn(
+              "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm font-medium transition-colors",
+              location.pathname.includes('/dashboard/settings')
+                ? "bg-oksale-50 text-oksale-700"
+                : "text-gray-700 hover:bg-gray-100"
+            )}>
+              <div className="flex items-center gap-3">
+                <Settings className="h-5 w-5" />
+                <span>إعدادات المتجر</span>
+              </div>
+              {isSettingsOpen ? 
+                <ChevronDown className="h-4 w-4" /> : 
+                <ChevronRight className="h-4 w-4" />
+              }
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-1 space-y-1 mr-4 border-r border-gray-200 pr-3">
+              {settingsItems.map((item) => (
+                <NavLink
+                  key={item.path}
                   to={item.path}
-                  className={cn(
+                  className={({ isActive }) => cn(
                     "flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors",
-                    isActive(item.path)
+                    isActive
                       ? "bg-oksale-50 text-oksale-700 font-medium"
                       : "text-gray-600 hover:bg-gray-100"
                   )}
                 >
                   <span>{item.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+                </NavLink>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+        </li>
+      </ul>
     </div>
   );
 };

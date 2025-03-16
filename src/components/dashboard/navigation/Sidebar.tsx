@@ -4,14 +4,17 @@ import { Separator } from "@/components/ui/separator";
 import StoreHeader from './StoreHeader';
 import SidebarNavigation from './SidebarNavigation';
 import UserActions from './UserActions';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SidebarProps {
   storeData: any;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ storeData }) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="w-full md:w-64 bg-white shadow-md flex flex-col h-screen sticky top-0">
+    <div className={`bg-white shadow-md flex flex-col ${isMobile ? 'w-64' : 'w-64'} h-screen`}>
       <StoreHeader storeData={storeData} />
       <Separator />
       <SidebarNavigation storeData={storeData} />
