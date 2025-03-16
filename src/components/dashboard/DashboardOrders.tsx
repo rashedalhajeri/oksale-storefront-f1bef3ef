@@ -299,6 +299,47 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
+  // Render the appropriate order content based on filters and device type
+  const renderOrderContent = () => {
+    if (loading) {
+      return <OrderLoadingState isMobile={isMobile} count={isMobile ? 4 : undefined} />;
+    }
+
+    if (orders.length === 0) {
+      return <OrderEmptyState onReset={resetFilters} isMobile={isMobile} />;
+    }
+
+    return (
+      <>
+        <div className={isMobile ? "space-y-2" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"}>
+          {orders.map((order) => (
+            isMobile ? (
+              <OrderCardMobile 
+                key={order.id} 
+                order={order}
+                onViewOrder={handleViewOrder}
+                getStatusBadge={getStatusBadge}
+              />
+            ) : (
+              <OrderCard 
+                key={order.id} 
+                order={order}
+                onViewOrder={handleViewOrder}
+                getStatusIcon={getStatusIcon}
+              />
+            )
+          ))}
+        </div>
+        
+        <OrderPagination 
+          pagination={pagination}
+          handlePageChange={handlePageChange}
+          isMobile={isMobile}
+        />
+      </>
+    );
+  };
+
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
@@ -380,73 +421,19 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               <TabsTrigger value="completed" className="flex-shrink-0">مكتمل</TabsTrigger>
               <TabsTrigger value="cancelled" className="flex-shrink-0">ملغي</TabsTrigger>
             </TabsList>
+            
+            {/* Important: Move TabsContent inside the Tabs component */}
+            <TabsContent value={tabValue}>
+              {renderOrderContent()}
+            </TabsContent>
           </Tabs>
         </>
       )}
 
-      {/* Desktop order cards */}
-      {!isMobile && (
-        <TabsContent value={tabValue}>
-          {loading ? (
-            <OrderLoadingState isMobile={false} />
-          ) : orders.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {orders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order}
-                    onViewOrder={handleViewOrder}
-                    getStatusIcon={getStatusIcon}
-                  />
-                ))}
-              </div>
-              
-              <OrderPagination 
-                pagination={pagination}
-                handlePageChange={handlePageChange}
-                isMobile={false}
-              />
-            </>
-          ) : (
-            <OrderEmptyState 
-              onReset={resetFilters}
-              isMobile={false}
-            />
-          )}
-        </TabsContent>
-      )}
-
-      {/* Mobile order cards */}
+      {/* Mobile order content - not using TabsContent */}
       {isMobile && (
         <div className="mb-4">
-          {loading ? (
-            <OrderLoadingState isMobile={true} count={4} />
-          ) : orders.length > 0 ? (
-            <>
-              <div className="space-y-2">
-                {orders.map((order) => (
-                  <OrderCardMobile 
-                    key={order.id} 
-                    order={order}
-                    onViewOrder={handleViewOrder}
-                    getStatusBadge={getStatusBadge}
-                  />
-                ))}
-              </div>
-              
-              <OrderPagination 
-                pagination={pagination}
-                handlePageChange={handlePageChange}
-                isMobile={true}
-              />
-            </>
-          ) : (
-            <OrderEmptyState 
-              onReset={resetFilters}
-              isMobile={true}
-            />
-          )}
+          {renderOrderContent()}
         </div>
       )}
 
