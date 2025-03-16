@@ -6,8 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { formatCurrencyWithSettings } from '@/utils/dashboard/dashboardUtils';
 
-// تحسين الأداء باستخدام React.memo لكل المكونات الفرعية
-const StatsCard = React.memo(({ title, value, icon, trend, percentage }) => {
+// Define interfaces for component props
+interface StatsCardProps {
+  title: string;
+  value: string | number;
+  icon: {
+    bgColor: string;
+    element: React.ReactNode;
+  };
+  trend?: boolean;
+  percentage?: number;
+}
+
+// Enhanced StatsCard component with proper typing
+const StatsCard = React.memo(({ title, value, icon, trend, percentage }: StatsCardProps) => {
   return (
     <Card className="bg-white dark:bg-gray-800 shadow-md border-0">
       <CardContent className="p-6">
@@ -23,8 +35,8 @@ const StatsCard = React.memo(({ title, value, icon, trend, percentage }) => {
         
         {trend && (
           <div className="mt-4 flex items-center">
-            <span className={`text-xs font-medium ${percentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {percentage >= 0 ? '↑' : '↓'} {Math.abs(percentage)}%
+            <span className={`text-xs font-medium ${percentage && percentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {percentage && percentage >= 0 ? '↑' : '↓'} {percentage ? Math.abs(percentage) : 0}%
             </span>
             <span className="text-xs text-gray-500 ms-2">مقارنة بالفترة السابقة</span>
           </div>
@@ -36,8 +48,16 @@ const StatsCard = React.memo(({ title, value, icon, trend, percentage }) => {
 
 StatsCard.displayName = 'StatsCard';
 
-// مكون مخطط المبيعات المحسّن
-const SalesChart = React.memo(({ salesData, timeframe, currency, isLoading }) => {
+// Interface for SalesChart props
+interface SalesChartProps {
+  salesData: any[];
+  timeframe: string;
+  currency: string;
+  isLoading: boolean;
+}
+
+// Enhanced SalesChart component
+const SalesChart = React.memo(({ salesData, timeframe, currency, isLoading }: SalesChartProps) => {
   if (isLoading) {
     return (
       <div className="h-72 w-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -46,7 +66,7 @@ const SalesChart = React.memo(({ salesData, timeframe, currency, isLoading }) =>
     );
   }
 
-  // تنسيق بيانات المخطط
+  // Format chart data
   const gradientOffset = () => {
     const dataMax = Math.max(...salesData.map((i) => i.revenue));
     const dataMin = Math.min(...salesData.map((i) => i.revenue));
@@ -118,7 +138,7 @@ const SalesChart = React.memo(({ salesData, timeframe, currency, isLoading }) =>
 
 SalesChart.displayName = 'SalesChart';
 
-// مكون العروض المميزة
+// Featured promotions component
 const FeaturedPromotions = React.memo(() => {
   return (
     <Card className="border-none bg-gradient-to-br from-purple-50 to-indigo-50 shadow-md dark:from-gray-800 dark:to-gray-900">
@@ -143,8 +163,15 @@ const FeaturedPromotions = React.memo(() => {
 
 FeaturedPromotions.displayName = 'FeaturedPromotions';
 
-// مكون الطلبات الحديثة
-const RecentOrdersPreview = React.memo(({ recentOrders, loading, currency }) => {
+// Interface for RecentOrdersPreview props
+interface RecentOrdersPreviewProps {
+  recentOrders: any[];
+  loading: boolean;
+  currency: string;
+}
+
+// Enhanced RecentOrdersPreview component
+const RecentOrdersPreview = React.memo(({ recentOrders, loading, currency }: RecentOrdersPreviewProps) => {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -185,7 +212,7 @@ const RecentOrdersPreview = React.memo(({ recentOrders, loading, currency }) => 
 
 RecentOrdersPreview.displayName = 'RecentOrdersPreview';
 
-// المكون الرئيسي
+// Main component interface
 interface MainDashboardProps {
   statistics: any[];
   salesData: any[];
@@ -217,12 +244,12 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
   orderStatusLoading,
   currency
 }) => {
-  // استخدام useMemo لتصفية الطلبات المعلقة
+  // Use useMemo to filter pending orders
   const pendingOrders = useMemo(() => {
     return recentOrders.filter(order => order.status === 'pending');
   }, [recentOrders]);
 
-  // معالجة إحصائيات المتجر
+  // Process store statistics
   const statsCards = useMemo(() => {
     if (statsLoading) {
       return (
@@ -271,7 +298,7 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in-50 duration-500">
-      {/* رأس الصفحة */}
+      {/* Page header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-full">
@@ -284,7 +311,7 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
         </div>
       </div>
 
-      {/* أشرطة التبديل */}
+      {/* Toggle tabs */}
       <Tabs defaultValue={timeframe} value={timeframe} onValueChange={setTimeframe} className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-4 mb-8">
           <TabsTrigger value="day">اليوم</TabsTrigger>
@@ -294,10 +321,10 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
         </TabsList>
       </Tabs>
 
-      {/* بطاقات الإحصائيات */}
+      {/* Stats cards */}
       {statsCards}
 
-      {/* قسم المخططات والعروض */}
+      {/* Charts and promotions section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="border-none shadow-md col-span-1 lg:col-span-2">
           <CardHeader className="pb-2">
@@ -321,7 +348,7 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
         <FeaturedPromotions />
       </div>
 
-      {/* قسم الطلبات الحديثة وحالة الطلبات */}
+      {/* Recent orders and order status section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-none shadow-md">
           <CardHeader>
