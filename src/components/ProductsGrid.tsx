@@ -10,7 +10,7 @@ interface ProductsGridProps {
   setSelectedCategory: (category: string) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  currency?: string; // Added currency prop
+  currency?: string;
 }
 
 const ProductsGrid = ({ 
@@ -19,14 +19,32 @@ const ProductsGrid = ({
   setSelectedCategory,
   searchQuery,
   setSearchQuery,
-  currency = 'USD' // Default to USD if not provided
+  currency = 'USD'
 }: ProductsGridProps) => {
+  // Added heading with product count
+  const renderHeading = () => {
+    const title = selectedCategory === 'All' ? 'All' : selectedCategory;
+    return (
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-medium text-indigo-900 flex items-center">
+          {title}
+          <span className="ml-2 text-sm font-normal text-indigo-500">
+            ({products.length} items)
+          </span>
+        </h2>
+      </div>
+    );
+  };
+
   if (products.length > 0) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6 animate-scale-in">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} currency={currency} />
-        ))}
+      <div>
+        {renderHeading()}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-6 animate-scale-in">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} currency={currency} />
+          ))}
+        </div>
       </div>
     );
   }

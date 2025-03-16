@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import StoreHeader, { DEFAULT_COVER_IMAGE } from '@/components/StoreHeader';
 import ProductsGrid from '@/components/ProductsGrid';
 import StoreSidebar from '@/components/StoreSidebar';
-import { Search, Filter, ShoppingBag, Tag, Sparkles, Clock, Bookmark, Folder, User, Edit, Menu } from 'lucide-react';
+import { Search, Filter, ShoppingBag, Tag, Sparkles, Clock, Bookmark, Folder, User, Edit, Menu, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
@@ -198,41 +198,36 @@ const StorePage = () => {
     }
   };
   const renderMobileCategories = () => {
-    return <div className="md:hidden flex items-center mb-4">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" className="w-full flex justify-between items-center border-neutral-200 shadow-sm">
-              <div className="flex items-center">
-                <Tag className="mr-2 h-4 w-4 text-indigo-600" />
-                <span>{selectedCategory === 'All' ? 'All Products' : selectedCategory}</span>
-              </div>
-              <Menu className="h-4 w-4" />
+    return (
+      <div className="md:hidden mb-4">
+        <ScrollArea className="w-full pb-4">
+          <div className="flex space-x-2 py-1 px-1">
+            <Button
+              variant={selectedCategory === 'All' ? "default" : "outline"}
+              size="sm"
+              className={`shrink-0 ${selectedCategory === 'All' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'border-neutral-200 text-neutral-700'}`}
+              onClick={() => setSelectedCategory('All')}
+            >
+              <ShoppingBag className="mr-1.5 h-4 w-4" />
+              All
             </Button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl">
-            <div className="pt-4 px-2">
-              <h3 className="text-lg font-semibold mb-4 text-center">Categories</h3>
-              <div className="space-y-2">
-                <Button variant={selectedCategory === 'All' ? "default" : "outline"} className={`w-full justify-start ${selectedCategory === 'All' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'border-neutral-200 text-neutral-700'}`} onClick={() => {
-                setSelectedCategory('All');
-                document.body.click(); // Close the sheet
-              }}>
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  All Products
-                </Button>
-                
-                {categories.map((category, index) => <Button key={index} variant={selectedCategory === category ? "default" : "outline"} className={`w-full justify-start ${selectedCategory === category ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'border-neutral-200 text-neutral-700'}`} onClick={() => {
-                setSelectedCategory(category);
-                document.body.click(); // Close the sheet
-              }}>
-                    {getCategoryIcon(category)}
-                    {category}
-                  </Button>)}
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>;
+            
+            {categories.map((category, index) => (
+              <Button
+                key={index}
+                variant={selectedCategory === category ? "default" : "outline"}
+                size="sm"
+                className={`shrink-0 ${selectedCategory === category ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'border-neutral-200 text-neutral-700'}`}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {getCategoryIcon(category)}
+                {category}
+              </Button>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+    );
   };
   if ((isLoading || isLoadingUserStore) && !storeData && !userStore) {
     return <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -300,7 +295,8 @@ const StorePage = () => {
       <main className="flex-grow">
         <StoreHeader store={store} />
         
-        {isOwnStore && <div className="max-w-5xl mx-auto px-4 py-2 mt-4">
+        {isOwnStore && (
+          <div className="max-w-5xl mx-auto px-4 py-2 mt-4">
             <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 text-indigo-800">
               <User className="w-5 h-5 text-indigo-500" />
               <span className="flex-grow">أنت تشاهد متجرك الخاص. يمكنك تعديل معلومات المتجر من لوحة التحكم.</span>
@@ -309,11 +305,11 @@ const StorePage = () => {
                 إدارة المتجر
               </Button>
             </div>
-          </div>}
+          </div>
+        )}
         
         <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
           <div className="mt-4 md:mt-6">
-            
             
             <div className="mb-6 px-0 mx-0 my-0 py-0">
               {renderMobileCategories()}
@@ -324,7 +320,7 @@ const StorePage = () => {
                     <TabsList className="w-full justify-start border-b rounded-none p-0">
                       <TabsTrigger value="All" className="rounded-md data-[state=active]:bg-indigo-600 data-[state=active]:text-white py-2">
                         <ShoppingBag className="mr-1.5 h-4 w-4" />
-                        All Products
+                        All
                       </TabsTrigger>
                       {categories.map((category, index) => (
                         <TabsTrigger key={index} value={category} className="rounded-md data-[state=active]:bg-indigo-600 data-[state=active]:text-white py-2">
@@ -337,14 +333,29 @@ const StorePage = () => {
                 </Tabs>
               </div>
               
-              <div className="flex items-center gap-3 mb-6 bg-white p-3 rounded-xl border border-neutral-200 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
                 <div className="relative flex-grow">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
-                  <Input type="text" placeholder="Search products..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 border-neutral-200 w-full h-10" />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-500">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <Input 
+                    type="text" 
+                    placeholder="Search products..." 
+                    value={searchQuery} 
+                    onChange={e => setSearchQuery(e.target.value)} 
+                    className="pl-10 pr-4 py-2 h-10 border-indigo-100 rounded-lg focus:border-indigo-300 focus:ring-indigo-200 bg-white shadow-sm"
+                  />
                 </div>
-                <Button variant="outline" className="border-neutral-200 text-neutral-700 h-10">
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="h-10 px-4 bg-white border-indigo-100 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-200 shadow-sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
                   <Filter className="w-4 h-4 mr-1.5" />
                   Filters
+                  <ChevronRight className={`w-4 h-4 ml-1 transition-transform ${showFilters ? 'rotate-90' : ''}`} />
                 </Button>
               </div>
             </div>

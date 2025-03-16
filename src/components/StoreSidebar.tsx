@@ -35,7 +35,7 @@ const StoreSidebar = ({
             onClick={() => setSelectedCategory('All')}
           >
             <Package className="w-3 h-3 mr-1.5" />
-            All Products
+            All
             <Badge className="ml-auto bg-white/20 text-white text-[10px] h-5">{productCount}</Badge>
           </Button>
           
