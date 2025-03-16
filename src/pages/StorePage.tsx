@@ -11,7 +11,7 @@ import {
   CarouselPrevious
 } from "@/components/ui/carousel";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import StoreHeader from '@/components/StoreHeader';
+import StoreHeader, { DEFAULT_COVER_IMAGE } from '@/components/StoreHeader';
 import ProductsGrid from '@/components/ProductsGrid';
 import StoreSidebar from '@/components/StoreSidebar';
 import { 
@@ -274,8 +274,8 @@ const StorePage = () => {
     id: activeStore.id,
     name: activeStore.name,
     owner: activeStore.profiles?.full_name || 'صاحب المتجر',
-    coverImage: activeStore.cover_url || 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80',
-    logo: activeStore.logo_url || 'https://images.unsplash.com/photo-1589985270958-b90dewe1e358?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
+    coverImage: activeStore.cover_url || DEFAULT_COVER_IMAGE,
+    logo: activeStore.logo_url || '',
     handle: activeStore.handle,
     description: activeStore.description || 'متجر يقدم منتجات عالية الجودة.',
     categories: categories,

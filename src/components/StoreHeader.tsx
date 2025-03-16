@@ -28,6 +28,9 @@ interface StoreHeaderProps {
   };
 }
 
+// Define the default cover image URL as a constant that can be exported
+export const DEFAULT_COVER_IMAGE = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
+
 const StoreHeader = ({
   store
 }: StoreHeaderProps) => {
@@ -41,9 +44,6 @@ const StoreHeader = ({
     ? store.handle
     : `@${store.handle}`;
 
-  // Default cover image if none is provided
-  const defaultCoverUrl = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
-
   // Check if there's no cover image
   const hasCover = !!store.coverImage;
 
@@ -53,7 +53,7 @@ const StoreHeader = ({
       <div className="h-[30vh] md:h-[45vh] overflow-hidden">
         {/* Always show an image - either the store's cover or the default one */}
         <img 
-          src={hasCover ? store.coverImage : defaultCoverUrl} 
+          src={hasCover ? store.coverImage : DEFAULT_COVER_IMAGE} 
           alt={`${store.name} cover`} 
           className={cn(
             "w-full h-full object-cover transition-opacity duration-700", 

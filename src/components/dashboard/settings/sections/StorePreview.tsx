@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from '@/lib/utils';
+import { DEFAULT_COVER_IMAGE } from '@/components/StoreHeader';
 
 interface StorePreviewProps {
   storeInfo: {
@@ -56,10 +56,6 @@ const StorePreview: React.FC<StorePreviewProps> = ({
     ? storeInfo.handle
     : `@${storeInfo.handle}`;
 
-  // Use the same default cover image as StoreHeader
-  const defaultCoverUrl = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&h=300";
-
-  // Check if there's a cover image using the same logic as StoreHeader
   const hasCover = !!storeInfo.cover_url;
 
   return (
@@ -67,7 +63,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
       <div className="relative">
         <div className="h-[30vh] md:h-[45vh] overflow-hidden">
           <img 
-            src={hasCover ? storeInfo.cover_url : defaultCoverUrl} 
+            src={hasCover ? storeInfo.cover_url : DEFAULT_COVER_IMAGE} 
             alt={`${storeInfo.name} cover`} 
             className={cn(
               "w-full h-full object-cover transition-opacity duration-700", 
@@ -135,7 +131,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                   <div className="flex flex-col gap-3">
                     <div className="w-full h-36 rounded-lg overflow-hidden">
                       <img 
-                        src={hasCover ? storeInfo.cover_url : defaultCoverUrl} 
+                        src={hasCover ? storeInfo.cover_url : DEFAULT_COVER_IMAGE} 
                         alt={`${storeInfo.name} cover`} 
                         className="w-full h-full object-cover"
                       />
