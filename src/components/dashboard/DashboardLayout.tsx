@@ -1,5 +1,5 @@
 
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import Sidebar from './navigation/Sidebar';
 import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -24,9 +24,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
     }
   }, [isMobile]);
 
-  const toggleSidebar = () => {
+  const toggleSidebar = useCallback(() => {
     setSidebarOpen(prev => !prev);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen flex">
@@ -63,8 +63,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
         />
       )}
       
-      {/* Main Content */}
-      <div className="flex-1 p-4 bg-bluesky-50/50 dark:bg-gray-900">
+      {/* Main Content - Using React memo to reduce unnecessary renders */}
+      <div className="flex-1 p-4 bg-bluesky-50/50 dark:bg-gray-900 transition-all will-change-transform">
         {/* Background elements */}
         <div className="absolute top-10 right-[10%] w-64 h-64 rounded-full bg-bluesky-100/50 blur-3xl opacity-30 pointer-events-none"></div>
         <div className="absolute bottom-10 left-[5%] w-72 h-72 rounded-full bg-purple-100/50 blur-3xl opacity-30 pointer-events-none"></div>

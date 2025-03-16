@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   Home, 
   ShoppingBag, 
@@ -73,7 +73,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
     { name: 'المستخدمين والصلاحيات', path: '/dashboard/settings/users' }
   ], []);
 
-  const isActive = React.useCallback((path: string) => {
+  const isActive = useCallback((path: string) => {
     if (path === '/dashboard') {
       return location.pathname === path;
     }
@@ -86,18 +86,19 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
       <ul className="space-y-2">
         {navigationItems.map((item) => (
           <li key={item.path}>
-            <Link
+            <NavLink
               to={item.path}
-              className={cn(
+              end={item.path === '/dashboard'}
+              className={({isActive}) => cn(
                 "flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all",
-                isActive(item.path)
+                isActive
                   ? "bg-[#1A2747] text-white"
                   : "text-white/80 hover:text-white hover:bg-[#1A2747]/50"
               )}
             >
               {item.icon}
               <span>{item.name}</span>
-            </Link>
+            </NavLink>
           </li>
         ))}
         
@@ -125,18 +126,18 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-1 space-y-1">
               {settingsItems.map((item) => (
-                <Link
+                <NavLink
                   key={item.path}
                   to={item.path}
-                  className={cn(
+                  className={({isActive}) => cn(
                     "flex items-center mr-7 gap-2 px-4 py-2 rounded-md text-sm transition-colors",
-                    isActive(item.path)
+                    isActive
                       ? "bg-[#1A2747]/70 text-white"
                       : "text-white/70 hover:bg-[#1A2747]/30 hover:text-white"
                   )}
                 >
                   <span>{item.name}</span>
-                </Link>
+                </NavLink>
               ))}
             </CollapsibleContent>
           </Collapsible>

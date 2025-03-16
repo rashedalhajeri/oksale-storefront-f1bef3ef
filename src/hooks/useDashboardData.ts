@@ -25,7 +25,7 @@ export const useDashboardData = (storeId: string) => {
     currency: 'SAR'
   });
   
-  // Fetch statistics using React Query
+  // Fetch statistics using React Query - fixed onSuccess usage
   const { 
     data: statsData, 
     isLoading: statsLoading,
@@ -35,24 +35,40 @@ export const useDashboardData = (storeId: string) => {
     queryFn: () => fetchStoreStatistics(storeId),
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    onSuccess: (data) => {
-      setDashboardStats({
-        productsCount: data.productsCount,
-        ordersCount: data.ordersCount,
-        revenue: parseFloat(data.revenue),
-        soldProductsCount: data.soldProductsCount || 0,
-        currency: data.currency || 'SAR'
-      });
-    },
-    onError: (error) => {
-      console.error("Error loading dashboard stats:", error);
-      toast({
-        variant: "destructive",
-        title: "فشل تحميل الإحصائيات",
-        description: "حدث خطأ أثناء تحميل إحصائيات لوحة التحكم، يرجى المحاولة مرة أخرى.",
-      });
+    meta: {
+      // Using callbacks object inside meta for newer React Query version
+      onSuccess: (data: any) => {
+        setDashboardStats({
+          productsCount: data.productsCount,
+          ordersCount: data.ordersCount,
+          revenue: parseFloat(data.revenue),
+          soldProductsCount: data.soldProductsCount || 0,
+          currency: data.currency || 'SAR'
+        });
+      },
+      onError: (error: any) => {
+        console.error("Error loading dashboard stats:", error);
+        toast({
+          variant: "destructive",
+          title: "فشل تحميل الإحصائيات",
+          description: "حدث خطأ أثناء تحميل إحصائيات لوحة التحكم، يرجى المحاولة مرة أخرى.",
+        });
+      }
     }
   });
+  
+  // Effect to update stats when data comes in - fallback for meta callbacks
+  useEffect(() => {
+    if (statsData) {
+      setDashboardStats({
+        productsCount: statsData.productsCount,
+        ordersCount: statsData.ordersCount,
+        revenue: parseFloat(statsData.revenue),
+        soldProductsCount: statsData.soldProductsCount || 0,
+        currency: statsData.currency || 'SAR'
+      });
+    }
+  }, [statsData]);
   
   // Generate sales chart data
   const salesData = useMemo(() => {
@@ -135,6 +151,20 @@ export const useDashboardData = (storeId: string) => {
       // We don't need to do anything here as salesData is computed with useMemo
     }
   }, [timeframe, statsData]);
+
+  // Using useEffect to update the dashboard stats when the data changes
+  useEffect(() => {
+    if (statsData) {
+      setDashboardStats(prev => ({
+        ...prev,
+        productsCount: statsData.productsCount,
+        ordersCount: statsData.ordersCount,
+        revenue: parseFloat(statsData.revenue),
+        soldProductsCount: statsData.soldProductsCount || 0,
+        currency: statsData.currency || 'SAR'
+      }));
+    }
+  }, [statsData]);
 
   return {
     timeframe,

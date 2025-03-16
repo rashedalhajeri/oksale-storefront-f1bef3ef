@@ -1,6 +1,13 @@
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
+import { 
+  useNavigate, 
+  Routes, 
+  Route, 
+  Navigate, 
+  useLocation,
+  Outlet 
+} from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -35,6 +42,7 @@ const PageLoader = () => (
   </div>
 );
 
+// Main Dashboard Container component
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -140,7 +148,11 @@ const Dashboard = () => {
 };
 
 // Inner component for the main dashboard content
-const DashboardMain = React.memo(({ storeData }) => {
+interface DashboardMainProps {
+  storeData: any;
+}
+
+const DashboardMain: React.FC<DashboardMainProps> = React.memo(({ storeData }) => {
   const {
     timeframe,
     setTimeframe,
