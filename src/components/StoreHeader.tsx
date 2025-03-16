@@ -123,9 +123,9 @@ const StoreHeader = ({
                   </div>
                 )}
                 
-                {/* Social links - display all available social media links */}
+                {/* Social links - display all available social media links aligned with store name */}
                 {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
-                  <div className="flex items-center flex-wrap justify-start gap-4 mt-auto">
+                  <div className="flex items-center flex-wrap ml-0.5 gap-5 mt-auto">
                     {getSocialLinks().map(([type, username]) => {
                       if (!username) return null;
                       
@@ -138,7 +138,7 @@ const StoreHeader = ({
                           className="text-white hover:text-blue-200 transition-colors flex items-center"
                           title={type}
                         >
-                          {getSocialIcon(type as SocialMediaType, "w-4 h-4 md:w-5 md:h-5")}
+                          {getSocialIcon(type as SocialMediaType, "w-5 h-5 md:w-6 md:h-6")}
                         </a>
                       );
                     })}
