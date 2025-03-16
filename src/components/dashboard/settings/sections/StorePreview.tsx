@@ -69,7 +69,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
             alt={`${storeInfo.name} cover`} 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+          {/* Removed the gradient overlay as requested */}
         </div>
         
         {/* Edit button in the top right corner */}
@@ -138,7 +138,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                         alt={`${storeInfo.name} cover`} 
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                      {/* Removed the gradient overlay here too */}
                     </div>
                     <div className="flex items-center text-sm text-amber-600 bg-amber-50 p-2 rounded-md border border-amber-200">
                       <Info className="h-4 w-4 mr-2 flex-shrink-0" />

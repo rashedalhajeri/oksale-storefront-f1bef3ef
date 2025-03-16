@@ -63,8 +63,7 @@ const StoreHeader = ({
           onLoad={() => setCoverLoaded(true)} 
         />
         
-        {/* Always apply the gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+        {/* Removed the gradient overlay as requested */}
       </div>
       
       {/* Store info container with improved positioning */}
