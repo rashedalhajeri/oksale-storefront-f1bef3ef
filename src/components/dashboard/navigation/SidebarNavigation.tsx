@@ -2,18 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  Package, 
+  Home, 
+  ShoppingBag, 
   Users, 
   ShoppingCart, 
-  Tag, 
-  Percent, 
+  BarChart, 
   Settings,
   ChevronDown,
   ChevronRight,
   PenSquare,
   ExternalLink,
-  Bell
+  CreditCard
 } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -38,9 +37,14 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
 
   const navigationItems = [
     { 
-      name: 'لوحة التحكم', 
+      name: 'الرئيسية', 
       path: '/dashboard', 
-      icon: <LayoutDashboard className="h-5 w-5" /> 
+      icon: <Home className="h-5 w-5" /> 
+    },
+    { 
+      name: 'المنتجات', 
+      path: '/dashboard/products', 
+      icon: <ShoppingBag className="h-5 w-5" /> 
     },
     { 
       name: 'الطلبات', 
@@ -48,24 +52,14 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
       icon: <ShoppingCart className="h-5 w-5" /> 
     },
     { 
-      name: 'المنتجات', 
-      path: '/dashboard/products', 
-      icon: <Package className="h-5 w-5" /> 
-    },
-    { 
       name: 'العملاء', 
       path: '/dashboard/customers', 
       icon: <Users className="h-5 w-5" /> 
     },
     { 
-      name: 'الفئات', 
+      name: 'التقارير', 
       path: '/dashboard/categories', 
-      icon: <Tag className="h-5 w-5" /> 
-    },
-    { 
-      name: 'العروض', 
-      path: '/dashboard/offers', 
-      icon: <Percent className="h-5 w-5" /> 
+      icon: <BarChart className="h-5 w-5" /> 
     }
   ];
 
@@ -89,22 +83,22 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
   return (
     <div className="flex-1 overflow-y-auto py-2 px-3">
       {/* Store Header Section */}
-      <div className="p-3 mb-3 bg-bluesky-50/50 rounded-lg">
+      <div className="p-3 mb-4 bg-white/5 rounded-lg">
         <div className="flex items-center justify-between">
-          <div className="px-2 py-1 text-xs bg-green-50 text-green-700 rounded-full font-medium">
+          <div className="px-2 py-1 text-xs bg-green-500/20 text-green-400 rounded-full font-medium">
             نشط
           </div>
           <div className="flex gap-1">
             <NavLink 
               to="/dashboard/settings/general"
-              className="text-xs flex items-center gap-1 border border-bluesky-200 text-bluesky-700 hover:bg-bluesky-50 px-2 py-1 rounded transition-colors"
+              className="text-xs flex items-center gap-1 border border-white/10 text-white hover:bg-white/10 px-2 py-1 rounded transition-colors"
             >
               <PenSquare className="h-3 w-3" />
               تحرير
             </NavLink>
             <a 
               href={`/${storeData?.handle}`} 
-              className="text-xs flex items-center gap-1 px-2 py-1 rounded hover:bg-bluesky-50 transition-colors text-bluesky-600"
+              className="text-xs flex items-center gap-1 px-2 py-1 rounded hover:bg-white/10 transition-colors text-white/80"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -116,30 +110,21 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
       </div>
 
       {/* Main Navigation */}
-      <ul className="space-y-1 mt-4">
+      <ul className="space-y-1 mt-2">
         {navigationItems.map((item) => (
           <li key={item.path}>
             <NavLink
               to={item.path}
               className={({ isActive }) => cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all hover-lift",
+                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all",
                 isActive
-                  ? "bg-bluesky-100/70 text-bluesky-700 shadow-sm"
-                  : "text-gray-700 hover:bg-bluesky-50"
+                  ? "bg-white/15 text-white shadow-sm"
+                  : "text-white/75 hover:bg-white/10 hover:text-white"
               )}
               end={item.path === '/dashboard'}
             >
-              {({isActive}) => (
-                <>
-                  <div className={cn(
-                    "p-1.5 rounded-md transition-colors",
-                    isActive ? "bg-bluesky-200/50 text-bluesky-700" : "text-gray-500 bg-gray-100/50"
-                  )}>
-                    {item.icon}
-                  </div>
-                  <span>{item.name}</span>
-                </>
-              )}
+              {item.icon}
+              <span>{item.name}</span>
             </NavLink>
           </li>
         ))}
@@ -149,40 +134,38 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
           <Collapsible
             open={isSettingsOpen}
             onOpenChange={setIsSettingsOpen}
-            className="w-full"
+            className="w-full mt-1"
           >
             <CollapsibleTrigger className={cn(
-              "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm font-medium transition-colors hover-lift",
+              "flex items-center justify-between w-full px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
               location.pathname.includes('/dashboard/settings')
-                ? "bg-bluesky-100/70 text-bluesky-700 shadow-sm"
-                : "text-gray-700 hover:bg-bluesky-50"
+                ? "bg-white/15 text-white shadow-sm"
+                : "text-white/75 hover:bg-white/10 hover:text-white"
             )}>
               <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-1.5 rounded-md transition-colors",
-                  location.pathname.includes('/dashboard/settings') ? "bg-bluesky-200/50 text-bluesky-700" : "text-gray-500 bg-gray-100/50"
-                )}>
-                  <Settings className="h-5 w-5" />
-                </div>
-                <span>إعدادات المتجر</span>
+                <Settings className="h-5 w-5" />
+                <span>الإعدادات</span>
               </div>
               {isSettingsOpen ? 
                 <ChevronDown className="h-4 w-4" /> : 
                 <ChevronRight className="h-4 w-4" />
               }
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-1 space-y-1 mr-4 border-r border-bluesky-100 pr-3">
+            <CollapsibleContent className="mt-1 space-y-1 mr-3 border-r border-white/10 pr-3">
               {settingsItems.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) => cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors",
+                    "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors",
                     isActive
-                      ? "bg-bluesky-50 text-bluesky-700 font-medium"
-                      : "text-gray-600 hover:bg-bluesky-50/50"
+                      ? "bg-white/10 text-white"
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
                   )}
                 >
+                  {item.path.includes('/payment') && (
+                    <CreditCard className="h-4 w-4" />
+                  )}
                   <span>{item.name}</span>
                 </NavLink>
               ))}

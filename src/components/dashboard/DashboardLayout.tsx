@@ -29,18 +29,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex bg-bluesky-50/50 dark:bg-gray-900">
+    <div className="min-h-screen flex">
       {/* Toggle Button for Mobile */}
       {isMobile && (
         <div className="fixed top-4 right-4 z-50">
           <button 
             onClick={toggleSidebar} 
-            className="p-2.5 rounded-full bg-white shadow-md dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-bluesky-500 hover:bg-bluesky-50 transition-colors" 
+            className="p-2.5 rounded-full bg-white shadow-md dark:bg-[#1A1F2C] focus:outline-none" 
             aria-label={sidebarOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             {sidebarOpen ? 
-              <X className="h-5 w-5 text-bluesky-700 dark:text-gray-300" /> : 
-              <Menu className="h-5 w-5 text-bluesky-700 dark:text-gray-300" />
+              <X className="h-5 w-5 text-bluesky-700 dark:text-white" /> : 
+              <Menu className="h-5 w-5 text-bluesky-700 dark:text-white" />
             }
           </button>
         </div>
@@ -64,13 +64,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       )}
       
       {/* Main Content */}
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-4 bg-bluesky-50/50 dark:bg-gray-900">
         {/* Background elements */}
         <div className="absolute top-10 right-[10%] w-64 h-64 rounded-full bg-bluesky-100/50 blur-3xl opacity-30 pointer-events-none"></div>
         <div className="absolute bottom-10 left-[5%] w-72 h-72 rounded-full bg-purple-100/50 blur-3xl opacity-30 pointer-events-none"></div>
         
         <div className="w-full max-w-7xl mx-auto relative z-10">
-          <div className="bg-white/60 backdrop-blur-sm shadow-sm rounded-2xl p-4 md:p-6">
+          <div className="bg-white/60 backdrop-blur-sm shadow-sm rounded-2xl p-4 md:p-6 dark:bg-gray-800/60">
             {children}
           </div>
         </div>

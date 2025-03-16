@@ -16,20 +16,19 @@ const Sidebar: React.FC<SidebarProps> = ({ storeData }) => {
   
   return (
     <div className={cn(
-      "bg-white/90 shadow-md flex flex-col h-screen backdrop-blur-sm",
-      "transition-all duration-300 border-l border-bluesky-100",
-      "dark:bg-gray-900 dark:border-gray-800",
+      "flex flex-col h-screen transition-all duration-300",
+      "bg-[#1A1F2C] text-white",
       isMobile ? "w-full" : "w-64"
     )}>
       <div className="flex-shrink-0 pt-4 px-4">
         <StoreHeader storeData={storeData} />
-        <Separator className="my-3 bg-bluesky-100" />
+        <Separator className="my-3 bg-white/10" />
       </div>
       <div className="flex-1 overflow-y-auto px-2 py-2">
         <SidebarNavigation storeData={storeData} />
       </div>
       <div className="flex-shrink-0 mt-auto">
-        <Separator className="my-2 bg-bluesky-100" />
+        <Separator className="my-2 bg-white/10" />
         <UserActions />
       </div>
     </div>
