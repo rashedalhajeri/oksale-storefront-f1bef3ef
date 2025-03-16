@@ -1,4 +1,3 @@
-
 import { formatDistance, formatRelative, format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getCurrencySymbol } from './currencyUtils';
@@ -210,7 +209,7 @@ export const sendWhatsAppNotification = async (
     // الحصول على إعدادات واتساب للمتجر
     const { data: storeData, error: storeError } = await supabase
       .from('stores')
-      .select('whatsapp, whatsapp_notifications_enabled, whatsapp_settings')
+      .select('whatsapp, whatsapp_notifications_enabled, whatsapp_settings, name')
       .eq('id', storeId)
       .single();
 

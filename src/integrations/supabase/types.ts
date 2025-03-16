@@ -221,6 +221,8 @@ export type Database = {
           use_custom_colors: boolean | null
           website: string | null
           whatsapp: string | null
+          whatsapp_notifications_enabled: boolean | null
+          whatsapp_settings: Json | null
         }
         Insert: {
           address?: string | null
@@ -248,6 +250,8 @@ export type Database = {
           use_custom_colors?: boolean | null
           website?: string | null
           whatsapp?: string | null
+          whatsapp_notifications_enabled?: boolean | null
+          whatsapp_settings?: Json | null
         }
         Update: {
           address?: string | null
@@ -275,6 +279,8 @@ export type Database = {
           use_custom_colors?: boolean | null
           website?: string | null
           whatsapp?: string | null
+          whatsapp_notifications_enabled?: boolean | null
+          whatsapp_settings?: Json | null
         }
         Relationships: [
           {
@@ -282,6 +288,44 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_notifications_log: {
+        Row: {
+          created_at: string
+          customer_phone: string
+          id: string
+          message_content: string
+          status: string
+          store_id: string
+          template_type: string
+        }
+        Insert: {
+          created_at?: string
+          customer_phone: string
+          id?: string
+          message_content: string
+          status: string
+          store_id: string
+          template_type: string
+        }
+        Update: {
+          created_at?: string
+          customer_phone?: string
+          id?: string
+          message_content?: string
+          status?: string
+          store_id?: string
+          template_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_notifications_log_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
