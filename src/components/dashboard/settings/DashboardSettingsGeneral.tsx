@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,8 @@ import {
   Badge as BadgeIcon,
   Share2,
   Calendar,
-  Star
+  Star,
+  Plus
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
@@ -345,7 +347,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                   {/* Store logo and info */}
                   <div className="flex items-center gap-3 md:gap-6">
                     {/* Logo with consistent size */}
-                    <div className="w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white flex-shrink-0">
+                    <div className="relative w-14 h-14 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white flex-shrink-0">
                       {storeInfo.logo_url ? (
                         <img 
                           src={storeInfo.logo_url} 
@@ -362,7 +364,11 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                         onClick={() => logoInputRef.current?.click()}
                         disabled={logoUploading}
                       >
-                        <Upload className="h-3 w-3" />
+                        {logoUploading ? (
+                          <span className="animate-spin block w-3 h-3 border-2 border-oksale-600 border-t-transparent rounded-full"/>
+                        ) : (
+                          <Upload className="h-3 w-3" />
+                        )}
                       </button>
                       <input
                         type="file"
@@ -378,7 +384,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     <div>
                       <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
                         <h1 className="text-lg md:text-2xl font-bold truncate">{storeInfo.name || 'اسم المتجر'}</h1>
-                        {storeInfo.featured && (
+                        {storeData.featured && (
                           <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
                             <CheckCircle className="w-2 h-2 md:w-3 md:h-3" />
                           </Badge>
@@ -499,6 +505,102 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                 className="transition-all focus:border-oksale-500"
               />
               <p className="text-xs text-gray-500">يظهر في صفحة المتجر ويساعد في تحسين ظهور متجرك في محركات البحث</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Logo & Brand Section */}
+        <Card>
+          <CardHeader className="border-b">
+            <CardTitle className="text-lg flex items-center">
+              <Image className="h-5 w-5 ml-2 text-oksale-600" />
+              الشعار والعلامة التجارية
+            </CardTitle>
+            <CardDescription>شعار متجرك وصورة الغلاف التي تظهر للعملاء</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <Label className="font-medium block">شعار المتجر</Label>
+                <div className="flex items-center space-x-4 space-x-reverse">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
+                    {storeInfo.logo_url ? (
+                      <img 
+                        src={storeInfo.logo_url} 
+                        alt={`${storeInfo.name} logo`} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <ShoppingBag className="w-8 h-8 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs h-8"
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={logoUploading}
+                    >
+                      {logoUploading ? (
+                        <>
+                          <span className="animate-spin block w-3 h-3 border-2 border-oksale-600 border-t-transparent rounded-full ml-1"></span>
+                          جارِ الرفع...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-3 h-3 ml-1.5" />
+                          تحميل شعار جديد
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-xs text-gray-500">
+                      يفضل استخدام صورة مربعة بأبعاد 512×512 بيكسل. الحد الأقصى للحجم: 2 ميجابايت
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <Label className="font-medium block">صورة الغلاف</Label>
+                <div className="flex items-center space-x-4 space-x-reverse">
+                  <div className="w-32 h-20 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center">
+                    {storeInfo.cover_url ? (
+                      <img 
+                        src={storeInfo.cover_url} 
+                        alt={`${storeInfo.name} cover`} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Image className="w-8 h-8 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs h-8"
+                      onClick={() => coverInputRef.current?.click()}
+                      disabled={coverUploading}
+                    >
+                      {coverUploading ? (
+                        <>
+                          <span className="animate-spin block w-3 h-3 border-2 border-oksale-600 border-t-transparent rounded-full ml-1"></span>
+                          جارِ الرفع...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-3 h-3 ml-1.5" />
+                          تحميل صورة غلاف جديدة
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-xs text-gray-500">
+                      يفضل استخدام صورة بنسبة عرض 2:1. الحد الأقصى للحجم: 4 ميجابايت
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
