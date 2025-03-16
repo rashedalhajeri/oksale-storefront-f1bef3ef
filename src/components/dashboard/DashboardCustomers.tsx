@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2, Eye, User, Mail, Phone, Calendar, MapPin } from 'lucide-react';
@@ -228,11 +229,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       const phoneNumber = parsePhoneNumber(phoneWithPlus);
       
       if (phoneNumber) {
-        const formattedNumber = phoneNumber.formatInternational();
-        return formattedNumber.split(' ').reverse().join(' ');
+        // Format the phone number to display in the correct order
+        return phoneNumber.formatInternational().split(' ').join(' ');
       }
       
-      return new AsYouType().input(phoneWithPlus).split(' ').reverse().join(' ');
+      return new AsYouType().input(phoneWithPlus);
     } catch (error) {
       console.error("Error formatting phone number:", error);
       return phone;
@@ -298,12 +299,12 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 >
                   <div>
                     <p className="font-medium text-gray-900">{customer.name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-sm text-gray-600">
+                    <div className="flex flex-row-reverse items-center gap-2 mt-1">
+                      <p className="text-sm text-gray-600 text-left">
                         {formatPhoneNumber(customer.phone)}
                       </p>
                       {getCountryFromPhone(customer.phone) && (
-                        <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
+                        <span className="inline-block h-6 w-8 overflow-hidden rounded-md border border-gray-200">
                           <img 
                             src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                             alt="Country flag" 
@@ -366,10 +367,10 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                     <TableRow key={customer.id} className="border-b hover:bg-gray-50">
                       <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
                       <TableCell className="py-3 px-4 text-gray-700">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">{formatPhoneNumber(customer.phone)}</span>
+                        <div className="flex flex-row-reverse items-center gap-2">
+                          <span className="text-sm text-left">{formatPhoneNumber(customer.phone)}</span>
                           {getCountryFromPhone(customer.phone) && (
-                            <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
+                            <span className="inline-block h-6 w-8 overflow-hidden rounded-md border border-gray-200">
                               <img 
                                 src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                                 alt="Country flag" 
@@ -478,10 +479,10 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         <Phone className="mt-1 text-gray-400 h-4 w-4" />
                         <div>
                           <p className="text-sm text-gray-500">رقم الجوال</p>
-                          <div className="font-medium flex items-center gap-2">
-                            <span>{formatPhoneNumber(selectedCustomer.phone)}</span>
+                          <div className="font-medium flex flex-row-reverse items-center gap-2">
+                            <span className="text-left">{formatPhoneNumber(selectedCustomer.phone)}</span>
                             {getCountryFromPhone(selectedCustomer.phone) && (
-                              <span className="inline-block h-5 w-7 overflow-hidden rounded-sm border border-gray-200">
+                              <span className="inline-block h-6 w-8 overflow-hidden rounded-md border border-gray-200">
                                 <img 
                                   src={`https://flagcdn.com/w20/${getCountryFromPhone(selectedCustomer.phone)}.png`} 
                                   alt="Country flag" 
@@ -562,5 +563,133 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </Dialog>
       )}
 
-      {
+      {/* Add Customer Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>إضافة عميل جديد</DialogTitle>
+            <DialogDescription>
+              أدخل بيانات العميل الجديد هنا
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={addForm.handleSubmit(handleAddSubmit)}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">الاسم</Label>
+                <Input
+                  id="name"
+                  {...addForm.register('name')}
+                  placeholder="أدخل اسم العميل"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">البريد الإلكتروني</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  {...addForm.register('email')}
+                  placeholder="example@example.com"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="phone">رقم الجوال</Label>
+                <Input
+                  id="phone"
+                  {...addForm.register('phone')}
+                  placeholder="+9665xxxxxxxx"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="address">العنوان</Label>
+                <Input
+                  id="address"
+                  {...addForm.register('address')}
+                  placeholder="أدخل عنوان العميل"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">إضافة العميل</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
+      {/* Edit Customer Dialog */}
+      {selectedCustomer && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>تعديل بيانات العميل</DialogTitle>
+              <DialogDescription>
+                تعديل بيانات العميل {selectedCustomer.name}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={editForm.handleSubmit(handleEditSubmit)}>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-name">الاسم</Label>
+                  <Input
+                    id="edit-name"
+                    {...editForm.register('name')}
+                    placeholder="أدخل اسم العميل"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-email">البريد الإلكتروني</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    {...editForm.register('email')}
+                    placeholder="example@example.com"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-phone">رقم الجوال</Label>
+                  <Input
+                    id="edit-phone"
+                    {...editForm.register('phone')}
+                    placeholder="+9665xxxxxxxx"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-address">العنوان</Label>
+                  <Input
+                    id="edit-address"
+                    {...editForm.register('address')}
+                    placeholder="أدخل عنوان العميل"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit">حفظ التغييرات</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {selectedCustomer && (
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>هل أنت متأكد من حذف هذا العميل؟</AlertDialogTitle>
+              <AlertDialogDescription>
+                سيتم حذف جميع بيانات العميل "{selectedCustomer.name}" والطلبات المرتبطة به. هذا الإجراء لا يمكن التراجع عنه.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>إلغاء</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteCustomer} className="bg-red-600 hover:bg-red-700">
+                حذف العميل
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </div>
+  );
+};
+
+export default DashboardCustomers;
