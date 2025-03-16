@@ -16,7 +16,7 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const location = useLocation();
   const { handle } = useParams<{ handle: string }>();
-  const [cartCount, setCartCount] = useState(3); // Start with 3 items for demo
+  const [cartCount, setCartCount] = useState(0);
 
   // Query for store data to ensure navigation is store-specific
   const { data: storeData } = useQuery({
@@ -57,6 +57,34 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
+  
+  // Get cart count from localStorage
+  useEffect(() => {
+    const getCartCount = () => {
+      try {
+        if (storeData?.id) {
+          const storeKey = `cart-${storeData.id}`;
+          const savedCart = localStorage.getItem(storeKey);
+          
+          if (savedCart) {
+            const cartItems = JSON.parse(savedCart);
+            setCartCount(cartItems.reduce((total: number, item: any) => total + item.quantity, 0));
+            return;
+          }
+        }
+        setCartCount(0);
+      } catch (e) {
+        console.error("Error getting cart count", e);
+        setCartCount(0);
+      }
+    };
+    
+    getCartCount();
+    
+    // Setup interval to refresh cart count periodically
+    const interval = setInterval(getCartCount, 2000);
+    return () => clearInterval(interval);
+  }, [storeData?.id]);
 
   // Get the base path for store-specific links
   const getStoreBasePath = () => {
