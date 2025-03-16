@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   ShoppingCart, 
@@ -170,16 +169,18 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         }
         
         const status = tabValue !== 'all' ? tabValue : null;
-        const { orders: fetchedOrders, pagination: fetchedPagination } = await getOrders(storeData.id, {
+        const options: OrderOptions = {
           page: pagination.page,
           limit: pagination.limit,
           status,
           search: searchTerm || null,
           sortBy,
           sortDirection
-        });
+        };
         
-        if (fetchedOrders.length === 0 && !searchTerm && tabValue === 'all' && pagination.page === 1) {
+        const result = await getOrders(storeData.id, options);
+        
+        if (result.orders.length === 0 && !searchTerm && tabValue === 'all' && pagination.page === 1) {
           const mockData = generateMockOrders(storeData.id);
           setOrders(mockData);
           setPagination({
@@ -189,8 +190,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
             totalPages: Math.ceil(mockData.length / pagination.limit)
           });
         } else {
-          setOrders(fetchedOrders as Order[]);
-          setPagination(fetchedPagination);
+          setOrders(result.orders as Order[]);
+          setPagination(result.pagination);
         }
       } catch (error) {
         console.error("Failed to fetch orders:", error);
@@ -881,133 +882,4 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 <h3 className="font-medium mb-2 text-sm">تحديث حالة الطلب</h3>
                 <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2'} gap-2`}>
                   <Button 
-                    variant={selectedOrder.status === 'pending' ? 'default' : 'outline'} 
-                    onClick={() => handleUpdateStatus('pending')}
-                    className="justify-start text-xs h-8"
-                    size="sm"
-                  >
-                    <Clock className="h-3 w-3 mr-1 text-yellow-500" />
-                    قيد الانتظار
-                  </Button>
-                  <Button 
-                    variant={selectedOrder.status === 'processing' ? 'default' : 'outline'} 
-                    onClick={() => handleUpdateStatus('processing')}
-                    className="justify-start text-xs h-8"
-                    size="sm"
-                  >
-                    <Clock className="h-3 w-3 mr-1 text-blue-500" />
-                    قيد التجهيز
-                  </Button>
-                  <Button 
-                    variant={selectedOrder.status === 'completed' ? 'default' : 'outline'} 
-                    onClick={() => handleUpdateStatus('completed')}
-                    className="justify-start text-xs h-8"
-                    size="sm"
-                  >
-                    <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
-                    مكتمل
-                  </Button>
-                  <Button 
-                    variant={selectedOrder.status === 'cancelled' ? 'default' : 'outline'} 
-                    onClick={() => handleUpdateStatus('cancelled')}
-                    className="justify-start text-xs h-8"
-                    size="sm"
-                  >
-                    <AlertCircle className="h-3 w-3 mr-1 text-red-500" />
-                    ملغي
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <SheetFooter className="mt-4">
-            <SheetClose asChild>
-              <Button size="sm">إغلاق</Button>
-            </SheetClose>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-    </div>
-  );
-};
-
-const mockProductNames = [
-  'هاتف ذكي XYZ Pro',
-  'سماعات بلوتوث لاسلكية',
-  'حقيبة ظهر للسفر',
-  'حذاء رياضي جديد',
-  'ساعة ذكية متطورة',
-  'قميص قطني رجالي',
-  'فستان نسائي عصري',
-  'جهاز لوحي 10 بوصة',
-  'كاميرا رقمية احترافية',
-  'مجموعة عناية بالبشرة'
-];
-
-const mockAddresses = [
-  'الرياض، حي النزهة، شارع التحلية، فيلا 123',
-  'جدة، حي الروضة، شارع فلسطين، عمارة 45، شقة 3',
-  'الدمام، حي الشاطئ، شارع الأمير محمد، منزل 67',
-  'مكة المكرمة، حي العزيزية، شارع الملك فهد، عمارة 89'
-];
-
-const generateMockOrders = (storeId: string): Order[] => {
-  return Array.from({ length: 25 }).map((_, index) => {
-    const now = new Date();
-    const createdDate = new Date(now);
-    
-    if (index < 3) {
-      const hoursAgo = [0.5, 1.5, 3][index];
-      createdDate.setHours(createdDate.getHours() - hoursAgo);
-    } else if (index < 5) {
-      const hoursAgo = [8, 20][index - 3];
-      createdDate.setHours(createdDate.getHours() - hoursAgo);
-    } else {
-      createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 30));
-    }
-    
-    const orderNumber = generateUniqueOrderNumber(storeId, createdDate);
-    
-    const totalAmount = parseFloat((Math.random() * 1000 + 100).toFixed(2));
-    const statusOptions = ['pending', 'processing', 'completed', 'cancelled'];
-    const status = statusOptions[Math.floor(Math.random() * statusOptions.length)];
-    
-    const itemCount = Math.floor(Math.random() * 4) + 1;
-    const items = Array.from({ length: itemCount }).map((_, itemIndex) => ({
-      id: `item-${orderNumber}-${itemIndex}`,
-      name: mockProductNames[Math.floor(Math.random() * mockProductNames.length)],
-      quantity: Math.floor(Math.random() * 3) + 1,
-      price: parseFloat((Math.random() * 100 + 50).toFixed(2))
-    }));
-    
-    return {
-      id: formatOrderNumber(orderNumber),
-      rawId: orderNumber,
-      store_id: storeId,
-      total_amount: totalAmount,
-      created_at: createdDate.toISOString(),
-      updated_at: createdDate.toISOString(),
-      customer: ['أحمد محمد', 'سارة أحمد', 'محمد علي', 'فاطمة خالد'][Math.floor(Math.random() * 4)],
-      customer_name: ['أحمد محمد', 'سارة أحمد', 'محمد علي', 'فاطمة خالد'][Math.floor(Math.random() * 4)],
-      email: ['ahmed@example.com', 'sara@example.com', 'mohammad@example.com', 'fatima@example.com'][Math.floor(Math.random() * 4)],
-      customer_email: ['ahmed@example.com', 'sara@example.com', 'mohammad@example.com', 'fatima@example.com'][Math.floor(Math.random() * 4)],
-      phone: `05${Math.floor(Math.random() * 90000000) + 10000000}`,
-      customer_phone: `05${Math.floor(Math.random() * 90000000) + 10000000}`,
-      date: new Date(createdDate).toLocaleDateString('ar-SA'),
-      relativeTime: formatOrderTime(createdDate.toISOString(), status),
-      timeColor: getTimeColor(createdDate.toISOString(), status),
-      amount: formatCurrency(totalAmount, 'SAR'),
-      rawAmount: totalAmount,
-      status: status,
-      statusText: translateOrderStatus(status),
-      statusColors: getOrderStatusColor(status),
-      currency: 'SAR',
-      items,
-      payment_method: Math.random() > 0.5 ? 'بطاقة ائتمان' : 'الدفع عند الاستلام',
-      shipping_address: mockAddresses[Math.floor(Math.random() * mockAddresses.length)],
-    };
-  });
-};
-
-export default DashboardOrders;
+                    variant={selectedOrder.status === 'pending' ? 'default' : '

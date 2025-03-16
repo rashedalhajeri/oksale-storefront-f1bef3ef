@@ -2,38 +2,108 @@
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrencyWithSettings } from './dashboardUtils';
 
-// Modified to handle the error with aggregate functions
-export const getOrders = async (storeId: string, page: number = 1, limit: number = 20) => {
+// Interface for order filter options
+export interface OrderOptions {
+  page?: number;
+  limit?: number;
+  status?: string | null;
+  search?: string | null;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+}
+
+// Modified to handle options parameter and proper pagination
+export const getOrders = async (storeId: string, options: OrderOptions = {}) => {
   try {
-    // Get the orders without using count() function which causes error
-    const { data: orders, error } = await supabase
+    const {
+      page = 1,
+      limit = 20,
+      status = null,
+      search = null,
+      sortBy = 'created_at',
+      sortDirection = 'desc'
+    } = options;
+
+    // Start with the base query
+    let query = supabase
       .from('orders')
       .select('id, customer_name, customer_email, customer_phone, total_amount, created_at, status')
-      .eq('store_id', storeId)
-      .order('created_at', { ascending: false })
-      .range((page - 1) * limit, page * limit - 1);
+      .eq('store_id', storeId);
+
+    // Add filters if provided
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    if (search) {
+      query = query.or(`customer_name.ilike.%${search}%,customer_email.ilike.%${search}%,id.ilike.%${search}%`);
+    }
+
+    // Apply sorting
+    query = query.order(sortBy, { ascending: sortDirection === 'asc' });
+
+    // Apply pagination
+    query = query.range((page - 1) * limit, page * limit - 1);
+
+    // Execute the query
+    const { data: orders, error } = await query;
 
     if (error) throw error;
 
     // Get total count with a separate request
-    const { count, error: countError } = await supabase
+    let countQuery = supabase
       .from('orders')
       .select('id', { count: 'exact', head: true })
       .eq('store_id', storeId);
 
+    // Apply the same filters to the count query
+    if (status) {
+      countQuery = countQuery.eq('status', status);
+    }
+
+    if (search) {
+      countQuery = countQuery.or(`customer_name.ilike.%${search}%,customer_email.ilike.%${search}%,id.ilike.%${search}%`);
+    }
+
+    const { count, error: countError } = await countQuery;
+
     if (countError) {
       console.error("Error fetching order count:", countError);
-      // Continue with the data we have, just might not have the total count
     }
+
+    const totalItems = count || 0;
+    const totalPages = Math.ceil(totalItems / limit);
 
     return {
       orders: orders || [],
-      total: count || 0,
-      page,
-      limit
+      pagination: {
+        total: totalItems,
+        page,
+        limit,
+        totalPages
+      }
     };
   } catch (error) {
     console.error('Error fetching orders:', error);
+    throw error;
+  }
+};
+
+// Add the getOrderDetails function
+export const getOrderDetails = async (orderId: string) => {
+  try {
+    // Get order details
+    const { data: order, error } = await supabase
+      .from('orders')
+      .select('*, order_items(*, products(*))')
+      .eq('id', orderId)
+      .single();
+
+    if (error) throw error;
+
+    return order;
+  } catch (error) {
+    console.error('Error fetching order details:', error);
     throw error;
   }
 };
