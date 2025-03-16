@@ -91,12 +91,13 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
             نشط
           </div>
           <div className="flex gap-1">
-            <button 
+            <Link 
+              to="/dashboard/settings/general"
               className="text-xs flex items-center gap-1 border border-oksale-500 text-oksale-700 hover:bg-oksale-50 px-2 py-1 rounded"
             >
               <PenSquare className="h-3 w-3" />
-              <Link to="/dashboard/settings/general">تحرير المتجر</Link>
-            </button>
+              تحرير المتجر
+            </Link>
             <Link 
               to={`/${storeData?.handle}`} 
               className="text-xs flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-100"
