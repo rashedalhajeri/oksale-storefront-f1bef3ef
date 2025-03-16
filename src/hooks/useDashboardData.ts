@@ -15,6 +15,13 @@ import {
 } from '@/utils/dashboard';
 
 import { formatOrders } from '@/utils/dashboard/orderFormatters';
+import { Order } from '@/utils/dashboard/orderTypes';
+
+// Define a type for the possible response formats from getRecentOrders
+interface OrdersResponseObject {
+  orders: any[];
+  currency: string;
+}
 
 export const useDashboardData = (storeId: string) => {
   const { toast } = useToast();
@@ -98,15 +105,22 @@ export const useDashboardData = (storeId: string) => {
   const recentOrders = useMemo(() => {
     if (!recentOrdersResponse) return [];
     
-    // If the response has an 'orders' property, it's in the object format
+    // If the response is an object with orders property
     if (typeof recentOrdersResponse === 'object' && 
-        !Array.isArray(recentOrdersResponse) && 
-        'orders' in recentOrdersResponse && 
-        Array.isArray(recentOrdersResponse.orders)) {
-      // Safely access the currency property
-      const currency = 'currency' in recentOrdersResponse ? 
-        (recentOrdersResponse.currency as string || 'SAR') : 'SAR';
-      return formatOrders(recentOrdersResponse.orders, currency);
+        recentOrdersResponse !== null && 
+        !Array.isArray(recentOrdersResponse)) {
+      
+      // Check if it has the orders property and it's an array
+      if ('orders' in recentOrdersResponse && 
+          Array.isArray((recentOrdersResponse as OrdersResponseObject).orders)) {
+        
+        // Safely extract currency
+        const currency = 'currency' in recentOrdersResponse ? 
+          (recentOrdersResponse as OrdersResponseObject).currency || 'SAR' : 'SAR';
+        
+        // Format orders using the extracted data
+        return formatOrders((recentOrdersResponse as OrdersResponseObject).orders, currency);
+      }
     }
     
     // If it's already an array, return it
