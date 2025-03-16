@@ -75,6 +75,10 @@ export const translateOrderStatus = (status: string): string => {
       return 'قيد الانتظار';
     case 'cancelled':
       return 'ملغي';
+    case 'shipped':
+      return 'تم الشحن';
+    case 'delivered':
+      return 'تم التسليم';
     default:
       return status;
   }
@@ -178,4 +182,96 @@ export const getTimeColor = (dateString: string, status: string): string => {
   
   // اللون الافتراضي للطلبات القديمة
   return "text-gray-500";
+};
+
+/**
+ * إرسال إشعار واتساب للعميل
+ * 
+ * @param storeId معرف المتجر
+ * @param customerPhone رقم هاتف العميل
+ * @param templateType نوع القالب (orderConfirmation, orderUpdate, shipping, payment)
+ * @param variables المتغيرات المستخدمة في الرسالة
+ */
+export const sendWhatsAppNotification = async (
+  storeId: string,
+  customerPhone: string,
+  templateType: 'orderConfirmation' | 'orderUpdate' | 'shipping' | 'payment',
+  variables: Record<string, string>
+): Promise<boolean> => {
+  try {
+    // التحقق من صلاحية رقم الهاتف
+    if (!customerPhone || !customerPhone.match(/^\+[0-9]{10,15}$/)) {
+      console.error('رقم هاتف العميل غير صالح:', customerPhone);
+      return false;
+    }
+
+    // الحصول على إعدادات واتساب للمتجر
+    const { data: storeData, error: storeError } = await supabase
+      .from('stores')
+      .select('whatsapp, whatsapp_notifications_enabled, whatsapp_settings')
+      .eq('id', storeId)
+      .single();
+
+    if (storeError || !storeData) {
+      console.error('خطأ في الحصول على إعدادات المتجر:', storeError);
+      return false;
+    }
+
+    // التحقق من تفعيل إشعارات واتساب
+    if (!storeData.whatsapp_notifications_enabled) {
+      console.log('إشعارات واتساب غير مفعلة للمتجر:', storeId);
+      return false;
+    }
+
+    // التحقق من وجود رقم واتساب للمتجر
+    if (!storeData.whatsapp) {
+      console.error('لا يوجد رقم واتساب معرف للمتجر:', storeId);
+      return false;
+    }
+
+    // الحصول على القالب ومعلومات التفعيل
+    const templateSettings = storeData.whatsapp_settings?.[templateType];
+    if (!templateSettings || !templateSettings.enabled) {
+      console.log(`قالب ${templateType} غير مفعل للمتجر:`, storeId);
+      return false;
+    }
+
+    let messageContent = templateSettings.template || '';
+
+    // استبدال المتغيرات في القالب
+    for (const [key, value] of Object.entries(variables)) {
+      messageContent = messageContent.replace(new RegExp(`{${key}}`, 'g'), value);
+    }
+
+    // إضافة متغير اسم المتجر إذا لم يكن موجوداً
+    if (messageContent.includes('{store_name}')) {
+      messageContent = messageContent.replace(/{store_name}/g, storeData.name || '');
+    }
+
+    console.log(`جاري إرسال إشعار واتساب (${templateType}) إلى:`, customerPhone);
+    console.log('محتوى الرسالة:', messageContent);
+
+    // في الإصدار الحالي، نكتفي بتسجيل الرسالة في سجل التطبيق
+    // في الإصدار النهائي، سيتم استدعاء WhatsApp Business API هنا
+    
+    // تسجيل الإشعار في قاعدة البيانات للتتبع
+    const { error: logError } = await supabase
+      .from('whatsapp_notifications_log')
+      .insert({
+        store_id: storeId,
+        customer_phone: customerPhone,
+        template_type: templateType,
+        message_content: messageContent,
+        status: 'queued', // في الإصدار النهائي سيتم تحديثه إلى "sent" أو "failed" بعد محاولة الإرسال
+      });
+
+    if (logError) {
+      console.error('خطأ في تسجيل إشعار واتساب:', logError);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('خطأ في إرسال إشعار واتساب:', error);
+    return false;
+  }
 };

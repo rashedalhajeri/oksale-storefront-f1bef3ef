@@ -1,6 +1,14 @@
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from './currencyUtils';
-import { translateOrderStatus, getOrderStatusColor, formatOrderTime, generateUniqueOrderNumber, formatOrderNumber, getTimeColor } from './dashboardUtils';
+import { 
+  translateOrderStatus, 
+  getOrderStatusColor, 
+  formatOrderTime, 
+  generateUniqueOrderNumber, 
+  formatOrderNumber, 
+  getTimeColor,
+  sendWhatsAppNotification 
+} from './dashboardUtils';
 
 // الحصول على الطلبات الأخيرة
 export const getRecentOrders = async (storeId: string, limit = 5) => {
@@ -202,5 +210,97 @@ export const getOrderDetails = async (orderId: string) => {
   } catch (error) {
     console.error('Error fetching order details:', error);
     return null;
+  }
+};
+
+/**
+ * تحديث حالة الطلب مع إرسال إشعار واتساب
+ * 
+ * @param orderId معرف الطلب
+ * @param newStatus الحالة الجديدة للطلب
+ */
+export const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  try {
+    // تحديث حالة الطلب
+    const { data: order, error } = await supabase
+      .from('orders')
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq('id', orderId)
+      .select('*, store_id')
+      .single();
+    
+    if (error) throw error;
+    
+    // إرسال إشعار واتساب للعميل إذا كان لديه رقم هاتف
+    if (order.customer_phone) {
+      // الحصول على معلومات المتجر
+      const { data: storeData } = await supabase
+        .from('stores')
+        .select('currency, name')
+        .eq('id', order.store_id)
+        .single();
+      
+      // إرسال إشعار تحديث حالة الطلب عبر واتساب
+      await sendWhatsAppNotification(
+        order.store_id,
+        order.customer_phone,
+        'orderUpdate',
+        {
+          customer_name: order.customer_name,
+          order_id: formatOrderNumber(order.id),
+          order_status: translateOrderStatus(newStatus),
+          tracking_link: `${window.location.origin}/${storeData?.name}/orders/${order.id}`,
+          store_name: storeData?.name || ''
+        }
+      );
+    }
+    
+    return order;
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    throw error;
+  }
+};
+
+/**
+ * إنشاء طلب جديد مع إرسال إشعار واتساب
+ */
+export const createOrder = async (orderData: any) => {
+  try {
+    const { data: order, error } = await supabase
+      .from('orders')
+      .insert(orderData)
+      .select('*')
+      .single();
+    
+    if (error) throw error;
+    
+    // إرسال إشعار واتساب للعميل إذا كان لديه رقم هاتف
+    if (order.customer_phone) {
+      // الحصول على معلومات المتجر
+      const { data: storeData } = await supabase
+        .from('stores')
+        .select('currency, name')
+        .eq('id', order.store_id)
+        .single();
+      
+      // إرسال إشعار تأكيد الطلب عبر واتساب
+      await sendWhatsAppNotification(
+        order.store_id,
+        order.customer_phone,
+        'orderConfirmation',
+        {
+          customer_name: order.customer_name,
+          order_id: formatOrderNumber(order.id),
+          total_amount: formatCurrency(order.total_amount, storeData?.currency || 'KWD'),
+          currency: storeData?.currency || 'KWD'
+        }
+      );
+    }
+    
+    return order;
+  } catch (error) {
+    console.error('Error creating order:', error);
+    throw error;
   }
 };

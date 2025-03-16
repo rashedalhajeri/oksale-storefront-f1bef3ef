@@ -12,7 +12,8 @@ import {
   ChevronDown,
   ChevronRight,
   PenSquare,
-  ExternalLink
+  ExternalLink,
+  Bell
 } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -74,6 +75,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ storeData }) => {
     { name: 'وسائل الدفع', path: '/dashboard/settings/payment' },
     { name: 'الشحن والتوصيل', path: '/dashboard/settings/shipping' },
     { name: 'التنبيهات والإشعارات', path: '/dashboard/settings/notifications' },
+    { name: 'إعدادات الواتساب', path: '/dashboard/settings/whatsapp' },
     { name: 'المستخدمين والصلاحيات', path: '/dashboard/settings/users' }
   ];
 

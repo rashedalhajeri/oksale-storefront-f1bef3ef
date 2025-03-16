@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigate, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -22,6 +21,7 @@ const DashboardSettingsAppearance = React.lazy(() => import('@/components/dashbo
 const DashboardSettingsPayment = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsPayment'));
 const DashboardSettingsShipping = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsShipping'));
 const DashboardSettingsNotifications = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsNotifications'));
+const DashboardSettingsWhatsApp = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsWhatsApp'));
 const DashboardSettingsUsers = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsUsers'));
 
 // Loading component
@@ -124,6 +124,7 @@ const Dashboard = () => {
           <Route path="/settings/payment" element={<DashboardSettingsPayment storeData={storeData} />} />
           <Route path="/settings/shipping" element={<DashboardSettingsShipping storeData={storeData} />} />
           <Route path="/settings/notifications" element={<DashboardSettingsNotifications storeData={storeData} />} />
+          <Route path="/settings/whatsapp" element={<DashboardSettingsWhatsApp storeData={storeData} />} />
           <Route path="/settings/users" element={<DashboardSettingsUsers storeData={storeData} />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
