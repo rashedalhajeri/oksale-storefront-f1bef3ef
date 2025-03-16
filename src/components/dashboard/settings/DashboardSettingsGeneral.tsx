@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -48,6 +49,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     
     try {
       console.log('Updating store with ID:', storeData.id);
+      console.log('Store info being saved:', storeInfo);
       
       const { error } = await supabase
         .from('stores')
@@ -58,6 +60,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           cover_url: storeInfo.cover_url,
           contact_email: storeInfo.email,
           contact_phone: storeInfo.phone,
+          address: storeInfo.address,
           instagram: storeInfo.instagram,
           twitter: storeInfo.twitter,
           facebook: storeInfo.facebook,

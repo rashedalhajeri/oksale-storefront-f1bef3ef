@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { LockIcon, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface StoreInformationSectionProps {
   storeInfo: {
@@ -22,6 +22,17 @@ const StoreInformationSection: React.FC<StoreInformationSectionProps> = ({
   return (
     <Card>
       <CardContent className="pt-6 space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="store-name" className="font-medium">اسم المتجر</Label>
+          <Input 
+            id="store-name" 
+            placeholder="أدخل اسم المتجر" 
+            value={storeInfo.name}
+            onChange={handleInputChange}
+          />
+          <p className="text-xs text-gray-500">سيظهر اسم المتجر في صفحتك الرئيسية وفي نتائج البحث</p>
+        </div>
+        
         <div className="space-y-2">
           <div className="flex">
             <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
