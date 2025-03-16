@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Globe, MapPin, Clock, Upload, Phone, Mail, Instagram, Twitter, Facebook, Link2, Image } from 'lucide-react';
+import { Globe, MapPin, Upload, Phone, Mail, Instagram, Twitter, Facebook, Link2, Image } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,8 +32,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     facebook: storeData?.facebook || '',
     website: storeData?.website || '',
     language: storeData?.language || 'ar',
-    currency: storeData?.currency || 'sar',
-    timezone: storeData?.timezone || 'asia_riyadh'
+    currency: storeData?.currency || 'SAR',
+    country: storeData?.country || 'SA',
   });
   
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -64,7 +63,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           website: storeInfo.website,
           language: storeInfo.language,
           currency: storeInfo.currency,
-          timezone: storeInfo.timezone
+          country: storeInfo.country
         })
         .eq('id', storeData.id);
       
@@ -218,6 +217,40 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     }
   };
 
+  const currencies = [
+    { value: "SAR", label: "ريال سعودي (SAR)" },
+    { value: "AED", label: "درهم إماراتي (AED)" },
+    { value: "USD", label: "دولار أمريكي (USD)" },
+    { value: "EUR", label: "يورو (EUR)" },
+    { value: "KWD", label: "دينار كويتي (KWD)" },
+    { value: "BHD", label: "دينار بحريني (BHD)" },
+    { value: "QAR", label: "ريال قطري (QAR)" },
+    { value: "OMR", label: "ريال عماني (OMR)" },
+    { value: "EGP", label: "جنيه مصري (EGP)" },
+    { value: "JOD", label: "دينار أردني (JOD)" },
+  ];
+
+  const countries = [
+    { value: "SA", label: "المملكة العربية السعودية" },
+    { value: "AE", label: "الإمارات العربية المتحدة" },
+    { value: "KW", label: "الكويت" },
+    { value: "BH", label: "البحرين" },
+    { value: "QA", label: "قطر" },
+    { value: "OM", label: "عمان" },
+    { value: "EG", label: "مصر" },
+    { value: "JO", label: "الأردن" },
+    { value: "IQ", label: "العراق" },
+    { value: "YE", label: "اليمن" },
+    { value: "LB", label: "لبنان" },
+    { value: "PS", label: "فلسطين" },
+    { value: "SY", label: "سوريا" },
+    { value: "SD", label: "السودان" },
+    { value: "LY", label: "ليبيا" },
+    { value: "TN", label: "تونس" },
+    { value: "DZ", label: "الجزائر" },
+    { value: "MA", label: "المغرب" },
+  ];
+
   return (
     <div>
       <div className="mb-6">
@@ -305,7 +338,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     {logoUploading ? 'جارِ الرفع...' : 'رفع شعار جديد'}
                   </Button>
                   <p className="text-sm text-gray-500">
-                    يفضل استخدام صورة مربعة بأبعاد 500×500 بيكسل بصيغة PNG أو JPG
+                    يفضل استخدام صورة مربعة بأبعاد 500×500 بيكسل بصيغ�� PNG أو JPG
                   </p>
                 </div>
               </div>
@@ -504,10 +537,10 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">الإعدادات الإقليمية</CardTitle>
-            <CardDescription>إعدادات اللغة والمنطقة الزمنية والعملة</CardDescription>
+            <CardDescription>إعدادات اللغة والعملة والدولة</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="store-language">اللغة الأساسية</Label>
                 <Select 
@@ -535,36 +568,33 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                     <SelectValue placeholder="اختر العملة" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sar">ريال سعودي (ر.س)</SelectItem>
-                    <SelectItem value="aed">درهم إماراتي (د.إ)</SelectItem>
-                    <SelectItem value="kwd">دينار كويتي (د.ك)</SelectItem>
-                    <SelectItem value="usd">دولار أمريكي ($)</SelectItem>
+                    {currencies.map((currency) => (
+                      <SelectItem key={currency.value} value={currency.value}>
+                        {currency.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="store-timezone">المنطقة الزمنية</Label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
-                    <Clock className="h-4 w-4" />
-                  </span>
-                  <Select 
-                    value={storeInfo.timezone}
-                    onValueChange={(value) => handleSelectChange(value, 'timezone')}
-                  >
-                    <SelectTrigger id="store-timezone" className="w-full rounded-r-none border-r-0">
-                      <SelectValue placeholder="المنطقة الزمنية" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="asia_riyadh">الرياض (GMT+3)</SelectItem>
-                      <SelectItem value="asia_dubai">دبي (GMT+4)</SelectItem>
-                      <SelectItem value="asia_kuwait">الكويت (GMT+3)</SelectItem>
-                      <SelectItem value="europe_london">لندن (GMT+0)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="store-country">الدولة</Label>
+              <Select 
+                value={storeInfo.country}
+                onValueChange={(value) => handleSelectChange(value, 'country')}
+              >
+                <SelectTrigger id="store-country" className="w-full">
+                  <SelectValue placeholder="اختر الدولة" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country.value} value={country.value}>
+                      {country.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
