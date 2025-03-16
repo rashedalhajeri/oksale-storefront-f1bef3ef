@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, MapPin, Star, Calendar, Share2, ShoppingBag, CheckCircle, Instagram, Twitter, Facebook, Navigation } from 'lucide-react';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { ShoppingBag, CheckCircle, Instagram, Twitter, Facebook } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -101,7 +100,7 @@ const StoreHeader = ({
                 <div className="flex items-center gap-3 md:gap-4 mt-2">
                   {store.socialLinks?.instagram && (
                     <a 
-                      href={store.socialLinks.instagram} 
+                      href={`https://instagram.com/${store.socialLinks.instagram}`} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="text-white hover:text-blue-200 transition-colors"
@@ -111,7 +110,7 @@ const StoreHeader = ({
                   )}
                   {store.socialLinks?.twitter && (
                     <a 
-                      href={store.socialLinks.twitter} 
+                      href={`https://twitter.com/${store.socialLinks.twitter}`} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="text-white hover:text-blue-200 transition-colors"
@@ -121,7 +120,7 @@ const StoreHeader = ({
                   )}
                   {store.socialLinks?.facebook && (
                     <a 
-                      href={store.socialLinks.facebook} 
+                      href={`https://facebook.com/${store.socialLinks.facebook}`} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="text-white hover:text-blue-200 transition-colors"
@@ -132,8 +131,6 @@ const StoreHeader = ({
                 </div>
               </div>
             </div>
-            
-            {/* Share button removed as requested */}
           </div>
         </div>
       </div>
