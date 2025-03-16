@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Instagram, Twitter, Facebook, Globe, SnapchatGhost, Video, Phone } from 'lucide-react';
+import { Instagram, Twitter, Facebook, Globe, Ghost, Video, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface StoreAboutProps {
@@ -34,7 +33,7 @@ const StoreAbout = ({ store }: StoreAboutProps) => {
       case 'twitter': return <Twitter className="w-4 h-4 mr-2 text-blue-400" />;
       case 'facebook': return <Facebook className="w-4 h-4 mr-2 text-blue-600" />;
       case 'website': return <Globe className="w-4 h-4 mr-2 text-gray-600" />;
-      case 'snapchat': return <SnapchatGhost className="w-4 h-4 mr-2 text-yellow-400" />;
+      case 'snapchat': return <Ghost className="w-4 h-4 mr-2 text-yellow-400" />;
       case 'tiktok': return <Video className="w-4 h-4 mr-2 text-black" />;
       case 'whatsapp': return <Phone className="w-4 h-4 mr-2 text-green-500" />;
       default: return null;

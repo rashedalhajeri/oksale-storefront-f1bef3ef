@@ -21,7 +21,7 @@ import {
   PlusCircle,
   Trash2,
   MessageSquare,
-  SnapchatGhost,
+  Ghost,
   Video,
   Phone
 } from 'lucide-react';
@@ -167,7 +167,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     { 
       type: 'snapchat', 
       label: 'سناب شات', 
-      icon: <SnapchatGhost className="h-5 w-5" /> 
+      icon: <Ghost className="h-5 w-5" /> 
     },
     { 
       type: 'tiktok', 

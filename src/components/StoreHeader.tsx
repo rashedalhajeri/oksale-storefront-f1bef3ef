@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,7 @@ import {
   Globe, 
   MapPin, 
   Landmark, 
-  SnapchatGhost,
+  Ghost,
   Video,
   Phone
 } from 'lucide-react';
@@ -88,7 +89,7 @@ const StoreHeader = ({
       case 'twitter': return <Twitter className="w-4 h-4 md:w-5 md:h-5" />;
       case 'facebook': return <Facebook className="w-4 h-4 md:w-5 md:h-5" />;
       case 'website': return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'snapchat': return <SnapchatGhost className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'snapchat': return <Ghost className="w-4 h-4 md:w-5 md:h-5" />;
       case 'tiktok': return <Video className="w-4 h-4 md:w-5 md:h-5" />;
       case 'whatsapp': return <Phone className="w-4 h-4 md:w-5 md:h-5" />;
       // For other platforms, use placeholder icon
