@@ -200,13 +200,7 @@ const StorePage = () => {
     return <div className="md:hidden flex items-center mb-4">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="w-full flex justify-between items-center border-neutral-200 shadow-sm">
-              <div className="flex items-center">
-                <Tag className="mr-2 h-4 w-4 text-indigo-600" />
-                <span>{selectedCategory === 'All' ? 'All Products' : selectedCategory}</span>
-              </div>
-              <Menu className="h-4 w-4" />
-            </Button>
+            
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl">
             <div className="pt-4 px-2">
