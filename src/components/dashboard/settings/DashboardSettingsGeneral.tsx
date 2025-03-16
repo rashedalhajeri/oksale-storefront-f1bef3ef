@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -256,6 +257,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           handleLogoUpload={handleLogoUpload}
           handleCoverUpload={handleCoverUpload}
           handleInputChange={handleInputChange}
+          handleSaveModal={handleSaveChanges} // Pass the save function to StorePreview
         />
 
         {/* Basic Store Information */}
@@ -291,7 +293,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
             disabled={loading}
             className="flex items-center gap-2"
           >
-            {loading ? 'جار�� الحفظ...' : (
+            {loading ? 'جارِ الحفظ...' : (
               <>
                 <CheckCircle2 className="h-4 w-4" />
                 حفظ التغييرات

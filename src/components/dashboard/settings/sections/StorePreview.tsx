@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogTrigger
+  DialogTrigger,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -36,6 +38,7 @@ interface StorePreviewProps {
   handleLogoUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleCoverUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleInputChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleSaveModal?: () => void; // Add the save function prop
 }
 
 const StorePreview: React.FC<StorePreviewProps> = ({
@@ -47,16 +50,26 @@ const StorePreview: React.FC<StorePreviewProps> = ({
   featured,
   handleLogoUpload,
   handleCoverUpload,
-  handleInputChange
+  handleInputChange,
+  handleSaveModal
 }) => {
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
+  const [open, setOpen] = useState(false); // Add state to control dialog
   
   const displayHandle = storeInfo.handle.startsWith('@') 
     ? storeInfo.handle
     : `@${storeInfo.handle}`;
 
   const hasCover = !!storeInfo.cover_url;
+
+  // Function to handle saving changes and closing the modal
+  const handleSaveAndClose = () => {
+    if (handleSaveModal) {
+      handleSaveModal();
+    }
+    setOpen(false);
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -74,7 +87,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
         </div>
         
         <div className="absolute top-3 right-3">
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button 
                 variant="secondary" 
@@ -88,6 +101,9 @@ const StorePreview: React.FC<StorePreviewProps> = ({
             <DialogContent className="max-w-xl overflow-auto">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold">تعديل معلومات المتجر</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
+                  قم بتحديث معلومات المتجر وصوره هنا
+                </DialogDescription>
               </DialogHeader>
               
               <div className="space-y-6 py-3">
@@ -153,7 +169,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
               </div>
               
               <DialogFooter>
-                <Button type="button">
+                <Button type="button" onClick={handleSaveAndClose}>
                   حفظ التغييرات
                 </Button>
               </DialogFooter>
