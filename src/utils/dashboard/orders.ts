@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from './currencyUtils';
 import { translateOrderStatus, getOrderStatusColor, formatOrderTime, generateUniqueOrderNumber, formatOrderNumber, getTimeColor } from './dashboardUtils';
@@ -43,7 +42,11 @@ export const getRecentOrders = async (storeId: string, limit = 5) => {
       status: order.status,
       statusText: translateOrderStatus(order.status),
       statusColors: getOrderStatusColor(order.status),
-      currency: currency
+      currency: currency,
+      created_at: order.created_at,
+      customer_name: order.customer_name,
+      customer_email: order.customer_email,
+      customer_phone: order.customer_phone
     }));
   } catch (error) {
     console.error('Error fetching recent orders:', error);
@@ -52,7 +55,7 @@ export const getRecentOrders = async (storeId: string, limit = 5) => {
 };
 
 // Type definition for options parameter
-interface OrderOptions {
+export interface OrderOptions {
   page?: number;
   limit?: number;
   status?: string | null;
@@ -130,7 +133,13 @@ export const getOrders = async (storeId: string, options: OrderOptions = {}) => 
       statusText: translateOrderStatus(order.status),
       statusColors: getOrderStatusColor(order.status),
       currency: currency,
-      created_at: order.created_at
+      created_at: order.created_at,
+      customer_name: order.customer_name,
+      customer_email: order.customer_email,
+      customer_phone: order.customer_phone,
+      total_amount: order.total_amount,
+      updated_at: order.created_at,
+      store_id: storeId
     }));
     
     // إرجاع البيانات مع معلومات الصفحات

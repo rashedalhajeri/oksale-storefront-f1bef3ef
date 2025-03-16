@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   ShoppingCart, 
@@ -62,7 +63,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
 import { formatRelativeTime, formatOrderTime, translateOrderStatus, getOrderStatusColor, generateUniqueOrderNumber, formatOrderNumber, getTimeColor } from '@/utils/dashboard/dashboardUtils';
-import { getOrders, getOrderDetails } from '@/utils/dashboard/orders';
+import { getOrders, getOrderDetails, OrderOptions } from '@/utils/dashboard/orders';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Order {
@@ -566,8 +567,10 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                         </div>
                         
                         <div className="mb-2">
-                          <p className="text-gray-600 text-sm font-medium truncate">{order.customer}</p>
-                          <div className="flex flex-col gap-0.5 mb-1 text-xs text-gray-500">
+                          <div className="flex items-center justify-between">
+                            <p className="text-gray-700 font-medium truncate">{order.customer}</p>
+                          </div>
+                          <div className="flex flex-col gap-0.5 mt-1 text-xs text-gray-500">
                             {order.phone && (
                               <div className="flex items-center gap-1">
                                 <Phone className="h-3 w-3" />
@@ -575,13 +578,13 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                               </div>
                             )}
                           </div>
-                          <h3 className="text-gray-400 text-xs ltr mt-1">
-                            #{order.id}
+                          <h3 className="text-gray-400 text-xs ltr mt-1.5 font-medium">
+                            {order.id}
                           </h3>
                         </div>
                         
                         <div className="flex items-center justify-between mt-2">
-                          <span className="font-bold text-oksale-700 ltr">
+                          <span className="font-bold text-oksale-700 text-sm ltr">
                             {order.amount}
                           </span>
                           <Button 
@@ -694,8 +697,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                             </div>
                           )}
                           
-                          <h3 className="text-gray-400 text-xs mt-1 ltr">
-                            #{order.id}
+                          <h3 className="text-gray-400 text-xs mt-1 ltr font-medium">
+                            {order.id}
                           </h3>
                         </div>
                         <span className="font-bold text-sm text-oksale-700 ltr">
@@ -781,8 +784,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <SheetContent className={`w-full ${isMobile ? 'max-w-full' : 'sm:max-w-md'} overflow-y-auto p-4`}>
           <SheetHeader className="text-right">
-            <SheetTitle className="text-lg ltr">
-              تفاصيل الطلب #{selectedOrder && selectedOrder.id}
+            <SheetTitle className="text-lg ltr font-bold">
+              تفاصيل الطلب {selectedOrder && selectedOrder.id}
             </SheetTitle>
             <SheetDescription>
               <div className="flex items-center gap-2 justify-end">
@@ -843,7 +846,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   </div>
                   <div className="flex justify-between items-center mt-3 font-bold text-sm">
                     <span>الإجمالي</span>
-                    <span className="ltr">{formatCurrency(selectedOrder.total_amount, selectedOrder.currency)}</span>
+                    <span className="ltr">{formatCurrency(selectedOrder.total_amount || 0, selectedOrder.currency)}</span>
                   </div>
                 </div>
                 

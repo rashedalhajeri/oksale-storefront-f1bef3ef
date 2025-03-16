@@ -1,4 +1,3 @@
-
 import { formatDistance, formatRelative, format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getCurrencySymbol } from './currencyUtils';
@@ -125,39 +124,39 @@ export const formatCurrencyWithSettings = (amount: number, currency: string): st
 
 /**
  * توليد رقم تسلسلي للطلب مختصر وفريد لكل متجر
- * يبدأ بمعرف المتجر ثم رقم متسلسل
+ * يبدأ بـ OK- ثم رقم متسلسل
  * 
  * @param storeId معرف المتجر
  * @param date تاريخ الطلب
  * @returns رقم طلب فريد
  */
 export const generateUniqueOrderNumber = (storeId: string, date: Date = new Date()): string => {
-  // استخدام الحرف الأول والأخير من معرف المتجر
-  const storeIdFirst = storeId.substring(0, 1).toUpperCase();
-  const storeIdLast = storeId.substring(storeId.length - 1).toUpperCase();
-  
   // استخدام السنة والشهر
   const year = date.getFullYear().toString().slice(-2);
   const month = String(date.getMonth() + 1).padStart(2, '0');
   
-  // إنشاء رقم عشوائي من 3 أرقام (1000-9999)
+  // إنشاء رقم عشوائي من 4 أرقام (1000-9999)
   const randomComponent = Math.floor(1000 + Math.random() * 9000);
   
   // دمج المكونات لإنشاء رقم طلب مختصر وفريد
-  return `${storeIdFirst}${year}${month}${randomComponent}${storeIdLast}`;
+  return `OK-${year}${month}${randomComponent}`;
 };
 
 /**
  * تنسيق رقم الطلب ليظهر بشكل أصغر ومناسب
  */
 export const formatOrderNumber = (orderNumber: string): string => {
-  // إذا كان الرقم يحتوي على معرف طويل
-  if (orderNumber.length > 10) {
-    // نأخذ فقط الجزء الأخير (6 أحرف) من الرقم الطويل
-    return orderNumber.substring(orderNumber.length - 6);
+  // إذا كان الرقم يبدأ بـ OK- نعيده كما هو
+  if (orderNumber.startsWith('OK-')) {
+    return orderNumber;
   }
   
-  return orderNumber;
+  // إذا كان الرقم لا يحتوي على OK- نضيفه
+  if (orderNumber.length > 6) {
+    return `OK-${orderNumber.substring(orderNumber.length - 6)}`;
+  }
+  
+  return `OK-${orderNumber}`;
 };
 
 /**
