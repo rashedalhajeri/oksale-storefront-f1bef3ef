@@ -11,6 +11,8 @@ import StoreDiscovery from "./pages/StoreDiscovery";
 import StorePage from "./pages/StorePage";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import StoreSetup from "./pages/StoreSetup"; 
 import Dashboard from "./pages/Dashboard";
 import { useEffect, useState } from "react";
@@ -61,6 +63,8 @@ const AppRoutes = () => {
   const hideNavbarRoutes = [
     '/signin',
     '/signup',
+    '/forgot-password',
+    '/reset-password',
     '/store-setup',
     '/dashboard'
   ];
@@ -70,6 +74,8 @@ const AppRoutes = () => {
   const isStorePath = 
     !location.pathname.startsWith('/signin') && 
     !location.pathname.startsWith('/signup') && 
+    !location.pathname.startsWith('/forgot-password') && 
+    !location.pathname.startsWith('/reset-password') && 
     !location.pathname.startsWith('/store-setup') && 
     !location.pathname.startsWith('/dashboard') && 
     !location.pathname.startsWith('/explore') && 
@@ -87,6 +93,8 @@ const AppRoutes = () => {
         <Route path="/:handle" element={<StorePage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/store-setup" element={
           <ProtectedRoute>
             <StoreSetup />

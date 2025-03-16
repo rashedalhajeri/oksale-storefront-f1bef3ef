@@ -3,11 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, User, LogIn, Menu, X, Sparkles } from 'lucide-react';
+import { ShoppingBag, LogIn, Menu, X, Sparkles, Lock } from 'lucide-react';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [language, setLanguage] = useState('ar'); // نبدأ باللغة العربية
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -24,12 +23,6 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Toggle language between English and Arabic
-  const toggleLanguage = () => {
-    setLanguage(prev => prev === 'en' ? 'ar' : 'en');
-    // In a real app, you'd update the content language here
-  };
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -52,7 +45,7 @@ const Navbar = () => {
           'bg-transparent': !scrolled
         }
       )}
-      dir={language === 'ar' ? 'rtl' : 'ltr'}
+      dir="rtl"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link 
@@ -69,39 +62,15 @@ const Navbar = () => {
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link to="/" className="font-medium hover:text-bluesky-600 transition-colors">
-            {language === 'en' ? 'Home' : 'الرئيسية'}
-          </Link>
-          <Link to="/explore" className="font-medium hover:text-bluesky-600 transition-colors">
-            {language === 'en' ? 'Explore Stores' : 'استكشاف المتاجر'}
-          </Link>
-          <Link to="/how-it-works" className="font-medium hover:text-bluesky-600 transition-colors">
-            {language === 'en' ? 'How It Works' : 'كيف يعمل'}
-          </Link>
-          <Link to="/pricing" className="font-medium hover:text-bluesky-600 transition-colors">
-            {language === 'en' ? 'Pricing' : 'الأسعار'}
-          </Link>
-        </nav>
-
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
-          <Button 
-            onClick={toggleLanguage} 
-            variant="ghost" 
-            className="px-3 py-2 rounded-md hover:bg-bluesky-100 transition-colors"
-          >
-            {language === 'en' ? 'ع' : 'EN'}
-          </Button>
-          
           <Button 
             variant="outline" 
             className="border border-bluesky-200 bg-white/70 backdrop-blur-sm hover:bg-bluesky-50 transition-colors"
             onClick={() => navigate('/signin')}
           >
             <LogIn className="h-4 w-4 ml-2" />
-            <span>{language === 'en' ? 'Sign In' : 'تسجيل الدخول'}</span>
+            <span>تسجيل الدخول</span>
           </Button>
           
           <Button 
@@ -109,7 +78,7 @@ const Navbar = () => {
             onClick={() => navigate('/signup')}
           >
             <Sparkles className="h-4 w-4 ml-2" />
-            <span>{language === 'en' ? 'Create Store' : 'إنشاء متجر'}</span>
+            <span>إنشاء متجر</span>
           </Button>
         </div>
 
@@ -132,38 +101,7 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-10 bg-white dark:bg-gray-900 md:hidden animate-fade-in">
-            <div className="flex flex-col h-full pt-20 px-6">
-              <nav className="flex flex-col gap-6 py-8">
-                <Link 
-                  to="/" 
-                  className="text-lg font-medium hover:text-bluesky-600 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {language === 'en' ? 'Home' : 'الرئيسية'}
-                </Link>
-                <Link 
-                  to="/explore" 
-                  className="text-lg font-medium hover:text-bluesky-600 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {language === 'en' ? 'Explore Stores' : 'استكشاف المتاجر'}
-                </Link>
-                <Link 
-                  to="/how-it-works" 
-                  className="text-lg font-medium hover:text-bluesky-600 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {language === 'en' ? 'How It Works' : 'كيف يعمل'}
-                </Link>
-                <Link 
-                  to="/pricing" 
-                  className="text-lg font-medium hover:text-bluesky-600 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {language === 'en' ? 'Pricing' : 'الأسعار'}
-                </Link>
-              </nav>
-              
+            <div className="flex flex-col h-full pt-20 px-6">              
               <div className="mt-auto mb-8 space-y-4">
                 <Button 
                   variant="outline" 
@@ -174,7 +112,7 @@ const Navbar = () => {
                   }}
                 >
                   <LogIn className="h-4 w-4 ml-2" />
-                  <span>{language === 'en' ? 'Sign In' : 'تسجيل الدخول'}</span>
+                  <span>تسجيل الدخول</span>
                 </Button>
                 
                 <Button 
@@ -185,21 +123,8 @@ const Navbar = () => {
                   }}
                 >
                   <Sparkles className="h-4 w-4 ml-2" />
-                  <span>{language === 'en' ? 'Create Store' : 'إنشاء متجر'}</span>
+                  <span>إنشاء متجر</span>
                 </Button>
-                
-                <div className="flex justify-center pt-4">
-                  <Button 
-                    onClick={() => {
-                      toggleLanguage();
-                      setMobileMenuOpen(false);
-                    }} 
-                    variant="ghost" 
-                    className="px-3 py-2 rounded-md hover:bg-bluesky-100 transition-colors"
-                  >
-                    {language === 'en' ? 'ع' : 'EN'}
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
