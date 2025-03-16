@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,16 +23,44 @@ import {
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface DashboardCustomersProps {
   storeData: any;
 }
 
+// Extended customer type with address
+interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  registrationDate: string;
+  totalOrders: number;
+  // New fields
+  address?: string;
+  orders?: CustomerOrder[];
+}
+
+// Order type for customer orders
+interface CustomerOrder {
+  id: number;
+  date: string;
+  status: string;
+  total: number;
+  items: number;
+}
+
 const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) => {
   const isMobile = useIsMobile();
   
-  // Mock customers data
-  const customers = [
+  // Mock customers data with extended information
+  const customers: Customer[] = [
     { 
       id: 1, 
       name: 'راشد الراجحي', 
@@ -40,6 +68,8 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       phone: '96566605014', 
       registrationDate: 'منذ ثانية',
       totalOrders: 0, 
+      address: 'الكويت، حولي، شارع المثنى، بناية 24، شقة 7',
+      orders: [],
     },
     { 
       id: 2, 
@@ -48,6 +78,12 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       phone: '96650765432', 
       registrationDate: 'منذ دقيقة',
       totalOrders: 3, 
+      address: 'المملكة العربية السعودية، الرياض، حي النخيل، طريق الملك فهد',
+      orders: [
+        { id: 101, date: '15 مايو، 2023', status: 'مكتمل', total: 350, items: 2 },
+        { id: 102, date: '20 يونيو، 2023', status: 'مكتمل', total: 520, items: 3 },
+        { id: 103, date: '5 يوليو، 2023', status: 'ملغي', total: 120, items: 1 },
+      ]
     },
     { 
       id: 3, 
@@ -56,6 +92,12 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       phone: '96654987654', 
       registrationDate: 'منذ ساعة',
       totalOrders: 7, 
+      address: 'الإمارات العربية المتحدة، دبي، شارع الشيخ زايد، برج الخالدية',
+      orders: [
+        { id: 201, date: '10 أبريل، 2023', status: 'مكتمل', total: 750, items: 4 },
+        { id: 202, date: '25 أبريل، 2023', status: 'مكتمل', total: 1200, items: 6 },
+        { id: 203, date: '15 مايو، 2023', status: 'مكتمل', total: 480, items: 3 },
+      ]
     },
     { 
       id: 4, 
@@ -64,10 +106,17 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       phone: '96656456789', 
       registrationDate: 'منذ يوم',
       totalOrders: 2, 
+      address: 'قطر، الدوحة، اللؤلؤة، فيلا 42',
+      orders: [
+        { id: 301, date: '2 يونيو، 2023', status: 'مكتمل', total: 290, items: 2 },
+        { id: 302, date: '18 يونيو، 2023', status: 'قيد المعالجة', total: 540, items: 3 },
+      ]
     },
   ];
 
   const [selectedCustomers, setSelectedCustomers] = useState<number[]>([]);
+  const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   const toggleCustomerSelection = (customerId: number) => {
     if (selectedCustomers.includes(customerId)) {
@@ -85,6 +134,24 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
     }
   };
 
+  const openCustomerDetails = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsCustomerDialogOpen(true);
+  };
+
+  // Format phone numbers with country code (966) and add spaces
+  const formatPhoneNumber = (phone: string) => {
+    // Check if the phone starts with 9665 or 9665x
+    if (phone.startsWith('9665')) {
+      // Format: 966 5x xxx xxxx
+      const cleaned = phone.slice(3); // Remove 966
+      if (cleaned.length >= 8) {
+        return `${phone.slice(0, 3)} ${cleaned.slice(0, 1)} ${cleaned.slice(1, 4)} ${cleaned.slice(4)}`;
+      }
+    }
+    return phone; // Return as is if it doesn't match pattern
+  };
+
   return (
     <div className="space-y-4 w-full overflow-hidden">
       {/* Header section - Improved header with customer count on the opposite side */}
@@ -97,37 +164,34 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </div>
       </div>
 
-      {/* Search and filters section - Improved layout */}
+      {/* Search and filters section - Improved layout with filters inline */}
       <div className="space-y-3">
         <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-3`}>
-          {/* Search with consistent styling */}
-          <div className={`relative ${isMobile ? 'w-full' : 'w-2/3'}`}>
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <Input placeholder="بحث عن عميل..." className="pr-10 bg-white border-gray-200" />
-          </div>
-
-          <div className={`flex gap-2 ${isMobile ? 'w-full' : 'w-1/3'}`}>
-            {/* Filter dropdown */}
+          <div className={`relative flex ${isMobile ? 'w-full' : 'w-full flex-1'}`}>
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Input placeholder="بحث عن عميل..." className="pr-10 bg-white border-gray-200" />
+            </div>
             <Select>
-              <SelectTrigger className="bg-white border-gray-200">
+              <SelectTrigger className={`bg-white border-gray-200 ${isMobile ? 'w-full mt-2' : 'w-[150px] mr-2'}`}>
                 <div className="flex items-center gap-1">
                   <Filter size={16} className="text-gray-500" />
                   <span className="text-sm">فلترة</span>
                 </div>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent align="end">
                 <SelectItem value="all">جميع العملاء</SelectItem>
                 <SelectItem value="active">العملاء النشطين</SelectItem>
                 <SelectItem value="new">العملاء الجدد</SelectItem>
               </SelectContent>
             </Select>
-
-            {/* Add customer button - Compact design */}
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" size="sm">
-              <Plus size={16} />
-              <span className={`${isMobile ? 'hidden' : 'inline'}`}>إضافة عميل</span>
-            </Button>
           </div>
+
+          {/* Add customer button - Compact design */}
+          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]" size="sm">
+            <Plus size={16} className="ml-1" />
+            <span className={`${isMobile ? 'text-sm' : 'text-sm'}`}>إضافة عميل</span>
+          </Button>
         </div>
       </div>
 
@@ -135,7 +199,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       <Card className="shadow-sm border border-gray-100">
         <CardContent className="p-0">
           {isMobile ? (
-            // Mobile view - Clean and compact
+            // Mobile view - Clean and compact list view without horizontal scroll
             <div className="overflow-hidden">
               {customers.map((customer) => (
                 <div 
@@ -144,7 +208,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 >
                   <div>
                     <p className="font-medium text-gray-900">{customer.name}</p>
-                    <p className="text-sm text-gray-600">{customer.phone}</p>
+                    <p className="text-sm text-gray-600 mt-1 dir-ltr text-right">
+                      {formatPhoneNumber(customer.phone)}
+                    </p>
                   </div>
                   <div>
                     <DropdownMenu>
@@ -154,8 +220,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-[160px]">
-                        <DropdownMenuItem className="flex items-center gap-2 text-sm cursor-pointer">
-                          <Pencil size={14} className="text-gray-500" />
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2 text-sm cursor-pointer"
+                          onClick={() => openCustomerDetails(customer)}
+                        >
+                          <Eye size={14} className="text-gray-500" />
                           <span>عرض</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2 text-sm cursor-pointer">
@@ -203,7 +272,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                           />
                         </TableCell>
                         <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
-                        <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.phone}</TableCell>
+                        <TableCell className="py-3 px-4 text-gray-700 text-sm dir-ltr text-right">
+                          {formatPhoneNumber(customer.phone)}
+                        </TableCell>
                         <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.registrationDate}</TableCell>
                         <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.email}</TableCell>
                         <TableCell className="py-3 px-4 text-gray-700 text-sm">{customer.totalOrders}</TableCell>
@@ -215,8 +286,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-[160px]">
-                              <DropdownMenuItem className="flex items-center gap-2 text-sm cursor-pointer">
-                                <Pencil size={14} className="text-gray-500" />
+                              <DropdownMenuItem 
+                                className="flex items-center gap-2 text-sm cursor-pointer"
+                                onClick={() => openCustomerDetails(customer)}
+                              >
+                                <Eye size={14} className="text-gray-500" />
                                 <span>عرض</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem className="flex items-center gap-2 text-sm cursor-pointer">
@@ -266,6 +340,95 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
           </div>
         </CardContent>
       </Card>
+
+      {/* Customer Details Dialog */}
+      {selectedCustomer && (
+        <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
+          <DialogContent className="max-w-3xl overflow-hidden">
+            <DialogHeader>
+              <DialogTitle className="text-xl">{selectedCustomer.name}</DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              {/* Customer Information */}
+              <div className="space-y-4">
+                <h3 className="font-medium text-gray-900 text-lg border-b pb-2">معلومات العميل</h3>
+                
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-500">البريد الإلكتروني</p>
+                    <p className="font-medium">{selectedCustomer.email}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-500">رقم الجوال</p>
+                    <p className="font-medium dir-ltr text-right">{formatPhoneNumber(selectedCustomer.phone)}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-500">تاريخ التسجيل</p>
+                    <p className="font-medium">{selectedCustomer.registrationDate}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Customer Address */}
+              <div className="space-y-4">
+                <h3 className="font-medium text-gray-900 text-lg border-b pb-2">العنوان</h3>
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <p className="text-gray-700">{selectedCustomer.address || 'لا يوجد عنوان مسجل'}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Customer Orders */}
+            <div className="mt-6">
+              <h3 className="font-medium text-gray-900 text-lg border-b pb-2 mb-4">
+                الطلبات ({selectedCustomer.orders?.length || 0})
+              </h3>
+              
+              {selectedCustomer.orders && selectedCustomer.orders.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">رقم الطلب</th>
+                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">التاريخ</th>
+                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">الحالة</th>
+                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">عدد المنتجات</th>
+                        <th className="text-right py-2 px-4 font-medium text-gray-600 text-sm">المبلغ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedCustomer.orders.map((order) => (
+                        <tr key={order.id} className="border-b">
+                          <td className="py-3 px-4 text-gray-700">#{order.id}</td>
+                          <td className="py-3 px-4 text-gray-700">{order.date}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-1 rounded-full text-xs inline-block ${
+                              order.status === 'مكتمل' ? 'bg-green-100 text-green-800' : 
+                              order.status === 'قيد المعالجة' ? 'bg-blue-100 text-blue-800' : 
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {order.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-gray-700">{order.items}</td>
+                          <td className="py-3 px-4 text-gray-700 font-medium">{order.total} ر.س</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  لا توجد طلبات سابقة
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
