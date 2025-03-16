@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Routes, Route, Link } from 'react-router-dom';
+import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -19,9 +19,6 @@ import DashboardSettingsShipping from '@/components/dashboard/settings/Dashboard
 import DashboardSettingsNotifications from '@/components/dashboard/settings/DashboardSettingsNotifications';
 import DashboardSettingsUsers from '@/components/dashboard/settings/DashboardSettingsUsers';
 import MainDashboard from '@/components/dashboard/MainDashboard';
-import OrderStatusCard from '@/components/dashboard/OrderStatusCard';
-import RecentOrdersCard from '@/components/dashboard/RecentOrdersCard';
-import TopProductsCard from '@/components/dashboard/TopProductsCard';
 import { useDashboardData } from '@/hooks/useDashboardData';
 
 const Dashboard = () => {
