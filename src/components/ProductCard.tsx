@@ -19,8 +19,8 @@ interface ProductCardProps {
 const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   
-  // Format price based on the provided currency
-  const formattedPrice = new Intl.NumberFormat('ar-SA', {
+  // Format price based on the provided currency but using English locale
+  const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
     maximumFractionDigits: 2,
