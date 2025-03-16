@@ -69,29 +69,24 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
   const navItems = [
     { 
       icon: <Home className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'الرئيسية', 
       href: storeBasePath || '/' 
     },
     { 
       icon: <Search className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'البحث', 
       href: `${storeBasePath}/search` 
     },
     { 
       icon: <ShoppingBag className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'السلة', 
       href: `${storeBasePath}/cart`,
       hasBadge: true,
       badgeCount: cartCount
     },
     { 
       icon: <ClipboardList className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'طلباتي', 
       href: `${storeBasePath}/orders` 
     },
     { 
       icon: <User className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'حسابي', 
       href: `${storeBasePath}/account` 
     }
   ];
@@ -108,7 +103,7 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
   return (
     <div 
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-300 ease-in-out backdrop-blur-lg bg-white/80 shadow-lg",
+        "fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-300 ease-in-out backdrop-blur-md bg-white/60 shadow-lg",
         !isVisible ? "translate-y-full" : "translate-y-0",
         className
       )}
@@ -116,6 +111,7 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
       <nav className="flex items-center justify-around h-16 px-4 relative">
         {navItems.map((item, index) => {
           const isActive = location.pathname === item.href;
+          const isCart = item.href.includes('/cart');
           
           return (
             <Link 
@@ -123,8 +119,9 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
               to={item.href}
               onClick={(e) => handleNavLinkClick(e, item.href)}
               className={cn(
-                "flex flex-col items-center justify-center py-2 relative",
-                isActive ? "text-black" : "text-neutral-500 hover:text-black"
+                "relative p-2 flex items-center justify-center",
+                isActive ? "text-black" : "text-neutral-500 hover:text-black",
+                isCart ? "bg-neutral-100/80 rounded-full p-3 -mt-4 shadow-sm" : ""
               )}
             >
               <div className="relative">
@@ -137,9 +134,8 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
                   </Badge>
                 )}
               </div>
-              <span className="text-xs mt-1">{item.label}</span>
-              {isActive && (
-                <div className="absolute bottom-0 w-8 h-1 bg-black rounded-full"></div>
+              {isActive && !isCart && (
+                <div className="absolute bottom-0 w-6 h-1 bg-black rounded-full"></div>
               )}
             </Link>
           );
