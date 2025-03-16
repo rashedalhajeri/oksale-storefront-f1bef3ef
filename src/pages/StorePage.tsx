@@ -24,11 +24,14 @@ import {
   Bookmark,
   Folder,
   User,
-  Edit
+  Edit,
+  Menu
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const StorePage = () => {
   const { handle } = useParams<{ handle: string }>();
@@ -36,6 +39,7 @@ const StorePage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
   const [isOwnStore, setIsOwnStore] = useState(false);
+  const isMobile = useIsMobile();
   
   const { data: session } = useQuery({
     queryKey: ['auth-session'],
@@ -225,6 +229,60 @@ const StorePage = () => {
     }
   };
 
+  const renderMobileCategories = () => {
+    return (
+      <div className="md:hidden flex items-center mb-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="w-full flex justify-between items-center border-neutral-200 shadow-sm"
+            >
+              <div className="flex items-center">
+                <Tag className="mr-2 h-4 w-4 text-indigo-600" />
+                <span>{selectedCategory === 'All' ? 'All Products' : selectedCategory}</span>
+              </div>
+              <Menu className="h-4 w-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl">
+            <div className="pt-4 px-2">
+              <h3 className="text-lg font-semibold mb-4 text-center">Categories</h3>
+              <div className="space-y-2">
+                <Button
+                  variant={selectedCategory === 'All' ? "default" : "outline"}
+                  className={`w-full justify-start ${selectedCategory === 'All' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'border-neutral-200 text-neutral-700'}`}
+                  onClick={() => {
+                    setSelectedCategory('All');
+                    document.body.click(); // Close the sheet
+                  }}
+                >
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  All Products
+                </Button>
+                
+                {categories.map((category, index) => (
+                  <Button
+                    key={index}
+                    variant={selectedCategory === category ? "default" : "outline"}
+                    className={`w-full justify-start ${selectedCategory === category ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'border-neutral-200 text-neutral-700'}`}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      document.body.click(); // Close the sheet
+                    }}
+                  >
+                    {getCategoryIcon(category)}
+                    {category}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    );
+  };
+
   if ((isLoading || isLoadingUserStore) && (!storeData && !userStore)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -327,7 +385,9 @@ const StorePage = () => {
             </div>
             
             <div className="mb-6">
-              <div className="mb-6">
+              {renderMobileCategories()}
+              
+              <div className="hidden md:block mb-6">
                 <Tabs defaultValue="All" value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
                   <ScrollArea className="w-full">
                     <div className="pb-4">
