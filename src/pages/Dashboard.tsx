@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useNavigate, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -33,7 +33,6 @@ const PageLoader = () => (
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +108,7 @@ const Dashboard = () => {
     );
   }
 
+  // تأكد من أن الصفحة الرئيسية تظهر افتراضيًا
   return (
     <DashboardLayout storeData={storeData}>
       <Suspense fallback={<PageLoader />}>
@@ -125,6 +125,7 @@ const Dashboard = () => {
           <Route path="/settings/shipping" element={<DashboardSettingsShipping storeData={storeData} />} />
           <Route path="/settings/notifications" element={<DashboardSettingsNotifications storeData={storeData} />} />
           <Route path="/settings/users" element={<DashboardSettingsUsers storeData={storeData} />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
     </DashboardLayout>

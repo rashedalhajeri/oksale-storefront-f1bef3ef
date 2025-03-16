@@ -1,41 +1,33 @@
 
-import { useEffect } from 'react';
+import { formatDistance } from 'date-fns';
+import { ar } from 'date-fns/locale';
 
-// Set the title of the document based on the current page
-export const usePageTitle = (title: string) => {
-  useEffect(() => {
-    // Set the title with the store name if available
-    document.title = `${title} | لوحة التحكم`;
-    
-    // Cleanup when component unmounts
-    return () => {
-      document.title = 'لوحة التحكم';
-    };
-  }, [title]);
-};
-
-// Format date in Arabic locale
-export const formatDate = (dateString: string) => {
+/**
+ * تحويل تاريخ إلى نص يصف الوقت المنقضي بالعربية
+ */
+export const formatRelativeTime = (date: string | Date): string => {
   try {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    }).format(date);
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+    return formatDistance(parsedDate, new Date(), { addSuffix: true, locale: ar });
   } catch (error) {
-    console.error('Error formatting date:', error);
-    return dateString;
+    console.error('تعذر تنسيق التاريخ:', error);
+    return '';
   }
 };
 
-// Format number with locale
-export const formatNumber = (num: number) => {
-  return new Intl.NumberFormat('ar-SA').format(num);
+/**
+ * حساب نسبة التقدم مقارنةً بالهدف
+ */
+export const calculateProgress = (current: number, target: number): number => {
+  if (target <= 0) return 0;
+  const progress = (current / target) * 100;
+  return Math.min(Math.round(progress), 100);
 };
 
-// Get status label in Arabic
-export const getOrderStatusLabel = (status: string) => {
+/**
+ * ترجمة حالة الطلب إلى نص عربي
+ */
+export const translateOrderStatus = (status: string): string => {
   switch (status) {
     case 'completed':
       return 'مكتمل';
@@ -50,18 +42,20 @@ export const getOrderStatusLabel = (status: string) => {
   }
 };
 
-// Get status color based on status
-export const getStatusColor = (status: string) => {
+/**
+ * الحصول على لون خلفية وحدود لحالة الطلب
+ */
+export const getOrderStatusColor = (status: string): { bg: string; text: string } => {
   switch (status) {
     case 'completed':
-      return 'bg-green-100 text-green-700';
+      return { bg: 'bg-green-100', text: 'text-green-700' };
     case 'processing':
-      return 'bg-blue-100 text-blue-700';
+      return { bg: 'bg-blue-100', text: 'text-blue-700' };
     case 'pending':
-      return 'bg-yellow-100 text-yellow-700';
+      return { bg: 'bg-yellow-100', text: 'text-yellow-700' };
     case 'cancelled':
-      return 'bg-red-100 text-red-700';
+      return { bg: 'bg-red-100', text: 'text-red-700' };
     default:
-      return 'bg-gray-100 text-gray-700';
+      return { bg: 'bg-gray-100', text: 'text-gray-700' };
   }
 };

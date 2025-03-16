@@ -12,7 +12,6 @@ import {
   ChevronDown,
   ChevronRight,
   PenSquare,
-  Store,
   ExternalLink
 } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";

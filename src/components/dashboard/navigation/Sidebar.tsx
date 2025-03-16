@@ -14,7 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ storeData }) => {
   const isMobile = useIsMobile();
   
   return (
-    <div className={`bg-white shadow-md flex flex-col ${isMobile ? 'w-64' : 'w-64'} h-screen`}>
+    <div className="bg-white shadow-md flex flex-col w-64 h-screen overflow-hidden">
       <StoreHeader storeData={storeData} />
       <Separator />
       <SidebarNavigation storeData={storeData} />

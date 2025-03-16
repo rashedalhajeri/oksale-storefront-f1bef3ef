@@ -18,7 +18,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50">
       {/* Mobile Sidebar Toggle */}
       {isMobile && (
         <div className="fixed top-4 right-4 z-50">
@@ -38,7 +38,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       {/* Sidebar - Always visible on desktop, conditionally visible on mobile */}
       <div 
         className={`
-          ${isMobile ? 'fixed inset-y-0 right-0 z-40 transition-transform duration-300 transform shadow-xl' : 'sticky top-0 h-screen'}
+          ${isMobile ? 'fixed inset-y-0 right-0 z-40 transition-transform duration-300 transform shadow-xl' : 'sticky top-0 h-screen flex-shrink-0'}
           ${isMobile && !sidebarOpen ? 'translate-x-full' : 'translate-x-0'}
         `}
       >
