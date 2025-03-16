@@ -19,6 +19,7 @@ import StoreAuth from "./pages/store/StoreAuth";
 import StoreProductDetails from "./pages/store/StoreProductDetails";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
+import MobileNavigation from "./components/MobileNavigation";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,7 @@ const AppRoutes = () => {
   };
   
   const shouldHideNavbar = hideNavbarRoutes.some(route => location.pathname.startsWith(route)) || isStorePath();
+  const showMobileNavigation = isStorePath();
   
   return (
     <>
@@ -123,6 +125,8 @@ const AppRoutes = () => {
         } />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      
+      {showMobileNavigation && <MobileNavigation />}
     </>
   );
 };

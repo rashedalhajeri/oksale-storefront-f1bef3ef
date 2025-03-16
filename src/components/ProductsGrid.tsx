@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Link, useParams } from 'react-router-dom';
-import { ShoppingCart, Search, Filter, Star, Sparkles, Tag } from 'lucide-react';
+import { ShoppingCart, Search, Filter, Sparkles, Tag } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from '@/components/ui/use-toast';
 
@@ -19,7 +19,6 @@ interface Product {
   category: string;
   isNew: boolean;
   discount: number | null;
-  rating: number;
 }
 
 interface ProductsGridProps {
@@ -194,22 +193,6 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
                 <CardContent className="p-3">
                   <div className="space-y-1">
                     <h3 className="text-sm font-medium line-clamp-1">{product.name}</h3>
-                    
-                    <div className="flex items-center">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3 h-3 ${
-                            i < product.rating
-                              ? "text-yellow-400 fill-current"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                      <span className="text-xs text-gray-500 mr-1">
-                        {product.rating}
-                      </span>
-                    </div>
                     
                     <div className="font-semibold text-sm">
                       {product.discount ? (
