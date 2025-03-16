@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,6 +46,8 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     setLoading(true);
     
     try {
+      console.log('Updating store with ID:', storeData.id);
+      
       const { error } = await supabase
         .from('stores')
         .update({
@@ -57,7 +58,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           cover_url: storeInfo.cover_url,
           contact_email: storeInfo.email,
           contact_phone: storeInfo.phone,
-          address: storeInfo.address,
           instagram: storeInfo.instagram,
           twitter: storeInfo.twitter,
           facebook: storeInfo.facebook,
@@ -68,7 +68,10 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
         })
         .eq('id', storeData.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating store:', error);
+        throw error;
+      }
       
       toast({
         title: "تم حفظ التغييرات",
@@ -105,25 +108,21 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   
   const uploadFile = async (file: File, folder: string) => {
     try {
-      // Check file type
       if (!file.type.startsWith('image/')) {
         throw new Error('يرجى اختيار ملف صورة صالح');
       }
       
-      // Check file size (max 2MB for logos, 4MB for covers)
       const maxSize = folder === 'logos' ? 2 * 1024 * 1024 : 4 * 1024 * 1024;
       if (file.size > maxSize) {
         throw new Error(`حجم الملف كبير جدًا. يجب أن يكون أقل من ${folder === 'logos' ? '2' : '4'} ميجابايت`);
       }
       
-      // Generate unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${storeData.id}_${Date.now()}.${fileExt}`;
       const filePath = `${folder}/${fileName}`;
       
       console.log(`Uploading file to store-assets/${filePath}`);
       
-      // Upload file to Supabase storage
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('store-assets')
         .upload(filePath, file, {
@@ -136,7 +135,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
         throw new Error(`فشل رفع الملف: ${uploadError.message}`);
       }
       
-      // Get public URL
       const { data } = supabase.storage
         .from('store-assets')
         .getPublicUrl(filePath);
@@ -266,7 +264,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
       </div>
 
       <div className="space-y-6">
-        {/* Store Information */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">معلومات المتجر</CardTitle>
@@ -404,7 +401,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           </CardContent>
         </Card>
 
-        {/* Contact Information */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">معلومات الاتصال</CardTitle>
@@ -540,7 +536,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           </CardContent>
         </Card>
 
-        {/* Regional Settings */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">الإعدادات الإقليمية</CardTitle>
