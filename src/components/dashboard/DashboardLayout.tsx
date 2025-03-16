@@ -12,7 +12,8 @@ import {
   ChevronDown,
   ChevronRight,
   Store,
-  LogOut
+  LogOut,
+  PenSquare
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -111,6 +112,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
     }
   };
 
+  const handleEditStore = () => {
+    navigate('/dashboard/settings/general');
+  };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
       {/* Sidebar */}
@@ -142,17 +147,28 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
             <div className="px-2 py-1 text-xs bg-green-50 text-green-700 rounded-full">
               نشط
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-xs flex items-center gap-1"
-              asChild
-            >
-              <Link to={`/store/${storeData?.handle?.replace('@', '')}`} target="_blank">
-                <Store className="h-3 w-3" />
-                زيارة المتجر
-              </Link>
-            </Button>
+            <div className="flex gap-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs flex items-center gap-1 border-oksale-500 text-oksale-700 hover:bg-oksale-50"
+                onClick={handleEditStore}
+              >
+                <PenSquare className="h-3 w-3" />
+                تحرير المتجر
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs flex items-center gap-1"
+                asChild
+              >
+                <Link to={`/store/${storeData?.handle?.replace('@', '')}`} target="_blank">
+                  <Store className="h-3 w-3" />
+                  زيارة
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
         
