@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -35,8 +34,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     website: storeData?.website || '',
     snapchat: storeData?.snapchat || '',
     tiktok: storeData?.tiktok || '',
-    youtube: storeData?.youtube || '',
-    linkedin: storeData?.linkedin || '',
+    whatsapp: storeData?.whatsapp || '',
     language: storeData?.language || 'ar',
     currency: storeData?.currency || 'SAR',
     country: storeData?.country || 'SA',
@@ -70,8 +68,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
         website: storeInfo.website,
         snapchat: storeInfo.snapchat,
         tiktok: storeInfo.tiktok,
-        youtube: storeInfo.youtube,
-        linkedin: storeInfo.linkedin,
+        whatsapp: storeInfo.whatsapp,
         language: storeInfo.language,
         currency: storeInfo.currency,
         country: storeInfo.country

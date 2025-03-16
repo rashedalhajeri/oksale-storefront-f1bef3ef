@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,11 +20,12 @@ import {
   Facebook,
   PlusCircle,
   Trash2,
-  Landmark
+  MessageSquare
 } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Define supported social media types
-type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website' | 'snapchat' | 'tiktok' | 'youtube' | 'linkedin';
+type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website' | 'snapchat' | 'tiktok' | 'whatsapp';
 
 interface SocialMediaAccount {
   id: string;
@@ -40,8 +41,7 @@ interface SocialMediaSectionProps {
     website: string;
     snapchat?: string;
     tiktok?: string;
-    youtube?: string;
-    linkedin?: string;
+    whatsapp?: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
@@ -67,8 +67,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     addIfExists('website', storeInfo.website);
     addIfExists('snapchat', storeInfo.snapchat);
     addIfExists('tiktok', storeInfo.tiktok);
-    addIfExists('youtube', storeInfo.youtube);
-    addIfExists('linkedin', storeInfo.linkedin);
+    addIfExists('whatsapp', storeInfo.whatsapp);
     
     return initialAccounts;
   });
@@ -80,6 +79,12 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
   
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<'select' | 'input'>('select');
+  const [maxAccountsReached, setMaxAccountsReached] = useState(false);
+
+  // Check if max accounts reached
+  useEffect(() => {
+    setMaxAccountsReached(accounts.length >= 4);
+  }, [accounts]);
 
   const handleAddAccount = () => {
     if (newAccount.type && newAccount.username) {
@@ -93,6 +98,17 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           username: newAccount.username
         };
       } else {
+        // Check if maximum accounts reached
+        if (updatedAccounts.length >= 4) {
+          toast({
+            title: "الحد الأقصى تم الوصول إليه",
+            description: "يمكنك إضافة 4 حسابات كحد أقصى",
+            variant: "destructive"
+          });
+          setOpen(false);
+          return;
+        }
+        
         // Add new account
         updatedAccounts.push({
           id: newAccount.type,
@@ -142,7 +158,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     },
     { 
       type: 'twitter', 
-      label: 'تويتر (X)', 
+      label: 'X (تويتر)', 
       icon: <Twitter className="h-5 w-5" /> 
     },
     { 
@@ -153,22 +169,17 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     { 
       type: 'snapchat', 
       label: 'سناب شات', 
-      icon: <Landmark className="h-5 w-5" /> // Using Landmark as a placeholder for Snapchat
+      icon: <MessageSquare className="h-5 w-5" /> 
     },
     { 
       type: 'tiktok', 
       label: 'تيك توك', 
-      icon: <Landmark className="h-5 w-5" /> // Using Landmark as a placeholder for TikTok
+      icon: <MessageSquare className="h-5 w-5" /> 
     },
     { 
-      type: 'youtube', 
-      label: 'يوتيوب', 
-      icon: <Landmark className="h-5 w-5" /> // Using Landmark as a placeholder for YouTube
-    },
-    { 
-      type: 'linkedin', 
-      label: 'لينكد إن', 
-      icon: <Landmark className="h-5 w-5" /> // Using Landmark as a placeholder for LinkedIn
+      type: 'whatsapp', 
+      label: 'واتساب', 
+      icon: <MessageSquare className="h-5 w-5" /> 
     },
     { 
       type: 'website', 
@@ -194,8 +205,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       case 'facebook': return 'أدخل اسم الصفحة أو المعرف';
       case 'snapchat': return 'أدخل اسم المستخدم فقط بدون @';
       case 'tiktok': return 'أدخل اسم المستخدم فقط بدون @';
-      case 'youtube': return 'أدخل معرف القناة أو الاسم';
-      case 'linkedin': return 'أدخل اسم الصفحة أو المعرف';
+      case 'whatsapp': return 'أدخل رقم الهاتف مع رمز الدولة (مثال: 966512345678)';
       case 'website': return 'أدخل الرابط كاملاً بما في ذلك https://';
       default: return '';
     }
@@ -208,8 +218,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       case 'facebook': return 'yourstorename';
       case 'snapchat': return 'yourstorename';
       case 'tiktok': return 'yourstorename';
-      case 'youtube': return 'yourstorename';
-      case 'linkedin': return 'yourstorename';
+      case 'whatsapp': return '966512345678';
       case 'website': return 'https://www.yourwebsite.com';
       default: return '';
     }
@@ -227,7 +236,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           <Globe className="h-5 w-5 ml-2 text-oksale-600" />
           وسائل التواصل الاجتماعي
         </CardTitle>
-        <CardDescription>حسابات التواصل الاجتماعي لمتجرك</CardDescription>
+        <CardDescription>يمكنك إضافة حتى 4 حسابات تواصل اجتماعي لمتجرك</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         {accounts.length > 0 ? (
@@ -264,9 +273,20 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           </div>
         )}
 
+        {maxAccountsReached && (
+          <Alert>
+            <AlertDescription className="text-sm">
+              لقد وصلت للحد الأقصى (4 حسابات). يجب حذف أحد الحسابات قبل إضافة حساب جديد.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full flex items-center gap-2">
+            <Button 
+              className="w-full flex items-center gap-2"
+              disabled={maxAccountsReached}
+            >
               <PlusCircle className="h-4 w-4" />
               إضافة حساب تواصل اجتماعي
             </Button>

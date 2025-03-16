@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, CheckCircle2, Instagram, Twitter, Facebook, Globe, MapPin, Landmark } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, Instagram, Twitter, Facebook, Globe, MapPin, Landmark, MessageSquare } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -25,8 +26,7 @@ interface StoreHeaderProps {
       website?: string;
       snapchat?: string;
       tiktok?: string;
-      youtube?: string;
-      linkedin?: string;
+      whatsapp?: string;
     };
   };
 }
@@ -64,8 +64,7 @@ const StoreHeader = ({
       case 'facebook': return `https://facebook.com/${username}`;
       case 'snapchat': return `https://snapchat.com/add/${username}`;
       case 'tiktok': return `https://tiktok.com/@${username}`;
-      case 'youtube': return `https://youtube.com/@${username}`;
-      case 'linkedin': return `https://linkedin.com/in/${username}`;
+      case 'whatsapp': return `https://wa.me/${username}`;
       case 'website': return username.startsWith('http') ? username : `https://${username}`;
       default: return username;
     }
@@ -78,9 +77,23 @@ const StoreHeader = ({
       case 'twitter': return <Twitter className="w-4 h-4 md:w-5 md:h-5" />;
       case 'facebook': return <Facebook className="w-4 h-4 md:w-5 md:h-5" />;
       case 'website': return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'snapchat': return <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'tiktok': return <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'whatsapp': return <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />;
       // For other platforms, use placeholder icon
       default: return <Landmark className="w-4 h-4 md:w-5 md:h-5" />;
     }
+  };
+
+  // Filter social links to only show a maximum of 4
+  const getSocialLinks = () => {
+    if (!store.socialLinks) return [];
+    
+    const links = Object.entries(store.socialLinks)
+      .filter(([_, value]) => !!value)
+      .slice(0, 4); // Limit to 4 social links
+    
+    return links;
   };
 
   return (
@@ -147,10 +160,10 @@ const StoreHeader = ({
                   </div>
                 )}
                 
-                {/* Social links - display all available social media links */}
+                {/* Social links - display maximum 4 social media links */}
                 {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
                   <div className="flex items-center gap-3 md:gap-4 mt-2">
-                    {Object.entries(store.socialLinks).map(([type, username]) => {
+                    {getSocialLinks().map(([type, username]) => {
                       if (!username) return null;
                       
                       return (
