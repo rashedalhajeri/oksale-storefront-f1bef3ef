@@ -1,4 +1,3 @@
-
 /* Dashboard performance optimizations */
 
 /* Improve scrolling */
@@ -109,4 +108,14 @@
   to {
     background-position: -200% 0;
   }
+}
+
+/* Enhanced RTL for dashboard */
+.dashboard-rtl .header-content {
+  flex-direction: row-reverse;
+}
+
+.dashboard-rtl .store-header {
+  display: flex;
+  flex-direction: row-reverse;
 }

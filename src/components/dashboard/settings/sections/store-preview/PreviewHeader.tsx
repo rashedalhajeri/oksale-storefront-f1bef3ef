@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Eye, Edit, PenSquare } from 'lucide-react';
+import { PenSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { 
   Dialog,
@@ -14,7 +14,7 @@ interface PreviewHeaderProps {
 
 const PreviewHeader: React.FC<PreviewHeaderProps> = ({ open, setOpen }) => {
   return (
-    <div className="absolute top-3 right-3 z-10">
+    <div className="absolute top-3 left-3 z-10">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button 
@@ -22,8 +22,8 @@ const PreviewHeader: React.FC<PreviewHeaderProps> = ({ open, setOpen }) => {
             size="sm"
             className="text-xs font-medium flex items-center gap-1.5 shadow-md bg-white/80 hover:bg-white backdrop-blur-sm transition-all"
           >
-            {open ? <PenSquare className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-            {open ? 'تعديل' : 'معاينة'}
+            <PenSquare className="h-3 w-3" />
+            تعديل
           </Button>
         </DialogTrigger>
       </Dialog>
