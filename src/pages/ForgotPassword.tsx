@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from "@/components/ui/separator";
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, AlertCircle, Lock, ArrowRight } from 'lucide-react';
+import { Mail, AlertCircle, Lock, ArrowRight, ShoppingBag } from 'lucide-react';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
