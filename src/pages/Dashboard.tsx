@@ -148,13 +148,14 @@ const Dashboard = () => {
     );
   }
 
-  // Create a provider that will pass props to all children using context instead of directly passing props
+  // More efficient rendering with proper layout
   return (
-    <DashboardContext.Provider value={contextValue}>
-      <DashboardLayout storeData={storeData}>
+    <DashboardLayout storeData={storeData}>
+      {/* Create a provider that will pass props to all children */}
+      <DashboardContext.Provider value={contextValue}>
         <Outlet />
-      </DashboardLayout>
-    </DashboardContext.Provider>
+      </DashboardContext.Provider>
+    </DashboardLayout>
   );
 };
 

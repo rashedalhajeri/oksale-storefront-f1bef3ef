@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   Home, 
@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from '@/lib/utils';
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 
 interface SidebarNavigationProps {
   storeData: any;
@@ -32,8 +31,8 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
     }
   }, [location.pathname]);
 
-  // Reusable navigation items data
-  const navigationItems = [
+  // Memoize navigation items to prevent recreation on each render
+  const navigationItems = useMemo(() => [
     { 
       name: 'الرئيسية', 
       path: '/dashboard', 
@@ -64,10 +63,10 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
       path: '/dashboard/marketing', 
       icon: <Megaphone className="h-5 w-5" /> 
     }
-  ];
+  ], []);
 
-  // Settings items data
-  const settingsItems = [
+  // Memoize settings items to prevent recreation on each render
+  const settingsItems = useMemo(() => [
     { name: 'المعلومات العامة', path: '/dashboard/settings/general' },
     { name: 'الظهور والتصميم', path: '/dashboard/settings/appearance' },
     { name: 'وسائل الدفع', path: '/dashboard/settings/payment' },
@@ -75,19 +74,19 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
     { name: 'التنبيهات والإشعارات', path: '/dashboard/settings/notifications' },
     { name: 'إعدادات الواتساب', path: '/dashboard/settings/whatsapp' },
     { name: 'المستخدمين والصلاحيات', path: '/dashboard/settings/users' }
-  ];
+  ], []);
   
   return (
-    <div className="flex-1 will-change-transform">
+    <div className="flex-1 overflow-y-auto will-change-transform">
       {/* Main Navigation */}
-      <SidebarMenu className="space-y-2">
+      <ul className="space-y-2">
         {navigationItems.map((item) => (
-          <SidebarMenuItem key={item.path}>
+          <li key={item.path}>
             <NavLink
               to={item.path}
               end={item.path === '/dashboard'} // Only exact match for dashboard home
               className={({ isActive }) => cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all w-full",
+                "flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all",
                 isActive
                   ? "bg-[#1A2747] text-white"
                   : "text-white/80 hover:text-white hover:bg-[#1A2747]/50"
@@ -96,11 +95,11 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
               {item.icon}
               <span>{item.name}</span>
             </NavLink>
-          </SidebarMenuItem>
+          </li>
         ))}
         
         {/* Settings with dropdown */}
-        <SidebarMenuItem>
+        <li>
           <Collapsible
             open={isSettingsOpen}
             onOpenChange={setIsSettingsOpen}
@@ -138,8 +137,8 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
               ))}
             </CollapsibleContent>
           </Collapsible>
-        </SidebarMenuItem>
-      </SidebarMenu>
+        </li>
+      </ul>
     </div>
   );
 }, (prevProps, nextProps) => {
