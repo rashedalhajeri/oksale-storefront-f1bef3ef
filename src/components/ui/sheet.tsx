@@ -65,6 +65,14 @@ const SheetContent = React.forwardRef<
       <SheetPrimitive.Content
         ref={ref}
         className={cn(sheetVariants({ side }), className)}
+        style={{
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          transform: side === 'right' ? 'translateX(0) translateZ(0)' : 
+                   side === 'left' ? 'translateX(0) translateZ(0)' : 
+                   side === 'top' ? 'translateY(0) translateZ(0)' : 
+                   'translateY(0) translateZ(0)'
+        }}
         {...props}
       >
         {memoizedContent}

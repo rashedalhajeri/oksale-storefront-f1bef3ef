@@ -1,9 +1,10 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
 import { formatCurrencyWithSettings, formatNumber } from '@/utils/dashboard/dashboardUtils';
+import { useQuery } from '@tanstack/react-query';
 
 import { 
   fetchStoreStatistics, 
@@ -23,69 +24,77 @@ export const useDashboardData = (storeId: string) => {
     soldProductsCount: 0,
     currency: 'SAR'
   });
-  const [salesData, setSalesData] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [orderStatusData, setOrderStatusData] = useState([]);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [chartLoading, setChartLoading] = useState(true);
-  const [topProductsLoading, setTopProductsLoading] = useState(true);
-  const [recentOrdersLoading, setRecentOrdersLoading] = useState(true);
-  const [orderStatusLoading, setOrderStatusLoading] = useState(true);
-
-  const calculateTarget = (current: number) => Math.ceil(current * 1.2); // أعلى بنسبة 20% من الحالي
-
-  const loadDashboardData = useCallback(async () => {
-    if (!storeId) return;
-    
-    try {
-      setStatsLoading(true);
-      const stats = await fetchStoreStatistics(storeId);
+  
+  // Fetch statistics using React Query
+  const { 
+    data: statsData, 
+    isLoading: statsLoading,
+    refetch: refetchStats
+  } = useQuery({
+    queryKey: ['dashboard-stats', storeId],
+    queryFn: () => fetchStoreStatistics(storeId),
+    enabled: !!storeId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    onSuccess: (data) => {
       setDashboardStats({
-        productsCount: stats.productsCount,
-        ordersCount: stats.ordersCount,
-        revenue: parseFloat(stats.revenue),
-        soldProductsCount: stats.soldProductsCount || 0,
-        currency: stats.currency || 'SAR'
+        productsCount: data.productsCount,
+        ordersCount: data.ordersCount,
+        revenue: parseFloat(data.revenue),
+        soldProductsCount: data.soldProductsCount || 0,
+        currency: data.currency || 'SAR'
       });
-      
-      setChartLoading(true);
-      const salesChartData = generateSalesData(stats.orders, timeframe);
-      setSalesData(salesChartData);
-      
-      setTopProductsLoading(true);
-      const topProductsData = await getTopSellingProducts(storeId);
-      setTopProducts(topProductsData);
-      
-      setRecentOrdersLoading(true);
-      // Get more orders (15 instead of 5) to ensure we have enough pending orders
-      const recentOrdersData = await getRecentOrders(storeId, 15);
-      setRecentOrders(recentOrdersData);
-      
-      setOrderStatusLoading(true);
-      const orderStatusStats = await getOrderStatusStats(storeId);
-      setOrderStatusData(orderStatusStats);
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
+    },
+    onError: (error) => {
+      console.error("Error loading dashboard stats:", error);
       toast({
         variant: "destructive",
-        title: "فشل تحميل البيانات",
-        description: "حدث خطأ أثناء تحميل بيانات لوحة التحكم، يرجى المحاولة مرة أخرى.",
+        title: "فشل تحميل الإحصائيات",
+        description: "حدث خطأ أثناء تحميل إحصائيات لوحة التحكم، يرجى المحاولة مرة أخرى.",
       });
-    } finally {
-      setStatsLoading(false);
-      setChartLoading(false);
-      setTopProductsLoading(false);
-      setRecentOrdersLoading(false);
-      setOrderStatusLoading(false);
     }
-  }, [storeId, timeframe, toast]);
+  });
+  
+  // Generate sales chart data
+  const salesData = useMemo(() => {
+    if (!statsData?.orders) return [];
+    return generateSalesData(statsData.orders, timeframe);
+  }, [statsData?.orders, timeframe]);
+  
+  // Fetch top products using React Query
+  const { 
+    data: topProducts = [], 
+    isLoading: topProductsLoading 
+  } = useQuery({
+    queryKey: ['top-products', storeId],
+    queryFn: () => getTopSellingProducts(storeId),
+    enabled: !!storeId,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+  
+  // Fetch recent orders using React Query
+  const { 
+    data: recentOrders = [], 
+    isLoading: recentOrdersLoading 
+  } = useQuery({
+    queryKey: ['recent-orders', storeId],
+    queryFn: () => getRecentOrders(storeId, 15),
+    enabled: !!storeId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+  
+  // Fetch order status stats using React Query
+  const { 
+    data: orderStatusData = [], 
+    isLoading: orderStatusLoading 
+  } = useQuery({
+    queryKey: ['order-status', storeId],
+    queryFn: () => getOrderStatusStats(storeId),
+    enabled: !!storeId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
-  useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
-
-  const statistics = [
+  // Compute statistics with useMemo to avoid unnecessary recalculation
+  const statistics = useMemo(() => [
     {
       name: "المنتجات",
       value: formatNumber(dashboardStats.productsCount),
@@ -114,7 +123,18 @@ export const useDashboardData = (storeId: string) => {
       description: "الإيرادات",
       trendUp: true
     }
-  ];
+  ], [dashboardStats]);
+
+  const loadDashboardData = useCallback(() => {
+    refetchStats();
+  }, [refetchStats]);
+
+  // Effect for timeframe changes
+  useEffect(() => {
+    if (statsData?.orders) {
+      // We don't need to do anything here as salesData is computed with useMemo
+    }
+  }, [timeframe, statsData]);
 
   return {
     timeframe,
@@ -125,7 +145,7 @@ export const useDashboardData = (storeId: string) => {
     recentOrders,
     orderStatusData,
     statsLoading,
-    chartLoading,
+    chartLoading: statsLoading, // We derive chart loading from stats loading
     topProductsLoading,
     recentOrdersLoading,
     orderStatusLoading,

@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
   storeData: any;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
   children,
   storeData
 }) => {
@@ -35,7 +35,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <div className="fixed top-4 right-4 z-50">
           <button 
             onClick={toggleSidebar} 
-            className="p-2.5 rounded-full bg-white shadow-md dark:bg-[#0E1632] focus:outline-none" 
+            className="p-2.5 rounded-full bg-white shadow-md dark:bg-[#0E1632] focus:outline-none will-change-transform" 
             aria-label={sidebarOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             {sidebarOpen ? 
@@ -48,7 +48,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       
       {/* Sidebar - Always visible on desktop, conditionally visible on mobile */}
       <div className={cn(
-        "transition-transform duration-300 transform z-40", 
+        "transition-transform duration-300 transform z-40 will-change-transform", 
         isMobile ? "fixed inset-y-0 right-0 shadow-xl" : "sticky top-0 h-screen", 
         isMobile && !sidebarOpen ? "translate-x-full" : "translate-x-0"
       )}>
@@ -58,7 +58,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       {/* Overlay for mobile when sidebar is open */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 backdrop-blur-sm" 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 backdrop-blur-sm will-change-opacity" 
           onClick={() => setSidebarOpen(false)} 
         />
       )}
@@ -77,6 +77,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </div>
     </div>
   );
-};
+});
+
+DashboardLayout.displayName = 'DashboardLayout';
 
 export default DashboardLayout;

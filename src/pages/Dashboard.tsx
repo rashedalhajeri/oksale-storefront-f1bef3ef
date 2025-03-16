@@ -1,34 +1,37 @@
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 
-// Dashboard Components
+// Dashboard Layout
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Loader2 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 
 // Lazy load components for better performance
-const MainDashboard = React.lazy(() => import('@/components/dashboard/MainDashboard'));
-const DashboardProducts = React.lazy(() => import('@/components/dashboard/DashboardProducts'));
-const DashboardOrders = React.lazy(() => import('@/components/dashboard/DashboardOrders'));
-const DashboardCustomers = React.lazy(() => import('@/components/dashboard/DashboardCustomers'));
-const DashboardCategories = React.lazy(() => import('@/components/dashboard/DashboardCategories'));
-const DashboardOffers = React.lazy(() => import('@/components/dashboard/DashboardOffers'));
-const DashboardSettingsGeneral = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsGeneral'));
-const DashboardSettingsAppearance = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsAppearance'));
-const DashboardSettingsPayment = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsPayment'));
-const DashboardSettingsShipping = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsShipping'));
-const DashboardSettingsNotifications = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsNotifications'));
-const DashboardSettingsWhatsApp = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsWhatsApp'));
-const DashboardSettingsUsers = React.lazy(() => import('@/components/dashboard/settings/DashboardSettingsUsers'));
+const MainDashboard = lazy(() => import('@/components/dashboard/MainDashboard'));
+const DashboardProducts = lazy(() => import('@/components/dashboard/DashboardProducts'));
+const DashboardOrders = lazy(() => import('@/components/dashboard/DashboardOrders'));
+const DashboardCustomers = lazy(() => import('@/components/dashboard/DashboardCustomers'));
+const DashboardCategories = lazy(() => import('@/components/dashboard/DashboardCategories'));
+const DashboardOffers = lazy(() => import('@/components/dashboard/DashboardOffers'));
+const DashboardSettingsGeneral = lazy(() => import('@/components/dashboard/settings/DashboardSettingsGeneral'));
+const DashboardSettingsAppearance = lazy(() => import('@/components/dashboard/settings/DashboardSettingsAppearance'));
+const DashboardSettingsPayment = lazy(() => import('@/components/dashboard/settings/DashboardSettingsPayment'));
+const DashboardSettingsShipping = lazy(() => import('@/components/dashboard/settings/DashboardSettingsShipping'));
+const DashboardSettingsNotifications = lazy(() => import('@/components/dashboard/settings/DashboardSettingsNotifications'));
+const DashboardSettingsWhatsApp = lazy(() => import('@/components/dashboard/settings/DashboardSettingsWhatsApp'));
+const DashboardSettingsUsers = lazy(() => import('@/components/dashboard/settings/DashboardSettingsUsers'));
 
-// Loading component
+// Loading component with better visual feedback
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full min-h-[400px]">
-    <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
+    <div className="flex flex-col items-center">
+      <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
+      <p className="mt-4 text-sm text-gray-500">جارِ تحميل الصفحة...</p>
+    </div>
   </div>
 );
 
@@ -81,7 +84,10 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="animate-spin w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full"></div>
+        <div className="flex flex-col items-center">
+          <div className="animate-spin w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full"></div>
+          <p className="mt-4 text-sm text-gray-500">جارِ تحميل البيانات...</p>
+        </div>
       </div>
     );
   }
@@ -134,7 +140,7 @@ const Dashboard = () => {
 };
 
 // Inner component for the main dashboard content
-const DashboardMain = ({ storeData }) => {
+const DashboardMain = React.memo(({ storeData }) => {
   const {
     timeframe,
     setTimeframe,
@@ -168,6 +174,8 @@ const DashboardMain = ({ storeData }) => {
       currency={currency}
     />
   );
-};
+});
+
+DashboardMain.displayName = 'DashboardMain';
 
 export default Dashboard;
