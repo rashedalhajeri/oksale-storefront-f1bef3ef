@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2, Eye, User, Mail, Phone, Calendar, MapPin } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,9 +26,25 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardCustomersProps {
   storeData: any;
@@ -56,8 +72,17 @@ interface CustomerOrder {
   items: number;
 }
 
+// Form types
+interface CustomerFormData {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+}
+
 const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) => {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   
   // Mock customers data with extended information
   const customers: Customer[] = [
@@ -116,7 +141,22 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
 
   const [selectedCustomers, setSelectedCustomers] = useState<number[]>([]);
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+
+  // Forms
+  const addForm = useForm<CustomerFormData>({
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+    }
+  });
+
+  const editForm = useForm<CustomerFormData>();
 
   const toggleCustomerSelection = (customerId: number) => {
     if (selectedCustomers.includes(customerId)) {
@@ -137,6 +177,58 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
   const openCustomerDetails = (customer: Customer) => {
     setSelectedCustomer(customer);
     setIsCustomerDialogOpen(true);
+  };
+
+  const openEditCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    editForm.reset({
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      address: customer.address || '',
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteConfirmation = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleAddSubmit = (data: CustomerFormData) => {
+    console.log('Adding customer:', data);
+    // Here you would add the customer to the database
+    // For mock purposes, we'll just show a success message
+    toast({
+      title: "تم إضافة العميل بنجاح",
+      description: `تم إضافة العميل ${data.name} بنجاح.`,
+    });
+    addForm.reset();
+    setIsAddDialogOpen(false);
+  };
+
+  const handleEditSubmit = (data: CustomerFormData) => {
+    console.log('Editing customer:', data);
+    // Here you would update the customer in the database
+    // For mock purposes, we'll just show a success message
+    toast({
+      title: "تم تحديث العميل بنجاح",
+      description: `تم تحديث بيانات العميل ${data.name} بنجاح.`,
+    });
+    setIsEditDialogOpen(false);
+  };
+
+  const handleDeleteCustomer = () => {
+    if (!selectedCustomer) return;
+    
+    console.log('Deleting customer:', selectedCustomer.id);
+    // Here you would delete the customer from the database
+    // For mock purposes, we'll just show a success message
+    toast({
+      title: "تم حذف العميل بنجاح",
+      description: `تم حذف العميل ${selectedCustomer.name} بنجاح.`,
+    });
+    setIsDeleteDialogOpen(false);
   };
 
   // Format phone numbers with country code (966) and add spaces
@@ -188,7 +280,11 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
           </div>
 
           {/* Add customer button - Compact design */}
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]" size="sm">
+          <Button 
+            className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]" 
+            size="sm"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
             <Plus size={16} className="ml-1" />
             <span className={`${isMobile ? 'text-sm' : 'text-sm'}`}>إضافة عميل</span>
           </Button>
@@ -227,11 +323,17 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                           <Eye size={14} className="text-gray-500" />
                           <span>عرض</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2 text-sm cursor-pointer">
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2 text-sm cursor-pointer"
+                          onClick={() => openEditCustomer(customer)}
+                        >
                           <Pencil size={14} className="text-gray-500" />
                           <span>تعديل</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2 text-sm text-red-600 cursor-pointer">
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2 text-sm text-red-600 cursor-pointer"
+                          onClick={() => openDeleteConfirmation(customer)}
+                        >
                           <Trash2 size={14} className="text-red-500" />
                           <span>حذف</span>
                         </DropdownMenuItem>
@@ -293,11 +395,17 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                                 <Eye size={14} className="text-gray-500" />
                                 <span>عرض</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="flex items-center gap-2 text-sm cursor-pointer">
+                              <DropdownMenuItem 
+                                className="flex items-center gap-2 text-sm cursor-pointer"
+                                onClick={() => openEditCustomer(customer)}
+                              >
                                 <Pencil size={14} className="text-gray-500" />
                                 <span>تعديل</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="flex items-center gap-2 text-sm text-red-600 cursor-pointer">
+                              <DropdownMenuItem 
+                                className="flex items-center gap-2 text-sm text-red-600 cursor-pointer"
+                                onClick={() => openDeleteConfirmation(customer)}
+                              >
                                 <Trash2 size={14} className="text-red-500" />
                                 <span>حذف</span>
                               </DropdownMenuItem>
@@ -355,19 +463,28 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 <h3 className="font-medium text-gray-900 text-lg border-b pb-2">معلومات العميل</h3>
                 
                 <div className="space-y-3">
-                  <div>
-                    <p className="text-sm text-gray-500">البريد الإلكتروني</p>
-                    <p className="font-medium">{selectedCustomer.email}</p>
+                  <div className="flex items-start gap-3">
+                    <Mail className="mt-1 text-gray-400 h-4 w-4" />
+                    <div>
+                      <p className="text-sm text-gray-500">البريد الإلكتروني</p>
+                      <p className="font-medium">{selectedCustomer.email}</p>
+                    </div>
                   </div>
                   
-                  <div>
-                    <p className="text-sm text-gray-500">رقم الجوال</p>
-                    <p className="font-medium dir-ltr text-right">{formatPhoneNumber(selectedCustomer.phone)}</p>
+                  <div className="flex items-start gap-3">
+                    <Phone className="mt-1 text-gray-400 h-4 w-4" />
+                    <div>
+                      <p className="text-sm text-gray-500">رقم الجوال</p>
+                      <p className="font-medium dir-ltr text-right">{formatPhoneNumber(selectedCustomer.phone)}</p>
+                    </div>
                   </div>
                   
-                  <div>
-                    <p className="text-sm text-gray-500">تاريخ التسجيل</p>
-                    <p className="font-medium">{selectedCustomer.registrationDate}</p>
+                  <div className="flex items-start gap-3">
+                    <Calendar className="mt-1 text-gray-400 h-4 w-4" />
+                    <div>
+                      <p className="text-sm text-gray-500">تاريخ التسجيل</p>
+                      <p className="font-medium">{selectedCustomer.registrationDate}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -375,7 +492,8 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               {/* Customer Address */}
               <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 text-lg border-b pb-2">العنوان</h3>
-                <div className="bg-gray-50 p-3 rounded-md">
+                <div className="bg-gray-50 p-3 rounded-md flex items-start gap-3">
+                  <MapPin className="mt-1 text-gray-400 h-4 w-4 flex-shrink-0" />
                   <p className="text-gray-700">{selectedCustomer.address || 'لا يوجد عنوان مسجل'}</p>
                 </div>
               </div>
@@ -428,6 +546,189 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
             </div>
           </DialogContent>
         </Dialog>
+      )}
+
+      {/* Edit Customer Dialog */}
+      {selectedCustomer && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-md overflow-hidden">
+            <DialogHeader>
+              <DialogTitle className="text-xl">تعديل بيانات العميل</DialogTitle>
+              <DialogDescription>
+                قم بتعديل بيانات العميل ثم اضغط على زر الحفظ للتأكيد.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4 mt-2">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">الاسم</Label>
+                  <div className="relative">
+                    <User className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <Input
+                      id="edit-name"
+                      className="pr-10"
+                      placeholder="اسم العميل"
+                      {...editForm.register("name", { required: true })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-email">البريد الإلكتروني</Label>
+                  <div className="relative">
+                    <Mail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <Input
+                      id="edit-email"
+                      type="email"
+                      className="pr-10"
+                      placeholder="البريد الإلكتروني"
+                      {...editForm.register("email", { required: true })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-phone">رقم الجوال</Label>
+                  <div className="relative">
+                    <Phone className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <Input
+                      id="edit-phone"
+                      className="pr-10"
+                      placeholder="رقم الجوال"
+                      {...editForm.register("phone", { required: true })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-address">العنوان</Label>
+                  <div className="relative">
+                    <MapPin className="absolute right-3 top-3 text-gray-400" size={16} />
+                    <textarea
+                      id="edit-address"
+                      className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-20"
+                      placeholder="عنوان العميل"
+                      {...editForm.register("address")}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  إلغاء
+                </Button>
+                <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
+                  حفظ التغييرات
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Add Customer Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-md overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="text-xl">إضافة عميل جديد</DialogTitle>
+            <DialogDescription>
+              أدخل بيانات العميل الجديد ثم اضغط على زر الإضافة للتأكيد.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={addForm.handleSubmit(handleAddSubmit)} className="space-y-4 mt-2">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-name">الاسم</Label>
+                <div className="relative">
+                  <User className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                  <Input
+                    id="add-name"
+                    className="pr-10"
+                    placeholder="اسم العميل"
+                    {...addForm.register("name", { required: true })}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="add-email">البريد الإلكتروني</Label>
+                <div className="relative">
+                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                  <Input
+                    id="add-email"
+                    type="email"
+                    className="pr-10"
+                    placeholder="البريد الإلكتروني"
+                    {...addForm.register("email", { required: true })}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="add-phone">رقم الجوال</Label>
+                <div className="relative">
+                  <Phone className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                  <Input
+                    id="add-phone"
+                    className="pr-10 dir-ltr text-right"
+                    placeholder="966xxxxxxxxx"
+                    {...addForm.register("phone", { required: true })}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="add-address">العنوان</Label>
+                <div className="relative">
+                  <MapPin className="absolute right-3 top-3 text-gray-400" size={16} />
+                  <textarea
+                    id="add-address"
+                    className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-20"
+                    placeholder="عنوان العميل"
+                    {...addForm.register("address")}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                إلغاء
+              </Button>
+              <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
+                إضافة العميل
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Customer Confirmation Dialog */}
+      {selectedCustomer && (
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>تأكيد حذف العميل</AlertDialogTitle>
+              <AlertDialogDescription>
+                هل أنت متأكد من رغبتك في حذف العميل <span className="font-bold">{selectedCustomer.name}</span>؟
+                <br />
+                لا يمكن التراجع عن هذا الإجراء بعد التأكيد.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>إلغاء</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeleteCustomer}
+                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              >
+                نعم، حذف العميل
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </div>
   );
