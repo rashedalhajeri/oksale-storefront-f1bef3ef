@@ -61,6 +61,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Component to conditionally render navbar based on route
 const AppRoutes = () => {
   const location = useLocation();
+  
   // لا نعرض القائمة العلوية في هذه المسارات
   const hideNavbarRoutes = [
     '/signin',
@@ -69,18 +70,31 @@ const AppRoutes = () => {
     '/dashboard'
   ];
   
-  // التحقق ما إذا كان المسار الحالي بدون "store/" هو مسار متجر
-  // عن طريق التحقق من عدم وجود slash إضافي في المسار بخلاف الأول
-  const isStorePath = 
-    !location.pathname.startsWith('/signin') && 
-    !location.pathname.startsWith('/signup') && 
-    !location.pathname.startsWith('/store-setup') && 
-    !location.pathname.startsWith('/dashboard') && 
-    !location.pathname.startsWith('/explore') && 
-    location.pathname !== '/' && 
-    !location.pathname.includes('/', 1); // لا يحتوي على / بعد الحرف الأول
+  // تحسين طريقة التحقق من مسارات المتجر، لتشمل الصفحات الفرعية مثل المنتجات والسلة
+  const isStorePath = () => {
+    // المسارات الخاصة بالمنصة (لا تشمل مسارات المتجر)
+    const platformPaths = [
+      '/signin',
+      '/signup',
+      '/store-setup',
+      '/dashboard',
+      '/explore',
+      '/'
+    ];
+    
+    // التحقق من أن المسار ليس أحد مسارات المنصة
+    if (platformPaths.some(path => location.pathname === path || location.pathname.startsWith(path + '/'))) {
+      return false;
+    }
+    
+    // التحقق من أنه يحتوي على مسار بعد الشرطة الأولى (يعني مسار المتجر)
+    // على سبيل المثال: /store-handle/... أو /@store-handle/...
+    const hasStoreHandle = location.pathname.split('/').filter(part => part).length > 0;
+    
+    return hasStoreHandle;
+  };
   
-  const shouldHideNavbar = hideNavbarRoutes.some(route => location.pathname.startsWith(route)) || isStorePath;
+  const shouldHideNavbar = hideNavbarRoutes.some(route => location.pathname.startsWith(route)) || isStorePath();
   
   return (
     <>
