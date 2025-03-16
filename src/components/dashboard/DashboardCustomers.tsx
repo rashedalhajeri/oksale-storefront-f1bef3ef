@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Filter, Plus, MoreHorizontal, Pencil, Trash2, Eye, User, Mail, Phone, Calendar, MapPin } from 'lucide-react';
@@ -232,7 +231,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
     }
     return formatDistance(customer.registrationTimestamp, now, { addSuffix: true, locale: ar });
   };
-
+  
   // Format phone numbers with country code and proper spacing
   const formatPhoneNumber = (phone: string) => {
     try {
@@ -281,7 +280,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </div>
       </div>
 
-      {/* Search and filters section */}
+      {/* Search and filters section - Improved layout */}
       <div className="space-y-3">
         <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-3`}>
           <div className={`relative flex ${isMobile ? 'w-full' : 'w-full flex-1'}`}>
@@ -289,19 +288,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <Input placeholder="بحث عن عميل..." className="pr-10 bg-white border-gray-200" />
             </div>
-            <Select>
-              <SelectTrigger className={`bg-white border-gray-200 ${isMobile ? 'w-full mt-2' : 'w-[120px] mr-2'}`}>
-                <div className="flex items-center">
-                  <Filter size={14} className="text-gray-500 ml-1" />
-                  <span className="text-sm">فلترة</span>
-                </div>
-              </SelectTrigger>
-              <SelectContent align="end">
-                <SelectItem value="all">جميع العملاء</SelectItem>
-                <SelectItem value="active">العملاء النشطين</SelectItem>
-                <SelectItem value="new">العملاء الجدد</SelectItem>
-              </SelectContent>
-            </Select>
+            <Button variant="outline" size="icon" className="bg-white border-gray-200 h-10 w-10 mr-2">
+              <Filter size={16} className="text-gray-500" />
+            </Button>
           </div>
 
           {/* Add customer button */}
@@ -320,7 +309,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
       <Card className="shadow-sm border border-gray-100">
         <CardContent className="p-0">
           {isMobile ? (
-            // Mobile view
+            // Mobile view - Improved phone number display
             <div className="overflow-hidden">
               {customers.map((customer) => (
                 <div 
@@ -329,9 +318,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                 >
                   <div>
                     <p className="font-medium text-gray-900">{customer.name}</p>
-                    <div className="flex items-center gap-1 mt-1">
+                    <div className="flex items-center gap-2 mt-1">
                       {getCountryFromPhone(customer.phone) && (
-                        <span className="inline-block h-4 w-6 overflow-hidden rounded-sm">
+                        <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
                           <img 
                             src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                             alt="Country flag" 
@@ -339,7 +328,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                           />
                         </span>
                       )}
-                      <p className="text-sm text-gray-600 dir-ltr text-right">
+                      <p className="text-sm text-gray-600 dir-ltr">
                         {formatPhoneNumber(customer.phone)}
                       </p>
                     </div>
@@ -380,13 +369,13 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               ))}
             </div>
           ) : (
-            // Desktop view
+            // Desktop view - Improved phone number column
             <div className="overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50">
                     <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[140px]">الاسم</TableHead>
-                    <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[140px]">رقم الجوال</TableHead>
+                    <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[160px]">رقم الجوال</TableHead>
                     <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[130px]">تاريخ التسجيل</TableHead>
                     <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[180px]">البريد الإلكتروني</TableHead>
                     <TableHead className="text-right py-3 font-semibold text-gray-600 min-w-[100px]">الطلبات</TableHead>
@@ -397,10 +386,10 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                   {customers.map((customer) => (
                     <TableRow key={customer.id} className="border-b hover:bg-gray-50">
                       <TableCell className="py-3 px-4 font-medium text-gray-900">{customer.name}</TableCell>
-                      <TableCell className="py-3 px-4 text-gray-700 text-sm">
-                        <div className="flex items-center gap-2 dir-ltr justify-end">
+                      <TableCell className="py-3 px-4 text-gray-700">
+                        <div className="flex items-center gap-2 dir-ltr">
                           {getCountryFromPhone(customer.phone) && (
-                            <span className="inline-block h-4 w-6 overflow-hidden rounded-sm">
+                            <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
                               <img 
                                 src={`https://flagcdn.com/w20/${getCountryFromPhone(customer.phone)}.png`} 
                                 alt="Country flag" 
@@ -408,7 +397,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                               />
                             </span>
                           )}
-                          <span>{formatPhoneNumber(customer.phone)}</span>
+                          <span className="text-sm">{formatPhoneNumber(customer.phone)}</span>
                         </div>
                       </TableCell>
                       <TableCell className="py-3 px-4 text-gray-700 text-sm">{formatRegistrationDate(customer)}</TableCell>
@@ -513,9 +502,9 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                         <Phone className="mt-1 text-gray-400 h-4 w-4" />
                         <div>
                           <p className="text-sm text-gray-500">رقم الجوال</p>
-                          <div className="font-medium dir-ltr text-right flex items-center gap-2">
+                          <div className="font-medium flex items-center gap-2">
                             {getCountryFromPhone(selectedCustomer.phone) && (
-                              <span className="inline-block h-4 w-6 overflow-hidden rounded-sm">
+                              <span className="inline-block h-4 w-6 overflow-hidden rounded border border-gray-200">
                                 <img 
                                   src={`https://flagcdn.com/w20/${getCountryFromPhone(selectedCustomer.phone)}.png`} 
                                   alt="Country flag" 
@@ -523,7 +512,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
                                 />
                               </span>
                             )}
-                            <span>{formatPhoneNumber(selectedCustomer.phone)}</span>
+                            <span className="dir-ltr">{formatPhoneNumber(selectedCustomer.phone)}</span>
                           </div>
                         </div>
                       </div>
@@ -599,7 +588,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </Dialog>
       )}
 
-      {/* Edit Customer Dialog */}
+      {/* Edit Customer Dialog - Improved phone input */}
       {selectedCustomer && (
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-md overflow-hidden">
@@ -683,7 +672,7 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
         </Dialog>
       )}
 
-      {/* Add Customer Dialog */}
+      {/* Add Customer Dialog - Improved phone input */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-md overflow-hidden">
           <DialogHeader>
@@ -760,37 +749,4 @@ const DashboardCustomers: React.FC<DashboardCustomersProps> = ({ storeData }) =>
               <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
                 إضافة العميل
               </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Customer Confirmation Dialog */}
-      {selectedCustomer && (
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>تأكيد حذف العميل</AlertDialogTitle>
-              <AlertDialogDescription>
-                هل أنت متأكد من رغبتك في حذف العميل <span className="font-bold">{selectedCustomer.name}</span>؟
-                <br />
-                لا يمكن التراجع عن هذا الإجراء بعد التأكيد.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>إلغاء</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={handleDeleteCustomer}
-                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-              >
-                نعم، حذف العميل
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-    </div>
-  );
-};
-
-export default DashboardCustomers;
+            </Dialog
