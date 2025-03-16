@@ -37,7 +37,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = React.memo(({
   }, []);
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex will-change-transform">
       {/* Toggle Button for Mobile */}
       {isMobile && (
         <div className="fixed top-4 right-4 z-50">

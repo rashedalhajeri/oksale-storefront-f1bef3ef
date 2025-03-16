@@ -42,6 +42,15 @@ const PageLoader = () => (
   </div>
 );
 
+// DashboardContent component that serves as an Outlet container
+const DashboardContent = ({ storeData }: { storeData: any }) => {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Outlet context={storeData} />
+    </Suspense>
+  );
+};
+
 // Main Dashboard Container component
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -125,24 +134,24 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout storeData={storeData}>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path="/" element={<DashboardMain storeData={storeData} />} />
-          <Route path="/products" element={<DashboardProducts storeData={storeData} />} />
-          <Route path="/orders" element={<DashboardOrders storeData={storeData} />} />
-          <Route path="/customers" element={<DashboardCustomers storeData={storeData} />} />
-          <Route path="/categories" element={<DashboardCategories storeData={storeData} />} />
-          <Route path="/offers" element={<DashboardOffers storeData={storeData} />} />
-          <Route path="/settings/general" element={<DashboardSettingsGeneral storeData={storeData} />} />
-          <Route path="/settings/appearance" element={<DashboardSettingsAppearance storeData={storeData} />} />
-          <Route path="/settings/payment" element={<DashboardSettingsPayment storeData={storeData} />} />
-          <Route path="/settings/shipping" element={<DashboardSettingsShipping storeData={storeData} />} />
-          <Route path="/settings/notifications" element={<DashboardSettingsNotifications storeData={storeData} />} />
-          <Route path="/settings/whatsapp" element={<DashboardSettingsWhatsApp storeData={storeData} />} />
-          <Route path="/settings/users" element={<DashboardSettingsUsers storeData={storeData} />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Suspense>
+      <Routes>
+        <Route path="/" element={<DashboardContent storeData={storeData} />}>
+          <Route index element={<DashboardMain storeData={storeData} />} />
+          <Route path="products" element={<DashboardProducts storeData={storeData} />} />
+          <Route path="orders" element={<DashboardOrders storeData={storeData} />} />
+          <Route path="customers" element={<DashboardCustomers storeData={storeData} />} />
+          <Route path="categories" element={<DashboardCategories storeData={storeData} />} />
+          <Route path="marketing" element={<DashboardOffers storeData={storeData} />} />
+          <Route path="settings/general" element={<DashboardSettingsGeneral storeData={storeData} />} />
+          <Route path="settings/appearance" element={<DashboardSettingsAppearance storeData={storeData} />} />
+          <Route path="settings/payment" element={<DashboardSettingsPayment storeData={storeData} />} />
+          <Route path="settings/shipping" element={<DashboardSettingsShipping storeData={storeData} />} />
+          <Route path="settings/notifications" element={<DashboardSettingsNotifications storeData={storeData} />} />
+          <Route path="settings/whatsapp" element={<DashboardSettingsWhatsApp storeData={storeData} />} />
+          <Route path="settings/users" element={<DashboardSettingsUsers storeData={storeData} />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
     </DashboardLayout>
   );
 };

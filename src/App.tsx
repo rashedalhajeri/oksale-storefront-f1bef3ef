@@ -18,7 +18,14 @@ import Dashboard from "./pages/Dashboard";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // prevent refetching when window regains focus
+      staleTime: 1000 * 60 * 5, // data remains fresh for 5 minutes
+    },
+  },
+});
 
 // مكوّن لحماية المسارات التي تتطلب تسجيل الدخول
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
