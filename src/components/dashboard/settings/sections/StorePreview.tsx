@@ -1,6 +1,19 @@
-
 import React, { useState } from 'react';
-import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle2, Edit, Globe, MapPin, Info } from 'lucide-react';
+import { 
+  ShoppingBag, 
+  Upload, 
+  Instagram, 
+  Twitter, 
+  Facebook, 
+  CheckCircle2, 
+  Edit, 
+  Globe, 
+  MapPin, 
+  Info,
+  SnapchatGhost,
+  Video,
+  Phone
+} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -38,7 +51,7 @@ interface StorePreviewProps {
   handleLogoUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleCoverUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleInputChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  handleSaveModal?: () => void; // Add the save function prop
+  handleSaveModal?: () => void;
 }
 
 const StorePreview: React.FC<StorePreviewProps> = ({
@@ -55,20 +68,32 @@ const StorePreview: React.FC<StorePreviewProps> = ({
 }) => {
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
-  const [open, setOpen] = useState(false); // Add state to control dialog
-  
+  const [open, setOpen] = useState(false);
+
   const displayHandle = storeInfo.handle.startsWith('@') 
     ? storeInfo.handle
     : `@${storeInfo.handle}`;
 
   const hasCover = !!storeInfo.cover_url;
 
-  // Function to handle saving changes and closing the modal
   const handleSaveAndClose = () => {
     if (handleSaveModal) {
       handleSaveModal();
     }
     setOpen(false);
+  };
+
+  const getSocialMediaIcon = (type: string) => {
+    switch (type) {
+      case 'instagram': return <Instagram className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'twitter': return <Twitter className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'facebook': return <Facebook className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'website': return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'snapchat': return <SnapchatGhost className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'tiktok': return <Video className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'whatsapp': return <Phone className="w-4 h-4 md:w-5 md:h-5" />;
+      default: return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
+    }
   };
 
   return (

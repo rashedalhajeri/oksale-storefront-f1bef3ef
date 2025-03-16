@@ -213,9 +213,12 @@ export type Database = {
           logo_url: string | null
           name: string
           owner_id: string
+          snapchat: string | null
+          tiktok: string | null
           twitter: string | null
           updated_at: string
           website: string | null
+          whatsapp: string | null
         }
         Insert: {
           address?: string | null
@@ -235,9 +238,12 @@ export type Database = {
           logo_url?: string | null
           name: string
           owner_id: string
+          snapchat?: string | null
+          tiktok?: string | null
           twitter?: string | null
           updated_at?: string
           website?: string | null
+          whatsapp?: string | null
         }
         Update: {
           address?: string | null
@@ -257,9 +263,12 @@ export type Database = {
           logo_url?: string | null
           name?: string
           owner_id?: string
+          snapchat?: string | null
+          tiktok?: string | null
           twitter?: string | null
           updated_at?: string
           website?: string | null
+          whatsapp?: string | null
         }
         Relationships: [
           {

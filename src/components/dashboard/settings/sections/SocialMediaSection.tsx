@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,10 +20,13 @@ import {
   Facebook,
   PlusCircle,
   Trash2,
-  MessageSquare
+  MessageSquare,
+  SnapchatGhost,
+  Video,
+  Phone
 } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast, toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 // Define supported social media types
 type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website' | 'snapchat' | 'tiktok' | 'whatsapp';
@@ -81,8 +85,9 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
   const [step, setStep] = useState<'select' | 'input'>('select');
   const [maxAccountsReached, setMaxAccountsReached] = useState(false);
 
+  // Change the limit from 4 to 3
   useEffect(() => {
-    setMaxAccountsReached(accounts.length >= 4);
+    setMaxAccountsReached(accounts.length >= 3);
   }, [accounts]);
 
   const handleAddAccount = () => {
@@ -96,10 +101,11 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           username: newAccount.username
         };
       } else {
-        if (updatedAccounts.length >= 4) {
+        // Change the limit from 4 to 3
+        if (updatedAccounts.length >= 3) {
           toast({
             title: "الحد الأقصى تم الوصول إليه",
-            description: "يمكنك إضافة 4 حسابات كحد أقصى",
+            description: "يمكنك إضافة 3 حسابات كحد أقصى",
             variant: "destructive"
           });
           setOpen(false);
@@ -161,17 +167,17 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     { 
       type: 'snapchat', 
       label: 'سناب شات', 
-      icon: <MessageSquare className="h-5 w-5" /> 
+      icon: <SnapchatGhost className="h-5 w-5" /> 
     },
     { 
       type: 'tiktok', 
       label: 'تيك توك', 
-      icon: <MessageSquare className="h-5 w-5" /> 
+      icon: <Video className="h-5 w-5" /> 
     },
     { 
       type: 'whatsapp', 
       label: 'واتساب', 
-      icon: <MessageSquare className="h-5 w-5" /> 
+      icon: <Phone className="h-5 w-5" /> 
     },
     { 
       type: 'website', 
@@ -227,7 +233,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           <Globe className="h-5 w-5 ml-2 text-oksale-600" />
           وسائل التواصل الاجتماعي
         </CardTitle>
-        <CardDescription>يمكنك إضافة حتى 4 حسابات تواصل اجتماعي لمتجرك</CardDescription>
+        <CardDescription>يمكنك إضافة حتى 3 حسابات تواصل اجتماعي لمتجرك</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         {accounts.length > 0 ? (
@@ -267,7 +273,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
         {maxAccountsReached && (
           <Alert>
             <AlertDescription className="text-sm">
-              لقد وصلت للحد الأقصى (4 حسابات). يجب حذف أحد الحسابات قبل إضافة حساب جديد.
+              لقد وصلت للحد الأقصى (3 حسابات). يجب حذف أحد الحسابات قبل إضافة حساب جديد.
             </AlertDescription>
           </Alert>
         )}

@@ -1,8 +1,19 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, CheckCircle2, Instagram, Twitter, Facebook, Globe, MapPin, Landmark, MessageSquare } from 'lucide-react';
+import { 
+  ShoppingBag, 
+  CheckCircle2, 
+  Instagram, 
+  Twitter, 
+  Facebook, 
+  Globe, 
+  MapPin, 
+  Landmark, 
+  SnapchatGhost,
+  Video,
+  Phone
+} from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -77,21 +88,21 @@ const StoreHeader = ({
       case 'twitter': return <Twitter className="w-4 h-4 md:w-5 md:h-5" />;
       case 'facebook': return <Facebook className="w-4 h-4 md:w-5 md:h-5" />;
       case 'website': return <Globe className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'snapchat': return <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'tiktok': return <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />;
-      case 'whatsapp': return <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'snapchat': return <SnapchatGhost className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'tiktok': return <Video className="w-4 h-4 md:w-5 md:h-5" />;
+      case 'whatsapp': return <Phone className="w-4 h-4 md:w-5 md:h-5" />;
       // For other platforms, use placeholder icon
       default: return <Landmark className="w-4 h-4 md:w-5 md:h-5" />;
     }
   };
 
-  // Filter social links to only show a maximum of 4
+  // Filter social links to only show a maximum of 3
   const getSocialLinks = () => {
     if (!store.socialLinks) return [];
     
     const links = Object.entries(store.socialLinks)
       .filter(([_, value]) => !!value)
-      .slice(0, 4); // Limit to 4 social links
+      .slice(0, 3); // Limit to 3 social links
     
     return links;
   };
@@ -160,7 +171,7 @@ const StoreHeader = ({
                   </div>
                 )}
                 
-                {/* Social links - display maximum 4 social media links */}
+                {/* Social links - display maximum 3 social media links */}
                 {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
                   <div className="flex items-center gap-3 md:gap-4 mt-2">
                     {getSocialLinks().map(([type, username]) => {
