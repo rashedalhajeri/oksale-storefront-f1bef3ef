@@ -99,8 +99,14 @@ export const useDashboardData = (storeId: string) => {
     if (!recentOrdersResponse) return [];
     
     // If the response has an 'orders' property, it's in the object format
-    if ('orders' in recentOrdersResponse && Array.isArray(recentOrdersResponse.orders)) {
-      return formatOrders(recentOrdersResponse.orders, recentOrdersResponse.currency || 'SAR');
+    if (typeof recentOrdersResponse === 'object' && 
+        !Array.isArray(recentOrdersResponse) && 
+        'orders' in recentOrdersResponse && 
+        Array.isArray(recentOrdersResponse.orders)) {
+      // Safely access the currency property
+      const currency = 'currency' in recentOrdersResponse ? 
+        (recentOrdersResponse.currency as string || 'SAR') : 'SAR';
+      return formatOrders(recentOrdersResponse.orders, currency);
     }
     
     // If it's already an array, return it
