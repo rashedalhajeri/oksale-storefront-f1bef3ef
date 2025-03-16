@@ -11,7 +11,8 @@ import {
   Package,
   User,
   Calendar,
-  MapPin
+  MapPin,
+  SlidersHorizontal
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import {
   Select,
@@ -43,6 +45,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Order {
   id: string;
@@ -77,6 +80,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [tabValue, setTabValue] = useState("all");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchOrders();
@@ -270,118 +275,287 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     return true;
   });
 
-  // Check if we're on a mobile device
-  const isMobile = window.innerWidth < 768;
-
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold mb-1">إدارة الطلبات</h1>
           <p className="text-gray-600 text-sm">إدارة ومتابعة طلبات متجرك ({orders.length})</p>
         </div>
-        <Button variant="outline" size="sm" className="self-start">
-          تصدير الطلبات
-        </Button>
+        {!isMobile && (
+          <Button variant="outline" size="sm" className="self-start">
+            تصدير الطلبات
+          </Button>
+        )}
       </div>
 
-      <Card className="mb-4 border-none shadow-sm">
-        <CardContent className="p-3">
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="البحث عن طلب..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Select defaultValue="newest">
-              <SelectTrigger className="w-full md:w-[150px]">
-                <SelectValue placeholder="ترتيب حسب" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">الأحدث</SelectItem>
-                <SelectItem value="oldest">الأقدم</SelectItem>
-                <SelectItem value="highest">الأعلى قيمة</SelectItem>
-                <SelectItem value="lowest">الأقل قيمة</SelectItem>
-              </SelectContent>
-            </Select>
+      {/* Mobile Filters */}
+      {isMobile && (
+        <div className="mb-4 flex gap-2">
+          <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-1 w-1/2">
+                <SlidersHorizontal className="h-4 w-4" />
+                <span>تصفية</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[80vh] rounded-t-xl">
+              <SheetHeader className="mb-4">
+                <SheetTitle>تصفية الطلبات</SheetTitle>
+              </SheetHeader>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">حالة الطلب</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['all', 'pending', 'processing', 'completed', 'cancelled'].map((status) => (
+                      <Button 
+                        key={status}
+                        variant={tabValue === status ? 'default' : 'outline'} 
+                        size="sm"
+                        onClick={() => {
+                          setTabValue(status);
+                          setIsFilterOpen(false);
+                        }}
+                        className="justify-start text-xs"
+                      >
+                        {status === 'all' && 'الكل'}
+                        {status === 'pending' && 'قيد الانتظار'}
+                        {status === 'processing' && 'قيد التجهيز'}
+                        {status === 'completed' && 'مكتمل'}
+                        {status === 'cancelled' && 'ملغي'}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-1 block">ترتيب حسب</label>
+                  <Select defaultValue="newest">
+                    <SelectTrigger>
+                      <SelectValue placeholder="ترتيب حسب" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">الأحدث</SelectItem>
+                      <SelectItem value="oldest">الأقدم</SelectItem>
+                      <SelectItem value="highest">الأعلى قيمة</SelectItem>
+                      <SelectItem value="lowest">الأقل قيمة</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="relative">
+                  <label className="text-sm font-medium mb-1 block">بحث</label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="البحث عن طلب..."
+                      className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <SheetFooter className="mt-6 flex-row space-x-2 justify-end">
+                  <SheetClose asChild>
+                    <Button type="button" variant="outline" size="sm">
+                      إغلاق
+                    </Button>
+                  </SheetClose>
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setTabValue('all');
+                      setIsFilterOpen(false);
+                    }}
+                  >
+                    إعادة تعيين
+                  </Button>
+                </SheetFooter>
+              </div>
+            </SheetContent>
+          </Sheet>
+          
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="البحث..."
+              className="pl-10 h-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      )}
 
-      <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
-        <TabsList className="mb-3 w-full overflow-x-auto flex-nowrap justify-start">
-          <TabsTrigger value="all" className="flex-shrink-0">الكل</TabsTrigger>
-          <TabsTrigger value="pending" className="flex-shrink-0">قيد الانتظار</TabsTrigger>
-          <TabsTrigger value="processing" className="flex-shrink-0">قيد التجهيز</TabsTrigger>
-          <TabsTrigger value="completed" className="flex-shrink-0">مكتمل</TabsTrigger>
-          <TabsTrigger value="cancelled" className="flex-shrink-0">ملغي</TabsTrigger>
-        </TabsList>
+      {/* Desktop Filters */}
+      {!isMobile && (
+        <Card className="mb-4 border-none shadow-sm">
+          <CardContent className="p-3">
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="البحث عن طلب..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Select defaultValue="newest">
+                <SelectTrigger className="w-full md:w-[150px]">
+                  <SelectValue placeholder="ترتيب حسب" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">الأحدث</SelectItem>
+                  <SelectItem value="oldest">الأقدم</SelectItem>
+                  <SelectItem value="highest">الأعلى قيمة</SelectItem>
+                  <SelectItem value="lowest">الأقل قيمة</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value={tabValue}>
+      {/* Desktop Tabs */}
+      {!isMobile && (
+        <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
+          <TabsList className="mb-3 w-full overflow-x-auto flex-nowrap justify-start">
+            <TabsTrigger value="all" className="flex-shrink-0">الكل</TabsTrigger>
+            <TabsTrigger value="pending" className="flex-shrink-0">قيد الانتظار</TabsTrigger>
+            <TabsTrigger value="processing" className="flex-shrink-0">قيد التجهيز</TabsTrigger>
+            <TabsTrigger value="completed" className="flex-shrink-0">مكتمل</TabsTrigger>
+            <TabsTrigger value="cancelled" className="flex-shrink-0">ملغي</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={tabValue}>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <Card key={index} className="animate-pulse border-none shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="h-4 bg-gray-200 rounded mb-4 w-1/4"></div>
+                      <div className="h-8 bg-gray-200 rounded mb-4 w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-4 w-1/2"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-2 w-1/3"></div>
+                      <div className="h-6 bg-gray-200 rounded w-1/3 mt-4"></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredOrders.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredOrders.map((order) => (
+                  <Card 
+                    key={order.id} 
+                    className="border-none shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+                    onClick={() => handleViewOrder(order)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-1.5">
+                          <div className="bg-gray-100 p-1.5 rounded-full">
+                            {getStatusIcon(order.status)}
+                          </div>
+                          {getStatusBadge(order.status)}
+                        </div>
+                        <div className="text-xs text-gray-500 ltr">{formatShortDate(order.created_at)}</div>
+                      </div>
+                      
+                      <div className="mb-3">
+                        <h3 className="font-medium text-base mb-1">#{order.id.substring(0, 8).toUpperCase()}</h3>
+                        <p className="text-gray-600 text-sm truncate">{order.customer_name}</p>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="font-bold text-oksale-700 ltr">
+                          {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
+                        </span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="flex items-center gap-1 text-xs"
+                        >
+                          عرض التفاصيل
+                          <ChevronDown className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 px-4">
+                <ShoppingCart className="h-10 w-10 text-gray-400 mb-3" />
+                <h3 className="text-lg font-medium text-gray-900 mb-1">لا توجد طلبات</h3>
+                <p className="text-gray-500 text-center mb-4 text-sm">
+                  لم يتم العثور على أي طلبات مطابقة لمعايير البحث الخاصة بك.
+                </p>
+                <Button 
+                  onClick={() => {
+                    setSearchTerm('');
+                    setTabValue('all');
+                  }}
+                  size="sm"
+                >
+                  عرض كل الطلبات
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
+
+      {/* Mobile orders list */}
+      {isMobile && (
+        <div className="mb-4">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {Array.from({ length: 6 }).map((_, index) => (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="animate-pulse border-none shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="h-4 bg-gray-200 rounded mb-4 w-1/4"></div>
-                    <div className="h-8 bg-gray-200 rounded mb-4 w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-4 w-1/2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2 w-1/3"></div>
-                    <div className="h-6 bg-gray-200 rounded w-1/3 mt-4"></div>
+                  <CardContent className="p-3">
+                    <div className="h-4 bg-gray-200 rounded mb-3 w-1/4"></div>
+                    <div className="h-5 bg-gray-200 rounded mb-3 w-2/3"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2 w-1/2"></div>
+                    <div className="h-6 bg-gray-200 rounded w-1/3 mt-3"></div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : filteredOrders.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="space-y-2">
               {filteredOrders.map((order) => (
                 <Card 
                   key={order.id} 
-                  className="border-none shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+                  className="border-none shadow-sm"
                   onClick={() => handleViewOrder(order)}
                 >
                   <CardContent className="p-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-1.5">
-                        <div className="bg-gray-100 p-1.5 rounded-full">
-                          {getStatusIcon(order.status)}
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          {getStatusBadge(order.status)}
+                          <span className="text-xs text-gray-500 ltr ml-2">{formatShortDate(order.created_at)}</span>
                         </div>
-                        {getStatusBadge(order.status)}
+                        <h3 className="font-medium text-sm mb-0.5">#{order.id.substring(0, 8).toUpperCase()}</h3>
+                        <p className="text-gray-600 text-xs truncate">{order.customer_name}</p>
                       </div>
-                      <div className="text-xs text-gray-500 ltr">{formatShortDate(order.created_at)}</div>
-                    </div>
-                    
-                    <div className="mb-3">
-                      <h3 className="font-medium text-base mb-1">#{order.id.substring(0, 8).toUpperCase()}</h3>
-                      <p className="text-gray-600 text-sm truncate">{order.customer_name}</p>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="font-bold text-oksale-700 ltr">
+                      <span className="font-bold text-sm text-oksale-700 ltr">
                         {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
                       </span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="flex items-center gap-1 text-xs"
-                      >
-                        عرض التفاصيل
-                        <ChevronDown className="h-3 w-3" />
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-8 px-4">
-              <ShoppingCart className="h-10 w-10 text-gray-400 mb-3" />
-              <h3 className="text-lg font-medium text-gray-900 mb-1">لا توجد طلبات</h3>
-              <p className="text-gray-500 text-center mb-4 text-sm">
+            <div className="flex flex-col items-center justify-center py-6 px-4">
+              <ShoppingCart className="h-8 w-8 text-gray-400 mb-2" />
+              <h3 className="text-base font-medium text-gray-900 mb-1">لا توجد طلبات</h3>
+              <p className="text-gray-500 text-center mb-3 text-xs">
                 لم يتم العثور على أي طلبات مطابقة لمعايير البحث الخاصة بك.
               </p>
               <Button 
@@ -390,27 +564,30 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   setTabValue('all');
                 }}
                 size="sm"
+                variant="outline"
               >
                 عرض كل الطلبات
               </Button>
             </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
 
-      {/* Order Details Sheet */}
+      {/* Order Details Sheet - Optimized for both desktop and mobile */}
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>تفاصيل الطلب #{selectedOrder?.id.substring(0, 8).toUpperCase()}</SheetTitle>
+        <SheetContent className={`w-full ${isMobile ? 'max-w-full' : 'sm:max-w-md'} overflow-y-auto p-4`}>
+          <SheetHeader className="text-right">
+            <SheetTitle className="text-lg">
+              تفاصيل الطلب #{selectedOrder?.id.substring(0, 8).toUpperCase()}
+            </SheetTitle>
             <SheetDescription>
               تاريخ الطلب: {selectedOrder && <span className="ltr">{formatDate(selectedOrder.created_at)}</span>}
             </SheetDescription>
           </SheetHeader>
           
           {selectedOrder && (
-            <div className="mt-5">
-              <div className="flex justify-start items-center mb-4">
+            <div className="mt-4">
+              <div className="flex justify-start items-center mb-3">
                 <div className="flex items-center gap-2">
                   {getStatusBadge(selectedOrder.status)}
                 </div>
@@ -418,54 +595,54 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
 
               <Separator className="my-3" />
               
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Customer Info */}
                 <div>
-                  <h3 className="font-medium flex items-center gap-2 mb-2 text-sm">
-                    <User className="h-4 w-4 text-gray-500" />
+                  <h3 className="font-medium flex items-center gap-1.5 mb-1.5 text-sm">
+                    <User className="h-3.5 w-3.5 text-gray-500" />
                     معلومات العميل
                   </h3>
-                  <div className="bg-gray-50 rounded-md p-3">
-                    <p className="text-sm"><strong>الاسم:</strong> {selectedOrder.customer_name}</p>
-                    <p className="text-sm"><strong>البريد:</strong> {selectedOrder.customer_email}</p>
-                    {selectedOrder.customer_phone && <p className="text-sm ltr"><strong>الهاتف:</strong> {selectedOrder.customer_phone}</p>}
+                  <div className="bg-gray-50 rounded-md p-2.5">
+                    <p className="text-xs mb-1"><strong>الاسم:</strong> {selectedOrder.customer_name}</p>
+                    <p className="text-xs mb-1"><strong>البريد:</strong> {selectedOrder.customer_email}</p>
+                    {selectedOrder.customer_phone && <p className="text-xs ltr"><strong>الهاتف:</strong> {selectedOrder.customer_phone}</p>}
                   </div>
                 </div>
                 
                 {/* Order Items */}
                 <div>
-                  <h3 className="font-medium flex items-center gap-2 mb-2 text-sm">
-                    <Package className="h-4 w-4 text-gray-500" />
+                  <h3 className="font-medium flex items-center gap-1.5 mb-1.5 text-sm">
+                    <Package className="h-3.5 w-3.5 text-gray-500" />
                     المنتجات
                   </h3>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {selectedOrder.items?.map((item) => (
-                      <div key={item.id} className="bg-gray-50 rounded-md p-3 flex justify-between items-center">
+                      <div key={item.id} className="bg-gray-50 rounded-md p-2.5 flex justify-between items-center">
                         <div>
-                          <p className="font-medium text-sm">{item.name}</p>
-                          <p className="text-xs text-gray-500">الكمية: {item.quantity}</p>
+                          <p className="font-medium text-xs">{item.name}</p>
+                          <p className="text-[10px] text-gray-500">الكمية: {item.quantity}</p>
                         </div>
-                        <div className="font-medium text-sm ltr">
+                        <div className="font-medium text-xs ltr">
                           {formatCurrency(item.price * item.quantity, storeData?.currency || 'SAR')}
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-between items-center mt-4 font-bold">
+                  <div className="flex justify-between items-center mt-3 font-bold text-sm">
                     <span>الإجمالي</span>
                     <span className="ltr">{formatCurrency(selectedOrder.total_amount, storeData?.currency || 'SAR')}</span>
                   </div>
                 </div>
                 
-                {/* Shipping Address */}
+                {/* Shipping Address - shown in a more compact way on mobile */}
                 {selectedOrder.shipping_address && (
                   <div>
-                    <h3 className="font-medium flex items-center gap-2 mb-2 text-sm">
-                      <MapPin className="h-4 w-4 text-gray-500" />
+                    <h3 className="font-medium flex items-center gap-1.5 mb-1.5 text-sm">
+                      <MapPin className="h-3.5 w-3.5 text-gray-500" />
                       عنوان الشحن
                     </h3>
-                    <div className="bg-gray-50 rounded-md p-3">
-                      <p className="text-sm">{selectedOrder.shipping_address}</p>
+                    <div className="bg-gray-50 rounded-md p-2.5">
+                      <p className="text-xs">{selectedOrder.shipping_address}</p>
                     </div>
                   </div>
                 )}
@@ -473,26 +650,26 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 {/* Payment Method */}
                 {selectedOrder.payment_method && (
                   <div>
-                    <h3 className="font-medium flex items-center gap-2 mb-2 text-sm">
-                      <Calendar className="h-4 w-4 text-gray-500" />
+                    <h3 className="font-medium flex items-center gap-1.5 mb-1.5 text-sm">
+                      <Calendar className="h-3.5 w-3.5 text-gray-500" />
                       طريقة الدفع
                     </h3>
-                    <div className="bg-gray-50 rounded-md p-3">
-                      <p className="text-sm">{selectedOrder.payment_method}</p>
+                    <div className="bg-gray-50 rounded-md p-2.5">
+                      <p className="text-xs">{selectedOrder.payment_method}</p>
                     </div>
                   </div>
                 )}
               </div>
 
-              <Separator className="my-4" />
+              <Separator className="my-3" />
               
               <div>
                 <h3 className="font-medium mb-2 text-sm">تحديث حالة الطلب</h3>
-                <div className="grid grid-cols-2 gap-2">
+                <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2'} gap-2`}>
                   <Button 
                     variant={selectedOrder.status === 'pending' ? 'default' : 'outline'} 
                     onClick={() => handleUpdateStatus('pending')}
-                    className="justify-start text-xs"
+                    className="justify-start text-xs h-8"
                     size="sm"
                   >
                     <Clock className="h-3 w-3 mr-1 text-yellow-500" />
@@ -501,7 +678,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   <Button 
                     variant={selectedOrder.status === 'processing' ? 'default' : 'outline'} 
                     onClick={() => handleUpdateStatus('processing')}
-                    className="justify-start text-xs"
+                    className="justify-start text-xs h-8"
                     size="sm"
                   >
                     <Clock className="h-3 w-3 mr-1 text-blue-500" />
@@ -510,7 +687,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   <Button 
                     variant={selectedOrder.status === 'completed' ? 'default' : 'outline'} 
                     onClick={() => handleUpdateStatus('completed')}
-                    className="justify-start text-xs"
+                    className="justify-start text-xs h-8"
                     size="sm"
                   >
                     <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
@@ -519,7 +696,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   <Button 
                     variant={selectedOrder.status === 'cancelled' ? 'default' : 'outline'} 
                     onClick={() => handleUpdateStatus('cancelled')}
-                    className="justify-start text-xs"
+                    className="justify-start text-xs h-8"
                     size="sm"
                   >
                     <AlertCircle className="h-3 w-3 mr-1 text-red-500" />
@@ -530,7 +707,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
             </div>
           )}
           
-          <SheetFooter className="mt-6">
+          <SheetFooter className="mt-4">
             <SheetClose asChild>
               <Button size="sm">إغلاق</Button>
             </SheetClose>
