@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Globe, MapPin, Upload, Phone, Mail, Instagram, Twitter, Facebook, Link2, Image } from 'lucide-react';
+import { Globe, MapPin, Upload, Phone, Mail, Instagram, Twitter, Facebook, Link2, Image, LockIcon } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,7 +20,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   const [loading, setLoading] = useState(false);
   const [storeInfo, setStoreInfo] = useState({
     name: storeData?.name || '',
-    handle: storeData?.handle?.replace('@', '') || '',
+    handle: storeData?.handle || '',
     description: storeData?.description || '',
     logo_url: storeData?.logo_url || '',
     cover_url: storeData?.cover_url || '',
@@ -52,7 +52,6 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
         .from('stores')
         .update({
           name: storeInfo.name,
-          handle: storeInfo.handle,
           description: storeInfo.description,
           logo_url: storeInfo.logo_url,
           cover_url: storeInfo.cover_url,
@@ -92,6 +91,10 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     const key = id.replace('store-', '').replace('social-', '');
+    
+    if (key === 'handle') {
+      return;
+    }
     
     setStoreInfo(prev => ({
       ...prev,
@@ -281,7 +284,10 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="store-handle">معرف المتجر (Store handle)</Label>
+                <Label htmlFor="store-handle" className="flex items-center gap-1">
+                  معرف المتجر (Store handle)
+                  <LockIcon className="h-3 w-3 text-gray-500" />
+                </Label>
                 <div className="flex">
                   <span className="inline-flex items-center px-3 rounded-r-none rounded-l-md border border-l-0 border-input bg-gray-50 text-gray-500">
                     @
@@ -289,13 +295,13 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
                   <Input 
                     id="store-handle" 
                     placeholder="yourstore" 
-                    value={storeInfo.handle}
-                    onChange={handleInputChange}
+                    value={storeInfo.handle.replace('@', '')}
+                    disabled={true}
                     dir="ltr"
-                    className="rounded-r-none"
+                    className="rounded-r-none bg-gray-100 text-gray-500 cursor-not-allowed"
                   />
                 </div>
-                <p className="text-sm text-gray-500">سيظهر في رابط المتجر: /yourstore</p>
+                <p className="text-sm text-gray-500">معرف المتجر لا يمكن تغييره بعد الإنشاء</p>
               </div>
             </div>
 
