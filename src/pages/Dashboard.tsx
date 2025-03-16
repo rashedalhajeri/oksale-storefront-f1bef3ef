@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +10,16 @@ import { DashboardContext } from '@/context/DashboardContext';
 // Dashboard Layout
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 
+// Fallback Loading Component
+const DashboardLoading = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col items-center">
+      <div className="animate-spin w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full"></div>
+      <p className="mt-4 text-sm text-gray-500">جارِ تحميل البيانات...</p>
+    </div>
+  </div>
+);
+
 // Main Dashboard Container component
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,7 +29,10 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('week');
 
-  // Fetch dashboard data - passing only storeId
+  // استخدام useMemo لتخزين store ID
+  const storeId = useMemo(() => storeData?.id || '', [storeData?.id]);
+
+  // جلب بيانات لوحة التحكم - تمرير فقط storeId
   const {
     statistics,
     salesData,
@@ -33,19 +46,19 @@ const Dashboard = () => {
     orderStatusLoading,
     currency,
     setTimeframe: setDashboardTimeframe
-  } = useDashboardData(storeData?.id);
+  } = useDashboardData(storeId);
 
-  // Effect to sync the timeframe state with the hook
+  // مزامنة حالة timeframe مع الـ hook
   useEffect(() => {
     if (setDashboardTimeframe) {
       setDashboardTimeframe(timeframe);
     }
   }, [timeframe, setDashboardTimeframe]);
 
-  // Fetch store data only once on component mount
+  // جلب بيانات المتجر مرة واحدة فقط عند تحميل المكون
   useEffect(() => {
     const fetchStoreData = async () => {
-      // Don't fetch again if we already have store data
+      // لا نقوم بالاستعلام مرة أخرى إذا كنا بالفعل لدينا بيانات المتجر
       if (storeData) return;
       
       setLoading(true);
@@ -84,9 +97,9 @@ const Dashboard = () => {
     };
 
     fetchStoreData();
-  }, [navigate, toast]);
+  }, [navigate, toast, storeData]);
 
-  // Create a context value with all the data needed by child components
+  // إنشاء قيمة السياق مع جميع البيانات التي تحتاجها المكونات الفرعية
   const contextValue = useMemo(() => ({
     storeData,
     statistics: statistics || [],
@@ -119,14 +132,7 @@ const Dashboard = () => {
   ]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full"></div>
-          <p className="mt-4 text-sm text-gray-500">جارِ تحميل البيانات...</p>
-        </div>
-      </div>
-    );
+    return <DashboardLoading />;
   }
 
   if (!storeData) {
@@ -152,12 +158,14 @@ const Dashboard = () => {
     );
   }
 
-  // More efficient rendering with proper layout and context
+  // عرض أكثر كفاءة مع تخطيط مناسب وسياق
   return (
     <DashboardLayout storeData={storeData}>
-      {/* Create a provider that will pass props to all children */}
+      {/* إنشاء موفر يمرر الخصائص إلى جميع الأطفال */}
       <DashboardContext.Provider value={contextValue}>
-        <Outlet />
+        <Suspense fallback={<div className="p-8 text-center animate-pulse">جاري التحميل...</div>}>
+          <Outlet />
+        </Suspense>
       </DashboardContext.Provider>
     </DashboardLayout>
   );

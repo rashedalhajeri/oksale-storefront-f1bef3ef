@@ -1,10 +1,12 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { AlertCircle, Clock } from 'lucide-react';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from '@/components/ui/badge';
+import { AlertCircle, Clock } from 'lucide-react';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 interface RecentPendingOrdersCardProps {
   pendingOrders: any[];
@@ -15,6 +17,15 @@ const RecentPendingOrdersCard: React.FC<RecentPendingOrdersCardProps> = ({
   pendingOrders,
   loading
 }) => {
+  const navigate = useNavigate();
+  const [isClient, setIsClient] = useState(false);
+
+  // تأكد من أننا على العميل قبل القيام بالتصيير
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // استخدام عرض العظام المتحركة أثناء التحميل
   if (loading) {
     return (
       <Card className="shadow-sm border">
@@ -38,8 +49,9 @@ const RecentPendingOrdersCard: React.FC<RecentPendingOrdersCardProps> = ({
     );
   }
 
+  // استخدام تنسيق أفضل وتحميل أسرع
   return (
-    <Card className="shadow-sm border">
+    <Card className="shadow-sm border animate-in fade-in duration-300">
       <CardHeader className="pb-3 pt-5">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -72,11 +84,15 @@ const RecentPendingOrdersCard: React.FC<RecentPendingOrdersCardProps> = ({
               </TableHeader>
               <TableBody>
                 {pendingOrders.map((order) => (
-                  <TableRow key={order.rawId} className="cursor-pointer hover:bg-gray-50">
+                  <TableRow 
+                    key={order.rawId || order.id} 
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => navigate(`/dashboard/orders/${order.rawId || order.id}`)}
+                  >
                     <TableCell className="font-medium">{order.id}</TableCell>
                     <TableCell>{order.customer}</TableCell>
                     <TableCell>{order.date}</TableCell>
-                    <TableCell>{order.amount}</TableCell>
+                    <TableCell dir="ltr">{order.amount}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -88,4 +104,4 @@ const RecentPendingOrdersCard: React.FC<RecentPendingOrdersCardProps> = ({
   );
 };
 
-export default RecentPendingOrdersCard;
+export default React.memo(RecentPendingOrdersCard);

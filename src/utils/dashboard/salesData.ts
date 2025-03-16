@@ -1,8 +1,8 @@
 
-// Generate sales data based on timeframe
+// توليد بيانات المبيعات بناءً على الإطار الزمني بشكل أكثر كفاءة
 export const generateSalesData = (orders: any[], timeframe: string) => {
   if (!orders || orders.length === 0) {
-    return [];
+    return generateEmptyData(timeframe);
   }
   
   const now = new Date();
@@ -47,32 +47,90 @@ export const generateSalesData = (orders: any[], timeframe: string) => {
       groupBy = (date: Date) => date.getDay();
   }
 
-  // Filter orders by timeframe
+  // تحسين فلترة الطلبات باستخدام timestamp للمقارنة
+  const startTimestamp = startDate.getTime();
   const filteredOrders = orders.filter(order => {
     const orderDate = new Date(order.created_at);
-    return orderDate >= startDate;
+    return orderDate.getTime() >= startTimestamp;
   });
 
-  // Group orders by time period
-  const groupedOrders = filteredOrders.reduce((acc, order) => {
+  // تحسين تجميع الطلبات حسب الفترة الزمنية
+  const groupedOrders = {};
+  
+  filteredOrders.forEach(order => {
     const orderDate = new Date(order.created_at);
     const groupKey = groupBy(orderDate);
     
-    if (!acc[groupKey]) {
-      acc[groupKey] = {
+    if (!groupedOrders[groupKey]) {
+      groupedOrders[groupKey] = {
         count: 0,
         revenue: 0,
         date: orderDate
       };
     }
     
-    acc[groupKey].count += 1;
-    acc[groupKey].revenue += Number(order.total_amount);
-    
-    return acc;
-  }, {});
+    groupedOrders[groupKey].count += 1;
+    groupedOrders[groupKey].revenue += Number(order.total_amount);
+  });
 
-  // Fill in gaps in the data
+  // ملء الفجوات في البيانات
+  return fillDataGaps(groupedOrders, timeframe, format, now);
+};
+
+// وظيفة مساعدة لتوليد بيانات فارغة
+const generateEmptyData = (timeframe: string) => {
+  const now = new Date();
+  const result = [];
+  
+  switch (timeframe) {
+    case 'day':
+      for (let i = 0; i < 24; i++) {
+        result.push({
+          name: `${i}:00`,
+          sales: 0,
+          revenue: 0
+        });
+      }
+      break;
+    case 'week':
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - (6 - i));
+        const day = date.toLocaleString('ar-SA', { weekday: 'short' });
+        result.push({
+          name: day,
+          sales: 0,
+          revenue: 0
+        });
+      }
+      break;
+    case 'month':
+      for (let i = 1; i <= 4; i++) {
+        result.push({
+          name: `أسبوع ${i}`,
+          sales: 0,
+          revenue: 0
+        });
+      }
+      break;
+    case 'year':
+      for (let i = 0; i < 12; i++) {
+        const date = new Date(now.getFullYear(), i, 1);
+        const month = date.toLocaleString('ar-SA', { month: 'short' });
+        result.push({
+          name: month,
+          sales: 0,
+          revenue: 0
+        });
+      }
+      break;
+  }
+  
+  return result;
+};
+
+// وظيفة مساعدة لملء الفجوات في البيانات
+const fillDataGaps = (groupedOrders: any, timeframe: string, format: (date: Date) => string, now: Date) => {
   const result = [];
   
   if (timeframe === 'day') {

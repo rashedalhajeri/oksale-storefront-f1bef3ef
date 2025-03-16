@@ -25,27 +25,29 @@ export const useDashboardData = (storeId: string) => {
     currency: 'SAR'
   });
   
-  // Fetch statistics using React Query with proper caching
+  // تحسين استخدام React Query مع خيارات الكاش
   const { 
     data: statsData, 
     isLoading: statsLoading,
     refetch: refetchStats
   } = useQuery({
-    queryKey: ['dashboard-stats', storeId],
+    queryKey: ['dashboard-stats', storeId, timeframe],
     queryFn: () => fetchStoreStatistics(storeId),
     enabled: !!storeId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes, previously cacheTime
-    refetchOnWindowFocus: false,
+    staleTime: 2 * 60 * 1000, // تقليل وقت التقادم
+    gcTime: 5 * 60 * 1000, // وقت جمع القمامة
+    refetchOnWindowFocus: true, // تفعيل إعادة الجلب عند التركيز
     meta: {
       onSuccess: (data: any) => {
-        setDashboardStats({
-          productsCount: data.productsCount,
-          ordersCount: data.ordersCount,
-          revenue: parseFloat(data.revenue),
-          soldProductsCount: data.soldProductsCount || 0,
-          currency: data.currency || 'SAR'
-        });
+        if (data) {
+          setDashboardStats({
+            productsCount: data.productsCount || 0,
+            ordersCount: data.ordersCount || 0,
+            revenue: parseFloat(data.revenue || '0'),
+            soldProductsCount: data.soldProductsCount || 0,
+            currency: data.currency || 'SAR'
+          });
+        }
       },
       onError: (error: any) => {
         console.error("Error loading dashboard stats:", error);
@@ -58,52 +60,50 @@ export const useDashboardData = (storeId: string) => {
     }
   });
   
-  // Generate sales chart data with proper memoization
+  // تحسين استخدام useMemo لتجنب إعادة الحساب غير الضروري
   const salesData = useMemo(() => {
-    if (!statsData?.orders) return [];
+    if (!statsData?.orders?.length) return [];
     return generateSalesData(statsData.orders, timeframe);
   }, [statsData?.orders, timeframe]);
   
-  // Fetch top products with proper caching
+  // تحسين استعلامات React Query الأخرى
   const { 
     data: topProducts = [], 
     isLoading: topProductsLoading 
   } = useQuery({
-    queryKey: ['top-products', storeId],
+    queryKey: ['top-products', storeId, timeframe],
     queryFn: () => getTopSellingProducts(storeId),
     enabled: !!storeId,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 15 * 60 * 1000, // 15 minutes, previously cacheTime
-    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
   
-  // Fetch recent orders with proper caching
   const { 
     data: recentOrders = [], 
     isLoading: recentOrdersLoading 
   } = useQuery({
     queryKey: ['recent-orders', storeId],
-    queryFn: () => getRecentOrders(storeId, 15),
+    queryFn: () => getRecentOrders(storeId, 10),
     enabled: !!storeId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes, previously cacheTime
-    refetchOnWindowFocus: false,
+    staleTime: 1 * 60 * 1000,
+    gcTime: 3 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
   
-  // Fetch order status stats with proper caching
   const { 
     data: orderStatusData = [], 
     isLoading: orderStatusLoading 
   } = useQuery({
-    queryKey: ['order-status', storeId],
+    queryKey: ['order-status', storeId, timeframe],
     queryFn: () => getOrderStatusStats(storeId),
     enabled: !!storeId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes, previously cacheTime
-    refetchOnWindowFocus: false,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 
-  // Compute statistics with useMemo to avoid unnecessary recalculation
+  // تحسين الأداء باستخدام useMemo لإحصائيات الداشبورد
   const statistics = useMemo(() => [
     {
       name: "المنتجات",
@@ -135,6 +135,7 @@ export const useDashboardData = (storeId: string) => {
     }
   ], [dashboardStats]);
 
+  // تحسين أداء وظيفة تحميل البيانات
   const loadDashboardData = useCallback(() => {
     refetchStats();
   }, [refetchStats]);
@@ -148,7 +149,7 @@ export const useDashboardData = (storeId: string) => {
     recentOrders,
     orderStatusData,
     statsLoading,
-    chartLoading: statsLoading, // We derive chart loading from stats loading
+    chartLoading: statsLoading, 
     topProductsLoading,
     recentOrdersLoading,
     orderStatusLoading,

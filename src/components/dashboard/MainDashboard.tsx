@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard } from 'lucide-react';
 import StatisticsSection from './StatisticsSection';
 import ChartSection from './ChartSection';
 import OrderStatusCard from './OrderStatusCard';
 import RecentPendingOrdersCard from './RecentPendingOrdersCard';
+import TopProductsCard from './TopProductsCard';
 
 interface MainDashboardProps {
   statistics: any[];
@@ -38,11 +39,13 @@ const MainDashboard: React.FC<MainDashboardProps> = React.memo(({
   orderStatusLoading,
   currency
 }) => {
-  // Filter pending orders
-  const pendingOrders = recentOrders.filter(order => order.status === 'pending');
+  // استخدام useMemo لتصفية الطلبات المعلقة
+  const pendingOrders = useMemo(() => {
+    return recentOrders.filter(order => order.status === 'pending');
+  }, [recentOrders]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-300">
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <div className="p-2 bg-indigo-50 rounded-full">
@@ -78,15 +81,28 @@ const MainDashboard: React.FC<MainDashboardProps> = React.memo(({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}
-        <ChartSection 
-          salesData={salesData} 
-          loading={chartLoading}
-          timeframe={timeframe}
-          currency={currency}
-        />
+        <div className="lg:col-span-2">
+          <ChartSection 
+            salesData={salesData} 
+            loading={chartLoading}
+            timeframe={timeframe}
+            currency={currency}
+          />
+        </div>
 
         {/* Order Status */}
-        <OrderStatusCard orderStatusData={orderStatusData} loading={orderStatusLoading} />
+        <div>
+          <OrderStatusCard orderStatusData={orderStatusData} loading={orderStatusLoading} />
+        </div>
+      </div>
+
+      {/* Top Products Section */}
+      <div className="mt-6">
+        <TopProductsCard 
+          topProducts={topProducts} 
+          loading={topProductsLoading} 
+          currency={currency} 
+        />
       </div>
     </div>
   );
