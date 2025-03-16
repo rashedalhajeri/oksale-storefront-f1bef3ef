@@ -1,3 +1,4 @@
+
 import { formatDistance, formatRelative, format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getCurrencySymbol } from './currencyUtils';
@@ -274,5 +275,213 @@ export const sendWhatsAppNotification = async (
   } catch (error) {
     console.error('خطأ في إرسال إشعار واتساب:', error);
     return false;
+  }
+};
+
+/**
+ * معالجة الدفع باستخدام بوابة ماي فاتورة
+ * 
+ * @param storeId معرف المتجر
+ * @param orderId معرف الطلب
+ * @param amount المبلغ
+ * @param customerData بيانات العميل
+ * @returns رابط صفحة الدفع والمعرف الخاص بالعملية
+ */
+export const processMyFatoorahPayment = async (
+  storeId: string,
+  orderId: string,
+  amount: number,
+  customerData: {
+    name: string;
+    email: string;
+    phone?: string;
+  }
+): Promise<{ paymentUrl: string; invoiceId: string } | null> => {
+  try {
+    // الحصول على إعدادات المتجر وبوابة الدفع
+    const { data: storeData, error: storeError } = await supabase
+      .from('stores')
+      .select('payment_gateways, currency')
+      .eq('id', storeId)
+      .single();
+
+    if (storeError || !storeData?.payment_gateways?.myfatoorah?.enabled) {
+      console.error('بوابة ماي فاتورة غير مفعلة أو حدث خطأ:', storeError);
+      return null;
+    }
+
+    const { api_key, test_mode, currency = 'KWD' } = storeData.payment_gateways.myfatoorah;
+    
+    if (!api_key) {
+      console.error('مفتاح API غير موجود لبوابة ماي فاتورة');
+      return null;
+    }
+
+    // تحديد رابط API حسب وضع الاختبار
+    const apiBaseUrl = test_mode 
+      ? 'https://apitest.myfatoorah.com' 
+      : 'https://api.myfatoorah.com';
+
+    // إنشاء طلب فاتورة جديدة
+    const response = await fetch(`${apiBaseUrl}/v2/SendPayment`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${api_key}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        CustomerName: customerData.name,
+        CustomerEmail: customerData.email,
+        CustomerMobile: customerData.phone || '',
+        InvoiceValue: amount,
+        CallBackUrl: `${window.location.origin}/payment/callback`,
+        ErrorUrl: `${window.location.origin}/payment/error`,
+        Language: 'ar',
+        CustomerReference: orderId,
+        DisplayCurrencyIso: currency
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('خطأ من ماي فاتورة:', errorData);
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (!data.IsSuccess) {
+      console.error('فشل إنشاء رابط الدفع:', data.Message);
+      return null;
+    }
+
+    // تسجيل معاملة الدفع في قاعدة البيانات
+    await supabase.from('payment_transactions').insert({
+      store_id: storeId,
+      order_id: orderId,
+      gateway: 'myfatoorah',
+      transaction_id: data.Data.InvoiceId,
+      amount: amount,
+      currency: currency,
+      status: 'pending',
+      payment_method: 'online',
+      payment_data: data.Data
+    });
+
+    return {
+      paymentUrl: data.Data.InvoiceURL,
+      invoiceId: data.Data.InvoiceId
+    };
+  } catch (error) {
+    console.error('خطأ في معالجة الدفع مع ماي فاتورة:', error);
+    return null;
+  }
+};
+
+/**
+ * معالجة الدفع باستخدام بوابة تاب
+ * 
+ * @param storeId معرف المتجر
+ * @param orderId معرف الطلب
+ * @param amount المبلغ
+ * @param customerData بيانات العميل
+ * @returns رابط صفحة الدفع والمعرف الخاص بالعملية
+ */
+export const processTapPayment = async (
+  storeId: string,
+  orderId: string,
+  amount: number,
+  customerData: {
+    name: string;
+    email: string;
+    phone?: string;
+  }
+): Promise<{ paymentUrl: string; chargeId: string } | null> => {
+  try {
+    // الحصول على إعدادات المتجر وبوابة الدفع
+    const { data: storeData, error: storeError } = await supabase
+      .from('stores')
+      .select('payment_gateways, currency, name')
+      .eq('id', storeId)
+      .single();
+
+    if (storeError || !storeData?.payment_gateways?.tap?.enabled) {
+      console.error('بوابة تاب غير مفعلة أو حدث خطأ:', storeError);
+      return null;
+    }
+
+    const { secret_key, test_mode, currency = 'KWD' } = storeData.payment_gateways.tap;
+    
+    if (!secret_key) {
+      console.error('المفتاح السري غير موجود لبوابة تاب');
+      return null;
+    }
+
+    // تحديد رابط API حسب وضع الاختبار
+    const apiBaseUrl = test_mode 
+      ? 'https://api.tap.company/v2/test' 
+      : 'https://api.tap.company/v2';
+
+    // إنشاء طلب دفع جديد
+    const response = await fetch(`${apiBaseUrl}/charges`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${secret_key}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        amount: amount,
+        currency: currency,
+        customer: {
+          first_name: customerData.name.split(' ')[0],
+          last_name: customerData.name.split(' ').slice(1).join(' ') || '-',
+          email: customerData.email,
+          phone: {
+            country_code: '+965',
+            number: customerData.phone || '00000000'
+          }
+        },
+        source: { id: 'src_all' },
+        redirect: {
+          url: `${window.location.origin}/payment/callback?gateway=tap`
+        },
+        post: {
+          url: `${window.location.origin}/api/payment-webhook`
+        },
+        reference: {
+          order: orderId
+        },
+        description: `طلب #${orderId} من ${storeData.name || 'المتجر'}`
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('خطأ من تاب:', errorData);
+      return null;
+    }
+
+    const data = await response.json();
+
+    // تسجيل معاملة الدفع في قاعدة البيانات
+    await supabase.from('payment_transactions').insert({
+      store_id: storeId,
+      order_id: orderId,
+      gateway: 'tap',
+      transaction_id: data.id,
+      amount: amount,
+      currency: currency,
+      status: 'pending',
+      payment_method: 'online',
+      payment_data: data
+    });
+
+    return {
+      paymentUrl: data.transaction.url,
+      chargeId: data.id
+    };
+  } catch (error) {
+    console.error('خطأ في معالجة الدفع مع تاب:', error);
+    return null;
   }
 };

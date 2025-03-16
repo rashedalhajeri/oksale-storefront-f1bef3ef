@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -7,28 +7,115 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { CreditCard, Wallet, BanknoteIcon, Shield, Info, Plus } from 'lucide-react';
+import { CreditCard, Wallet, BanknoteIcon, Shield, Info, Plus, AlertTriangle } from 'lucide-react';
+import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DashboardSettingsPaymentProps {
   storeData: any;
 }
 
+interface PaymentGateway {
+  enabled: boolean;
+  test_mode: boolean;
+  api_key?: string;
+  secret_key?: string;
+  merchant_id?: string;
+  [key: string]: any;
+}
+
+interface PaymentGateways {
+  myfatoorah: PaymentGateway;
+  tap: PaymentGateway;
+  [key: string]: any;
+}
+
 const DashboardSettingsPayment: React.FC<DashboardSettingsPaymentProps> = ({ storeData }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [paymentGateways, setPaymentGateways] = useState<PaymentGateways>({
+    myfatoorah: { enabled: false, test_mode: true },
+    tap: { enabled: false, test_mode: true },
+  });
 
-  const handleSaveChanges = () => {
+  useEffect(() => {
+    // تحميل إعدادات بوابات الدفع من قاعدة البيانات
+    if (storeData && storeData.payment_gateways) {
+      setPaymentGateways(storeData.payment_gateways);
+    }
+  }, [storeData]);
+
+  const handleSaveChanges = async () => {
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const { error } = await supabase
+        .from('stores')
+        .update({
+          payment_gateways: paymentGateways
+        })
+        .eq('id', storeData.id);
+
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "تم حفظ التغييرات",
         description: "تم تحديث إعدادات وسائل الدفع بنجاح.",
       });
-    }, 1000);
+    } catch (error) {
+      console.error('خطأ في حفظ إعدادات الدفع:', error);
+      toast({
+        variant: "destructive",
+        title: "خطأ في حفظ التغييرات",
+        description: "حدث خطأ أثناء محاولة حفظ إعدادات وسائل الدفع. الرجاء المحاولة مرة أخرى.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleGatewayToggle = (gateway: string, enabled: boolean) => {
+    setPaymentGateways(prev => ({
+      ...prev,
+      [gateway]: {
+        ...prev[gateway],
+        enabled
+      }
+    }));
+  };
+
+  const handleGatewayModeToggle = (gateway: string, testMode: boolean) => {
+    setPaymentGateways(prev => ({
+      ...prev,
+      [gateway]: {
+        ...prev[gateway],
+        test_mode: testMode
+      }
+    }));
+  };
+
+  const handleGatewayInputChange = (gateway: string, field: string, value: string) => {
+    setPaymentGateways(prev => ({
+      ...prev,
+      [gateway]: {
+        ...prev[gateway],
+        [field]: value
+      }
+    }));
+  };
+
+  const renderTestModeWarning = () => (
+    <div className="p-4 rounded-md bg-amber-50 border border-amber-200 flex gap-3 mb-4">
+      <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+      <p className="text-sm text-amber-700">
+        عندما يكون وضع الاختبار مفعلاً، سيتم استخدام بيئة الاختبار للمدفوعات ولن يتم خصم أي مبالغ حقيقية. استخدم هذا الوضع للتأكد من صحة الإعدادات قبل التبديل إلى الوضع الحقيقي.
+      </p>
+    </div>
+  );
 
   return (
     <div>
@@ -38,131 +125,238 @@ const DashboardSettingsPayment: React.FC<DashboardSettingsPaymentProps> = ({ sto
       </div>
 
       <div className="space-y-6">
-        {/* Online Payment Methods */}
+        {/* بوابات الدفع الإلكترونية الخليجية */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
-              <CreditCard className="h-5 w-5 mr-2 text-oksale-600" />
-              وسائل الدفع الإلكترونية
+              <CreditCard className="h-5 w-5 ml-2 text-oksale-600" />
+              بوابات الدفع الخليجية
             </CardTitle>
-            <CardDescription>تكامل بوابات الدفع الإلكتروني مع متجرك</CardDescription>
+            <CardDescription>تكامل مع بوابات الدفع الأكثر استخداماً في الخليج العربي</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-4">
-              {/* Payment Methods */}
-              <div className="rounded-md border border-gray-200">
-                <div className="p-4 flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="bg-gray-100 p-2 rounded">
-                      <img src="https://placekitten.com/40/40" alt="مدى" className="w-8 h-8 rounded" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">مدى - Mada</h3>
-                      <p className="text-sm text-gray-500">قبول بطاقات مدى للدفع عبر الإنترنت</p>
-                    </div>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <Separator />
-                <div className="p-4 bg-gray-50 space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="mada-merchant-id">معرف التاجر</Label>
-                      <Input id="mada-merchant-id" placeholder="أدخل معرف التاجر" dir="ltr" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="mada-api-key">مفتاح API</Label>
-                      <Input id="mada-api-key" type="password" placeholder="أدخل مفتاح API" dir="ltr" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {renderTestModeWarning()}
 
-              <div className="rounded-md border border-gray-200">
-                <div className="p-4 flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="bg-gray-100 p-2 rounded">
-                      <img src="https://placekitten.com/41/41" alt="فيزا/ماستركارد" className="w-8 h-8 rounded" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">فيزا/ماستركارد - Visa/Mastercard</h3>
-                      <p className="text-sm text-gray-500">قبول بطاقات الائتمان العالمية للدفع</p>
-                    </div>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <Separator />
-                <div className="p-4 bg-gray-50 space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="visa-merchant-id">معرف التاجر</Label>
-                      <Input id="visa-merchant-id" placeholder="أدخل معرف التاجر" dir="ltr" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="visa-api-key">مفتاح API</Label>
-                      <Input id="visa-api-key" type="password" placeholder="أدخل مفتاح API" dir="ltr" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <Tabs defaultValue="myfatoorah" className="w-full">
+              <TabsList className="w-full mb-4">
+                <TabsTrigger value="myfatoorah" className="w-1/2">ماي فاتورة (MyFatoorah)</TabsTrigger>
+                <TabsTrigger value="tap" className="w-1/2">تاب (Tap Payments)</TabsTrigger>
+              </TabsList>
 
-              <div className="rounded-md border border-gray-200">
-                <div className="p-4 flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="bg-gray-100 p-2 rounded">
-                      <img src="https://placekitten.com/42/42" alt="آبل باي" className="w-8 h-8 rounded" />
+              {/* ماي فاتورة */}
+              <TabsContent value="myfatoorah">
+                <div className="rounded-md border border-gray-200">
+                  <div className="p-4 flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-gray-100 p-2 rounded">
+                        <img src="https://fatoorah.net/assets/images/fatoora_logo.png" alt="ماي فاتورة" className="w-8 h-8 object-contain rounded" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">ماي فاتورة - MyFatoorah</h3>
+                        <p className="text-sm text-gray-500">بوابة الدفع الشاملة لدول الخليج العربي</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-medium">آبل باي - Apple Pay</h3>
-                      <p className="text-sm text-gray-500">تمكين الدفع عن طريق خدمة آبل باي</p>
-                    </div>
+                    <Switch 
+                      checked={paymentGateways.myfatoorah.enabled}
+                      onCheckedChange={(checked) => handleGatewayToggle('myfatoorah', checked)}
+                    />
                   </div>
-                  <Switch />
-                </div>
-              </div>
+                  
+                  {paymentGateways.myfatoorah.enabled && (
+                    <>
+                      <Separator />
+                      <div className="p-4 bg-gray-50 space-y-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="myfatoorah-test-mode">وضع الاختبار</Label>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Info className="h-4 w-4 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="w-80 text-sm">في وضع الاختبار، لن يتم خصم أي مبالغ حقيقية. استخدم هذا الوضع للتأكد من صحة الإعدادات.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <Switch 
+                            id="myfatoorah-test-mode"
+                            checked={paymentGateways.myfatoorah.test_mode}
+                            onCheckedChange={(checked) => handleGatewayModeToggle('myfatoorah', checked)}
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="myfatoorah-api-key">مفتاح API</Label>
+                            <Input 
+                              id="myfatoorah-api-key" 
+                              placeholder="أدخل مفتاح API"
+                              dir="ltr"
+                              value={paymentGateways.myfatoorah.api_key || ''}
+                              onChange={(e) => handleGatewayInputChange('myfatoorah', 'api_key', e.target.value)}
+                            />
+                            <p className="text-xs text-gray-500">يمكنك الحصول على المفتاح من لوحة تحكم ماي فاتورة</p>
+                          </div>
+                        </div>
 
-              <div className="rounded-md border border-gray-200">
-                <div className="p-4 flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="bg-gray-100 p-2 rounded">
-                      <img src="https://placekitten.com/43/43" alt="تمارا" className="w-8 h-8 rounded" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">تمارا - Tamara</h3>
-                      <p className="text-sm text-gray-500">الدفع لاحقًا وتقسيط المدفوعات</p>
-                    </div>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <Separator />
-                <div className="p-4 bg-gray-50 space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="tamara-merchant-key">مفتاح التاجر</Label>
-                      <Input id="tamara-merchant-key" placeholder="أدخل مفتاح التاجر" dir="ltr" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="tamara-public-key">المفتاح العام</Label>
-                      <Input id="tamara-public-key" placeholder="أدخل المفتاح العام" dir="ltr" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="myfatoorah-currency">العملة الافتراضية</Label>
+                          <Select 
+                            value={paymentGateways.myfatoorah.currency || 'KWD'}
+                            onValueChange={(value) => handleGatewayInputChange('myfatoorah', 'currency', value)}
+                          >
+                            <SelectTrigger id="myfatoorah-currency">
+                              <SelectValue placeholder="اختر العملة" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="KWD">دينار كويتي (KWD)</SelectItem>
+                              <SelectItem value="SAR">ريال سعودي (SAR)</SelectItem>
+                              <SelectItem value="BHD">دينار بحريني (BHD)</SelectItem>
+                              <SelectItem value="AED">درهم إماراتي (AED)</SelectItem>
+                              <SelectItem value="QAR">ريال قطري (QAR)</SelectItem>
+                              <SelectItem value="OMR">ريال عماني (OMR)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-              {/* Add Payment Method Button */}
-              <Button variant="outline" className="w-full">
-                <Plus className="h-4 w-4 ml-2" />
-                إضافة وسيلة دفع جديدة
-              </Button>
-            </div>
+                        <div className="p-4 rounded-md bg-blue-50 border border-blue-200 flex gap-3">
+                          <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+                          <div className="space-y-2">
+                            <p className="text-sm text-blue-700">
+                              لتفعيل حساب ماي فاتورة:
+                            </p>
+                            <ol className="list-decimal list-inside text-sm text-blue-700 space-y-1">
+                              <li>قم بالتسجيل في <a href="https://portal.myfatoorah.com/ar/register" target="_blank" className="text-blue-600 underline">بوابة ماي فاتورة</a></li>
+                              <li>أكمل عملية التسجيل والتحقق من حسابك</li>
+                              <li>استخرج مفتاح API من لوحة التحكم</li>
+                              <li>أدخل المفتاح هنا وقم بحفظ الإعدادات</li>
+                            </ol>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* تاب (Tap Payments) */}
+              <TabsContent value="tap">
+                <div className="rounded-md border border-gray-200">
+                  <div className="p-4 flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-gray-100 p-2 rounded">
+                        <img src="https://tap.company/dashboard/site_assets/img/tap-logo.svg" alt="تاب" className="w-8 h-8 object-contain rounded" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">تاب - Tap Payments</h3>
+                        <p className="text-sm text-gray-500">بوابة دفع متكاملة تدعم مدى وكي-نت والبطاقات العالمية</p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={paymentGateways.tap.enabled}
+                      onCheckedChange={(checked) => handleGatewayToggle('tap', checked)}
+                    />
+                  </div>
+                  
+                  {paymentGateways.tap.enabled && (
+                    <>
+                      <Separator />
+                      <div className="p-4 bg-gray-50 space-y-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="tap-test-mode">وضع الاختبار</Label>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Info className="h-4 w-4 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="w-80 text-sm">في وضع الاختبار، لن يتم خصم أي مبالغ حقيقية. استخدم هذا الوضع للتأكد من صحة الإعدادات.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <Switch 
+                            id="tap-test-mode"
+                            checked={paymentGateways.tap.test_mode}
+                            onCheckedChange={(checked) => handleGatewayModeToggle('tap', checked)}
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="tap-public-key">المفتاح العام (Public Key)</Label>
+                            <Input 
+                              id="tap-public-key" 
+                              placeholder="أدخل المفتاح العام"
+                              dir="ltr"
+                              value={paymentGateways.tap.public_key || ''}
+                              onChange={(e) => handleGatewayInputChange('tap', 'public_key', e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="tap-secret-key">المفتاح السري (Secret Key)</Label>
+                            <Input 
+                              id="tap-secret-key" 
+                              type="password"
+                              placeholder="أدخل المفتاح السري"
+                              dir="ltr"
+                              value={paymentGateways.tap.secret_key || ''}
+                              onChange={(e) => handleGatewayInputChange('tap', 'secret_key', e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="tap-currency">العملة الافتراضية</Label>
+                          <Select 
+                            value={paymentGateways.tap.currency || 'KWD'}
+                            onValueChange={(value) => handleGatewayInputChange('tap', 'currency', value)}
+                          >
+                            <SelectTrigger id="tap-currency">
+                              <SelectValue placeholder="اختر العملة" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="KWD">دينار كويتي (KWD)</SelectItem>
+                              <SelectItem value="SAR">ريال سعودي (SAR)</SelectItem>
+                              <SelectItem value="BHD">دينار بحريني (BHD)</SelectItem>
+                              <SelectItem value="AED">درهم إماراتي (AED)</SelectItem>
+                              <SelectItem value="QAR">ريال قطري (QAR)</SelectItem>
+                              <SelectItem value="OMR">ريال عماني (OMR)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="p-4 rounded-md bg-blue-50 border border-blue-200 flex gap-3">
+                          <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+                          <div className="space-y-2">
+                            <p className="text-sm text-blue-700">
+                              لتفعيل حساب تاب (Tap Payments):
+                            </p>
+                            <ol className="list-decimal list-inside text-sm text-blue-700 space-y-1">
+                              <li>قم بالتسجيل في <a href="https://www.tap.company/kw/ar/developers" target="_blank" className="text-blue-600 underline">منصة تاب للمطورين</a></li>
+                              <li>أنشئ تطبيقًا جديدًا في لوحة التحكم</li>
+                              <li>استخرج المفتاح العام والمفتاح السري</li>
+                              <li>أدخل المفاتيح هنا وقم بحفظ الإعدادات</li>
+                            </ol>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
-        {/* Cash Payment Methods */}
+        {/* وسائل الدفع الأخرى */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
-              <BanknoteIcon className="h-5 w-5 mr-2 text-oksale-600" />
+              <BanknoteIcon className="h-5 w-5 ml-2 text-oksale-600" />
               الدفع عند الاستلام
             </CardTitle>
             <CardDescription>إعدادات الدفع النقدي عند الاستلام</CardDescription>
@@ -185,11 +379,11 @@ const DashboardSettingsPayment: React.FC<DashboardSettingsPaymentProps> = ({ sto
           </CardContent>
         </Card>
 
-        {/* Payment Security */}
+        {/* أمان المدفوعات */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
-              <Shield className="h-5 w-5 mr-2 text-oksale-600" />
+              <Shield className="h-5 w-5 ml-2 text-oksale-600" />
               أمان المدفوعات
             </CardTitle>
             <CardDescription>إعدادات تأمين المعاملات المالية</CardDescription>

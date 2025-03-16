@@ -116,6 +116,66 @@ export type Database = {
           },
         ]
       }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          gateway: string
+          id: string
+          order_id: string
+          payment_data: Json | null
+          payment_method: string | null
+          status: string
+          store_id: string
+          transaction_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency: string
+          gateway: string
+          id?: string
+          order_id: string
+          payment_data?: Json | null
+          payment_method?: string | null
+          status: string
+          store_id: string
+          transaction_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          gateway?: string
+          id?: string
+          order_id?: string
+          payment_data?: Json | null
+          payment_method?: string | null
+          status?: string
+          store_id?: string
+          transaction_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
@@ -214,6 +274,7 @@ export type Database = {
           logo_url: string | null
           name: string
           owner_id: string
+          payment_gateways: Json | null
           snapchat: string | null
           tiktok: string | null
           twitter: string | null
@@ -243,6 +304,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           owner_id: string
+          payment_gateways?: Json | null
           snapchat?: string | null
           tiktok?: string | null
           twitter?: string | null
@@ -272,6 +334,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           owner_id?: string
+          payment_gateways?: Json | null
           snapchat?: string | null
           tiktok?: string | null
           twitter?: string | null
