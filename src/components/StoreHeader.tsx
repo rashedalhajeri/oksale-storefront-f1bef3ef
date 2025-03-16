@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, CheckCircle, Instagram, Twitter, Facebook, Globe } from 'lucide-react';
+import { ShoppingBag, CheckCircle, Instagram, Twitter, Facebook, Globe, MapPin } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -19,6 +19,7 @@ interface StoreHeaderProps {
     rating: number;
     reviewCount: number;
     featured: boolean;
+    address?: string;
     socialLinks?: {
       instagram?: string;
       twitter?: string;
@@ -100,6 +101,14 @@ const StoreHeader = ({
                 <div className="flex items-center gap-1 text-white text-xs md:text-sm">
                   <span className="truncate">{displayHandle}</span>
                 </div>
+                
+                {/* Display address if available */}
+                {store.address && (
+                  <div className="flex items-center gap-1 text-white text-xs md:text-sm mt-1">
+                    <MapPin className="w-3 h-3 md:w-4 md:h-4" />
+                    <span className="truncate">{store.address}</span>
+                  </div>
+                )}
                 
                 {/* Social links - only show if they exist */}
                 {(store.socialLinks?.instagram || store.socialLinks?.twitter || store.socialLinks?.facebook || store.socialLinks?.website) && (

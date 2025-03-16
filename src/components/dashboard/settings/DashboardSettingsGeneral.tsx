@@ -93,16 +93,28 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    const key = id.replace('store-', '').replace('social-', '');
+    const { name, value } = e.target;
     
-    if (key === 'handle') {
+    // Special handling for inputs that use id instead of name
+    if (!name) {
+      const id = e.target.id;
+      const key = id.replace('store-', '').replace('social-', '');
+      
+      if (key === 'handle') {
+        return;
+      }
+      
+      setStoreInfo(prev => ({
+        ...prev,
+        [key]: value
+      }));
       return;
     }
     
+    // Regular handling for inputs that use the name attribute
     setStoreInfo(prev => ({
       ...prev,
-      [key]: value
+      [name]: value
     }));
   };
   
@@ -252,6 +264,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
         <ContactInformationSection 
           storeInfo={storeInfo}
           handleInputChange={handleInputChange}
+          handleSaveModal={handleSaveChanges}
         />
 
         {/* Social Media */}

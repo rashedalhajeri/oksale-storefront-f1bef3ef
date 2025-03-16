@@ -196,6 +196,7 @@ export type Database = {
       }
       stores: {
         Row: {
+          address: string | null
           contact_email: string | null
           contact_phone: string | null
           country: string | null
@@ -216,6 +217,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          address?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           country?: string | null
@@ -236,6 +238,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          address?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           country?: string | null

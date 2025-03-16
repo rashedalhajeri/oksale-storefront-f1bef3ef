@@ -23,11 +23,13 @@ interface ContactInformationSectionProps {
     address: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleSaveModal?: () => void;
 }
 
 const ContactInformationSection: React.FC<ContactInformationSectionProps> = ({
   storeInfo,
-  handleInputChange
+  handleInputChange,
+  handleSaveModal
 }) => {
   return (
     <Card>
@@ -125,7 +127,7 @@ const ContactInformationSection: React.FC<ContactInformationSectionProps> = ({
                   <Button type="button" variant="outline">إلغاء</Button>
                 </DialogClose>
                 <DialogClose asChild>
-                  <Button type="button">حفظ التغييرات</Button>
+                  <Button type="button" onClick={handleSaveModal}>حفظ التغييرات</Button>
                 </DialogClose>
               </DialogFooter>
             </DialogContent>
