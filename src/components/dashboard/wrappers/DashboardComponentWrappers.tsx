@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useDashboardContext } from '@/context/DashboardContext';
 
@@ -67,6 +68,7 @@ export const DashboardCategoriesWithContext = () => {
 
 // Wrapper for DashboardOffers
 export const DashboardOffersWithContext = () => {
+  const contextValues = useDashboardContext();
   return <DashboardOffers />;
 };
 

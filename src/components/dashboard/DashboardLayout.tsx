@@ -1,14 +1,10 @@
+
 import React, { ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from './navigation/Sidebar';
 import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import '@/styles/dashboard.css'; // تصحيح مسار استيراد تحسينات CSS
-
-interface DashboardLayoutProps {
-  children: ReactNode;
-  storeData: any;
-}
+import '@/styles/dashboard.css'; // تصحيح مسار استيراد CSS
 
 // مكون Sidebar ممويز مع تكوين مذكرة مناسب
 const MemoizedSidebar = React.memo(
@@ -21,6 +17,11 @@ const MemoizedSidebar = React.memo(
 );
 
 MemoizedSidebar.displayName = 'MemoizedSidebar';
+
+interface DashboardLayoutProps {
+  children: ReactNode;
+  storeData: any;
+}
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
