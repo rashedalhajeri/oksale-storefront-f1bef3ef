@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +22,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast, toast } from "@/components/ui/use-toast";
 
 // Define supported social media types
 type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website' | 'snapchat' | 'tiktok' | 'whatsapp';
@@ -50,17 +50,17 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
   storeInfo,
   handleInputChange
 }) => {
+  const { toast } = useToast();
+  
   const [accounts, setAccounts] = useState<SocialMediaAccount[]>(() => {
     const initialAccounts: SocialMediaAccount[] = [];
     
-    // Helper function to add account if it exists
     const addIfExists = (type: SocialMediaType, value?: string) => {
       if (value) {
         initialAccounts.push({ id: type, type, username: value });
       }
     };
     
-    // Add existing accounts
     addIfExists('instagram', storeInfo.instagram);
     addIfExists('twitter', storeInfo.twitter);
     addIfExists('facebook', storeInfo.facebook);
@@ -81,7 +81,6 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
   const [step, setStep] = useState<'select' | 'input'>('select');
   const [maxAccountsReached, setMaxAccountsReached] = useState(false);
 
-  // Check if max accounts reached
   useEffect(() => {
     setMaxAccountsReached(accounts.length >= 4);
   }, [accounts]);
@@ -92,13 +91,11 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       const existingIndex = updatedAccounts.findIndex(account => account.type === newAccount.type);
       
       if (existingIndex !== -1) {
-        // Update existing account
         updatedAccounts[existingIndex] = {
           ...updatedAccounts[existingIndex],
           username: newAccount.username
         };
       } else {
-        // Check if maximum accounts reached
         if (updatedAccounts.length >= 4) {
           toast({
             title: "الحد الأقصى تم الوصول إليه",
@@ -109,7 +106,6 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           return;
         }
         
-        // Add new account
         updatedAccounts.push({
           id: newAccount.type,
           type: newAccount.type as SocialMediaType,
@@ -119,7 +115,6 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       
       setAccounts(updatedAccounts);
       
-      // Update parent component's state
       const e = {
         target: {
           id: `social-${newAccount.type}`,
@@ -128,7 +123,6 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       } as React.ChangeEvent<HTMLInputElement>;
       handleInputChange(e);
       
-      // Close dialog and reset state
       setOpen(false);
       setStep('select');
       setNewAccount({ type: '', username: '' });
@@ -139,7 +133,6 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     const updatedAccounts = accounts.filter(account => account.type !== type);
     setAccounts(updatedAccounts);
     
-    // Update parent component's state
     const e = {
       target: {
         id: `social-${type}`,
@@ -149,7 +142,6 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     handleInputChange(e);
   };
 
-  // Define all available social media platforms
   const availablePlatforms: {type: SocialMediaType; label: string; icon: React.ReactNode}[] = [
     { 
       type: 'instagram', 
@@ -224,7 +216,6 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     }
   };
 
-  // Filter out platforms that are already added
   const availablePlatformsToAdd = availablePlatforms.filter(
     platform => !accounts.some(account => account.type === platform.type)
   );
