@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Heart } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { ShoppingBag } from 'lucide-react';
 
 interface ProductCardProps {
   product: {
@@ -18,7 +17,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -26,58 +24,54 @@ const ProductCard = ({ product }: ProductCardProps) => {
   }).format(product.price);
 
   return (
-    <div 
-      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 h-full border border-neutral-100"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative aspect-square overflow-hidden">
-        {!product.inStock && (
-          <Badge className="absolute top-2 right-2 z-10 bg-neutral-800 text-white">
-            غير متوفر
-          </Badge>
-        )}
-        
         <img
           src={product.image}
           alt={product.name}
           className={cn(
-            "w-full h-full object-cover transition-all duration-700",
-            imageLoaded ? "opacity-100" : "opacity-0",
-            isHovered ? "scale-105" : "scale-100"
+            "w-full h-full object-cover transition-all duration-700 hover:scale-105",
+            imageLoaded ? "loaded" : ""
           )}
           onLoad={() => setImageLoaded(true)}
         />
         
+        {/* Out of stock overlay */}
+        {!product.inStock && (
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+            <span className="bg-white text-oksale-800 px-3 py-1 rounded-md font-medium text-xs">
+              Out of Stock
+            </span>
+          </div>
+        )}
+        
         {/* Add to cart button overlay on hover */}
-        <div className={cn(
-          "absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 flex items-center justify-center transition-all duration-300",
-          isHovered ? "opacity-100" : "opacity-0"
-        )}>
+        <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300">
           <Button 
             variant="secondary" 
             size="sm" 
-            className="bg-white hover:bg-neutral-50 text-indigo-600 shadow-md"
+            className="bg-white hover:bg-oksale-50 text-oksale-700"
             disabled={!product.inStock}
           >
-            <ShoppingCart className="h-4 w-4 ml-1.5 rtl:mr-1.5 rtl:ml-0" />
-            إضافة للسلة
+            <ShoppingBag className="h-4 w-4 mr-1" />
+            Add to Cart
           </Button>
         </div>
       </div>
       
-      <div className="p-3">
-        <h3 className="font-medium text-neutral-800 text-sm line-clamp-2 h-[40px] leading-tight mb-2">{product.name}</h3>
-        
+      <div className="p-4">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-medium text-oksale-800 text-base line-clamp-2 h-[48px] leading-tight">{product.name}</h3>
+        </div>
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-indigo-700">{formattedPrice}</span>
+          <span className="font-semibold text-oksale-700">{formattedPrice}</span>
           <Button 
             variant="ghost" 
             size="icon" 
-            className="hover:bg-indigo-50 text-indigo-600 h-8 w-8 rounded-full"
+            className="hover:bg-oksale-50 text-oksale-700 h-8 w-8"
             disabled={!product.inStock}
           >
-            <ShoppingCart className="h-4 w-4" />
+            <ShoppingBag className="h-4 w-4" />
           </Button>
         </div>
       </div>

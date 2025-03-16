@@ -24,13 +24,11 @@ import {
   Bookmark,
   Folder,
   User,
-  Edit,
-  ShoppingCart
+  Edit
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const StorePage = () => {
   const { handle } = useParams<{ handle: string }>();
@@ -38,7 +36,6 @@ const StorePage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
   const [isOwnStore, setIsOwnStore] = useState(false);
-  const isMobile = useIsMobile();
   
   const { data: session } = useQuery({
     queryKey: ['auth-session'],
@@ -324,14 +321,7 @@ const StorePage = () => {
         <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
           <div className="mt-4 md:mt-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 mb-5 md:mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-neutral-800">المنتجات</h2>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="self-end border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 h-10 w-10 shadow-sm"
-              >
-                <ShoppingCart className="h-5 w-5 text-indigo-600" />
-              </Button>
+              <h2 className="text-xl md:text-2xl font-bold text-neutral-800">Products</h2>
             </div>
             
             <div className="mb-6">
@@ -341,18 +331,18 @@ const StorePage = () => {
                     <div className="pb-4">
                       <Carousel className="w-full max-w-screen-lg mx-auto">
                         <CarouselContent className="-ml-1">
-                          <TabsList className={`h-12 px-3 ${isMobile ? 'bg-white/90 backdrop-blur-md border border-neutral-100' : 'bg-white border border-neutral-200'} rounded-xl inline-flex w-max gap-2 shadow-sm`}>
+                          <TabsList className="h-12 px-3 bg-white border border-neutral-200 rounded-xl inline-flex w-max gap-2 shadow-sm">
                             <CarouselItem className="basis-auto pl-1 min-w-fit">
                               <TabsTrigger 
                                 value="All" 
                                 className={`h-9 px-5 text-sm font-medium rounded-lg transition-all ${
                                   selectedCategory === 'All' 
-                                    ? 'bg-indigo-600 text-white shadow-md' 
+                                    ? 'bg-indigo-600 text-white' 
                                     : 'text-neutral-600 hover:bg-neutral-100'
                                 }`}
                               >
                                 <ShoppingBag className="w-4 h-4 mr-2" />
-                                كل المنتجات
+                                All Products
                               </TabsTrigger>
                             </CarouselItem>
                             
@@ -362,7 +352,7 @@ const StorePage = () => {
                                   value={category} 
                                   className={`h-9 px-5 text-sm font-medium rounded-lg transition-all ${
                                     selectedCategory === category 
-                                      ? 'bg-indigo-600 text-white shadow-md' 
+                                      ? 'bg-indigo-600 text-white' 
                                       : 'text-neutral-600 hover:bg-neutral-100'
                                   }`}
                                 >
@@ -373,32 +363,28 @@ const StorePage = () => {
                             ))}
                           </TabsList>
                         </CarouselContent>
-                        <CarouselPrevious className={`${isMobile ? 'left-1 w-8 h-8' : 'left-0'} bg-white/90 backdrop-blur-md border border-neutral-200 shadow-sm`} />
-                        <CarouselNext className={`${isMobile ? 'right-1 w-8 h-8' : 'right-0'} bg-white/90 backdrop-blur-md border border-neutral-200 shadow-sm`} />
+                        <CarouselPrevious className="left-0 bg-white/80 border border-neutral-200" />
+                        <CarouselNext className="right-0 bg-white/80 border border-neutral-200" />
                       </Carousel>
                     </div>
                   </ScrollArea>
                 </Tabs>
               </div>
               
-              <div className={`flex items-center gap-3 mb-6 ${isMobile ? 'bg-white/90 backdrop-blur-md p-3 rounded-xl border border-neutral-100' : 'bg-white p-3 rounded-xl border border-neutral-200'} shadow-sm`}>
+              <div className="flex items-center gap-3 mb-6 bg-white p-3 rounded-xl border border-neutral-200 shadow-sm">
                 <div className="relative flex-grow">
-                  <Search className={`absolute ${isMobile ? 'left-3' : 'right-3'} top-1/2 transform -translate-y-1/2 text-indigo-500 w-4 h-4`} />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
                   <Input
                     type="text"
-                    placeholder="ابحث عن المنتجات..."
+                    placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`${isMobile ? 'pl-10 rtl:pr-10 rtl:pl-3' : 'pr-10 rtl:pl-10 rtl:pr-3'} border-neutral-200 w-full h-10 focus-visible:ring-indigo-400`}
-                    dir="rtl"
+                    className="pl-10 border-neutral-200 w-full h-10"
                   />
                 </div>
-                <Button 
-                  variant="outline" 
-                  className={`border-neutral-200 text-neutral-700 h-10 ${isMobile ? 'bg-white/80' : 'bg-white'} hover:bg-neutral-50`}
-                >
+                <Button variant="outline" className="border-neutral-200 text-neutral-700 h-10">
                   <Filter className="w-4 h-4 mr-1.5" />
-                  فلترة
+                  Filters
                 </Button>
               </div>
             </div>
