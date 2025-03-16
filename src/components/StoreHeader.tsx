@@ -133,16 +133,7 @@ const StoreHeader = ({
               </div>
             </div>
             
-            {/* Share button only on desktop */}
-            <div className="hidden md:flex gap-2">
-              <Button 
-                variant="outline" 
-                className="bg-white/20 backdrop-blur-sm border-white/40 text-white hover:bg-white/30 text-xs py-1 px-3 h-8"
-              >
-                <Share2 className="w-3 h-3 mr-1.5" />
-                Share
-              </Button>
-            </div>
+            {/* Share button removed as requested */}
           </div>
         </div>
       </div>

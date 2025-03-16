@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { ShoppingBag, Upload, Share2, Instagram, Twitter, Facebook, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Upload, Instagram, Twitter, Facebook, CheckCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -168,16 +168,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                 </div>
               </div>
               
-              {/* Share button only on desktop */}
-              <div className="hidden md:flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="bg-white/20 backdrop-blur-sm border-white/40 text-white hover:bg-white/30 text-xs py-1 px-3 h-8"
-                >
-                  <Share2 className="w-3 h-3 mr-1.5" />
-                  Share
-                </Button>
-              </div>
+              {/* Removed Share button as requested */}
             </div>
           </div>
         </div>
