@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Flame, Mail, User } from 'lucide-react';
+import { Home, Search, ShoppingBag, User, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MobileNavigationProps {
@@ -38,20 +38,24 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
       href: '/' 
     },
     { 
-      icon: <Flame className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'Feed', 
-      href: '/feed' 
+      icon: <Search className="w-6 h-6" strokeWidth={1.5} />, 
+      label: 'Search', 
+      href: '/search' 
     },
     { 
-      icon: <Mail className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'Messages', 
-      href: '/messages',
-      hasNotification: true
+      icon: <ShoppingBag className="w-6 h-6" strokeWidth={1.5} />, 
+      label: 'Cart', 
+      href: '/cart' 
     },
     { 
       icon: <User className="w-6 h-6" strokeWidth={1.5} />, 
-      label: 'Profile', 
+      label: 'Account', 
       href: '/dashboard' 
+    },
+    { 
+      icon: <ClipboardList className="w-6 h-6" strokeWidth={1.5} />, 
+      label: 'Orders', 
+      href: '/dashboard/orders' 
     }
   ];
 
@@ -78,9 +82,6 @@ const MobileNavigation = ({ className }: MobileNavigationProps) => {
             >
               <div className="relative">
                 {item.icon}
-                {item.hasNotification && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
-                )}
               </div>
               {isActive && (
                 <div className="absolute bottom-0 w-8 h-1 bg-black rounded-full"></div>
