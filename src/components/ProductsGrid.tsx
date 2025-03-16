@@ -10,6 +10,7 @@ interface ProductsGridProps {
   setSelectedCategory: (category: string) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  currency?: string; // Added currency prop
 }
 
 const ProductsGrid = ({ 
@@ -17,13 +18,14 @@ const ProductsGrid = ({
   selectedCategory, 
   setSelectedCategory,
   searchQuery,
-  setSearchQuery
+  setSearchQuery,
+  currency = 'USD' // Default to USD if not provided
 }: ProductsGridProps) => {
   if (products.length > 0) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6 animate-scale-in">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} currency={currency} />
         ))}
       </div>
     );

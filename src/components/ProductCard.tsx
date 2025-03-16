@@ -13,14 +13,16 @@ interface ProductCardProps {
     description?: string;
     inStock: boolean;
   };
+  currency?: string; // Added currency prop
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   
+  // Format price based on the provided currency
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: currency,
   }).format(product.price);
 
   return (
