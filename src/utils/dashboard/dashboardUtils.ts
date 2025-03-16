@@ -84,3 +84,42 @@ export const formatCurrencyWithSettings = (amount: number, currency: string): st
     return `${formattedAmount} ${symbol}`;
   }
 };
+
+/**
+ * إنشاء رقم طلب فريد للمتجر
+ * @param storeId معرف المتجر
+ * @param date تاريخ الطلب
+ * @returns رقم طلب فريد
+ */
+export const generateUniqueOrderNumber = (storeId: string, date: Date = new Date()): string => {
+  // استخدام الأحرف الأولى من معرف المتجر
+  const storePrefix = storeId.substring(0, 3).toUpperCase();
+  
+  // استخدام التاريخ (السنة/الشهر/اليوم)
+  const year = date.getFullYear().toString().slice(-2);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const dateComponent = `${year}${month}${day}`;
+  
+  // إنشاء رقم عشوائي من 4 أرقام
+  const randomComponent = Math.floor(1000 + Math.random() * 9000);
+  
+  // دمج المكونات
+  return `${storePrefix}-${dateComponent}-${randomComponent}`;
+};
+
+/**
+ * تنسيق رقم الطلب ليظهر بشكل مناسب
+ * @param orderNumber رقم الطلب الكامل
+ * @returns رقم الطلب المنسق
+ */
+export const formatOrderNumber = (orderNumber: string): string => {
+  // إذا كان الرقم بالتنسيق الجديد
+  if (orderNumber.includes('-')) {
+    return orderNumber;
+  }
+  
+  // للأرقام القديمة، نعرض الجزء المختصر فقط
+  return orderNumber.substring(0, 8).toUpperCase();
+};
+

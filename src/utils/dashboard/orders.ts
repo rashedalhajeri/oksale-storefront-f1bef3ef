@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from './currencyUtils';
-import { translateOrderStatus, getOrderStatusColor } from './dashboardUtils';
+import { translateOrderStatus, getOrderStatusColor, formatRelativeTime, generateUniqueOrderNumber, formatOrderNumber } from './dashboardUtils';
 
 // الحصول على الطلبات الأخيرة
 export const getRecentOrders = async (storeId: string, limit = 5) => {
@@ -30,9 +30,10 @@ export const getRecentOrders = async (storeId: string, limit = 5) => {
     if (error) throw error;
     
     return orders.map(order => ({
-      id: order.id.substring(0, 8).toUpperCase(),
+      id: formatOrderNumber(order.id),
       customer: order.customer_name,
       date: new Date(order.created_at).toLocaleDateString('ar-SA'),
+      relativeTime: formatRelativeTime(order.created_at),
       amount: formatCurrency(order.total_amount, currency),
       rawAmount: order.total_amount,
       status: order.status,
@@ -75,10 +76,12 @@ export const getOrderDetails = async (orderId: string) => {
     return {
       ...order,
       currency,
-      formattedAmount: formatCurrency(order.total_amount, currency)
+      formattedAmount: formatCurrency(order.total_amount, currency),
+      relativeTime: formatRelativeTime(order.created_at)
     };
   } catch (error) {
     console.error('Error fetching order details:', error);
     return null;
   }
 };
+

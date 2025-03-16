@@ -15,15 +15,17 @@ const StoreHeader: React.FC<StoreHeaderProps> = ({ storeData }) => {
       <div className="flex items-center gap-3 mb-2">
         <div className="h-12 w-12 overflow-hidden rounded-lg border border-gray-200 shadow-sm">
           {storeData?.logo_url ? (
-            <AspectRatio ratio={1} className="h-full w-full">
-              <img 
-                src={storeData.logo_url} 
-                alt={storeData?.name || 'متجر'} 
-                className="h-full w-full object-cover" 
-              />
-            </AspectRatio>
+            <div className="h-full w-full overflow-hidden rounded-lg">
+              <AspectRatio ratio={1} className="h-full w-full">
+                <img 
+                  src={storeData.logo_url} 
+                  alt={storeData?.name || 'متجر'} 
+                  className="h-full w-full object-cover" 
+                />
+              </AspectRatio>
+            </div>
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-oksale-600 to-oksale-800 text-white">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-oksale-600 to-oksale-800 text-white rounded-lg">
               <span className="text-lg font-semibold">{storeData?.name?.charAt(0) || 'S'}</span>
             </div>
           )}

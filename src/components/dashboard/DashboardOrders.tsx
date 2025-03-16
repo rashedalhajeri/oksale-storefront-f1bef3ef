@@ -12,7 +12,8 @@ import {
   User,
   Calendar,
   MapPin,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Clock3
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +46,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
+import { formatRelativeTime, translateOrderStatus, getOrderStatusColor, generateUniqueOrderNumber, formatOrderNumber } from '@/utils/dashboard/dashboardUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Order {
@@ -256,6 +258,27 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     });
   };
 
+  const getRelativeTimeWithColor = (dateString: string) => {
+    const relativeTime = formatRelativeTime(dateString);
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
+    
+    let color = "text-gray-500"; // default color
+    
+    if (diffHours < 1) {
+      color = "text-red-500 font-medium"; // less than an hour
+    } else if (diffHours < 2) {
+      color = "text-orange-500"; // less than 2 hours
+    } else if (diffHours < 24) {
+      color = "text-yellow-600"; // less than a day
+    } else if (diffHours < 48) {
+      color = "text-blue-500"; // less than 2 days
+    }
+    
+    return { text: relativeTime, color };
+  };
+
   const filteredOrders = orders.filter(order => {
     // Filter by tab
     if (tabValue !== "all" && order.status !== tabValue) {
@@ -448,44 +471,53 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               </div>
             ) : filteredOrders.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {filteredOrders.map((order) => (
-                  <Card 
-                    key={order.id} 
-                    className="border-none shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
-                    onClick={() => handleViewOrder(order)}
-                  >
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-1.5">
-                          <div className="bg-gray-100 p-1.5 rounded-full">
-                            {getStatusIcon(order.status)}
+                {filteredOrders.map((order) => {
+                  const { text: relativeTime, color: timeColor } = getRelativeTimeWithColor(order.created_at);
+                  
+                  return (
+                    <Card 
+                      key={order.id} 
+                      className="border-none shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+                      onClick={() => handleViewOrder(order)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-1.5">
+                            <div className="bg-gray-100 p-1.5 rounded-full">
+                              {getStatusIcon(order.status)}
+                            </div>
+                            {getStatusBadge(order.status)}
                           </div>
-                          {getStatusBadge(order.status)}
+                          <div className={`text-xs ${timeColor} flex items-center gap-1`}>
+                            <Clock3 className="h-3 w-3" />
+                            <span className="rtl">{relativeTime}</span>
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500 ltr">{formatShortDate(order.created_at)}</div>
-                      </div>
-                      
-                      <div className="mb-3">
-                        <h3 className="font-medium text-base mb-1">#{order.id.substring(0, 8).toUpperCase()}</h3>
-                        <p className="text-gray-600 text-sm truncate">{order.customer_name}</p>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-bold text-oksale-700 ltr">
-                          {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
-                        </span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="flex items-center gap-1 text-xs"
-                        >
-                          عرض التفاصيل
-                          <ChevronDown className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        
+                        <div className="mb-3">
+                          <h3 className="font-medium text-base mb-1 ltr">
+                            #{formatOrderNumber(order.id)}
+                          </h3>
+                          <p className="text-gray-600 text-sm truncate">{order.customer_name}</p>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="font-bold text-oksale-700 ltr">
+                            {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
+                          </span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="flex items-center gap-1 text-xs"
+                          >
+                            عرض التفاصيل
+                            <ChevronDown className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-8 px-4">
@@ -527,29 +559,38 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
             </div>
           ) : filteredOrders.length > 0 ? (
             <div className="space-y-2">
-              {filteredOrders.map((order) => (
-                <Card 
-                  key={order.id} 
-                  className="border-none shadow-sm"
-                  onClick={() => handleViewOrder(order)}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="flex items-center gap-1.5 mb-1">
-                          {getStatusBadge(order.status)}
-                          <span className="text-xs text-gray-500 ltr ml-2">{formatShortDate(order.created_at)}</span>
+              {filteredOrders.map((order) => {
+                const { text: relativeTime, color: timeColor } = getRelativeTimeWithColor(order.created_at);
+                
+                return (
+                  <Card 
+                    key={order.id} 
+                    className="border-none shadow-sm"
+                    onClick={() => handleViewOrder(order)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-1">
+                            {getStatusBadge(order.status)}
+                            <span className={`text-xs ${timeColor} flex items-center gap-1 mr-2`}>
+                              <Clock3 className="h-3 w-3" />
+                              <span className="rtl">{relativeTime}</span>
+                            </span>
+                          </div>
+                          <h3 className="font-medium text-sm mb-0.5 ltr">
+                            #{formatOrderNumber(order.id)}
+                          </h3>
+                          <p className="text-gray-600 text-xs truncate">{order.customer_name}</p>
                         </div>
-                        <h3 className="font-medium text-sm mb-0.5">#{order.id.substring(0, 8).toUpperCase()}</h3>
-                        <p className="text-gray-600 text-xs truncate">{order.customer_name}</p>
+                        <span className="font-bold text-sm text-oksale-700 ltr">
+                          {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
+                        </span>
                       </div>
-                      <span className="font-bold text-sm text-oksale-700 ltr">
-                        {formatCurrency(order.total_amount, storeData?.currency || 'SAR')}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-6 px-4">
@@ -577,11 +618,20 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <SheetContent className={`w-full ${isMobile ? 'max-w-full' : 'sm:max-w-md'} overflow-y-auto p-4`}>
           <SheetHeader className="text-right">
-            <SheetTitle className="text-lg">
-              تفاصيل الطلب #{selectedOrder?.id.substring(0, 8).toUpperCase()}
+            <SheetTitle className="text-lg ltr">
+              تفاصيل الطلب #{selectedOrder && formatOrderNumber(selectedOrder.id)}
             </SheetTitle>
             <SheetDescription>
-              تاريخ الطلب: {selectedOrder && <span className="ltr">{formatDate(selectedOrder.created_at)}</span>}
+              <div className="flex items-center gap-2 justify-end">
+                <span>تاريخ الطلب:</span> 
+                {selectedOrder && <span className="ltr">{formatDate(selectedOrder.created_at)}</span>}
+              </div>
+              {selectedOrder && (
+                <div className={`flex items-center gap-1 justify-end mt-1 ${getRelativeTimeWithColor(selectedOrder.created_at).color}`}>
+                  <Clock3 className="h-3.5 w-3.5" />
+                  <span>{formatRelativeTime(selectedOrder.created_at)}</span>
+                </div>
+              )}
             </SheetDescription>
           </SheetHeader>
           
@@ -742,24 +792,41 @@ const mockAddresses = [
 const generateMockOrders = (storeId: string): Order[] => {
   // Generate 10 mock orders
   return Array.from({ length: 10 }).map((_, index) => {
-    const id = `${Math.random().toString(36).substring(2, 10)}`;
+    const now = new Date();
+    // Set random dates within the last 30 days for different orders
+    const createdDate = new Date(now);
+    
+    if (index < 3) {
+      // For the first 3 orders, set times within the last few hours
+      const hoursAgo = [0.5, 1.5, 3][index];
+      createdDate.setHours(createdDate.getHours() - hoursAgo);
+    } else if (index < 5) {
+      // For the next 2 orders, set times within the last day
+      const hoursAgo = [8, 20][index - 3];
+      createdDate.setHours(createdDate.getHours() - hoursAgo);
+    } else {
+      // For the rest, set random dates within the last month
+      createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 30));
+    }
+    
+    // Create a unique store-specific order number
+    const orderNumber = generateUniqueOrderNumber(storeId, createdDate);
+    
     const totalAmount = parseFloat((Math.random() * 1000 + 100).toFixed(2));
     const statusOptions = ['pending', 'processing', 'completed', 'cancelled'];
     const status = statusOptions[Math.floor(Math.random() * statusOptions.length)];
-    const createdDate = new Date();
-    createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 30));
     
     // Create some random mock items for this order
     const itemCount = Math.floor(Math.random() * 4) + 1;
     const items = Array.from({ length: itemCount }).map((_, itemIndex) => ({
-      id: `item-${id}-${itemIndex}`,
+      id: `item-${orderNumber}-${itemIndex}`,
       name: mockProductNames[Math.floor(Math.random() * mockProductNames.length)],
       quantity: Math.floor(Math.random() * 3) + 1,
       price: parseFloat((Math.random() * 100 + 50).toFixed(2))
     }));
     
     return {
-      id,
+      id: orderNumber,
       store_id: storeId,
       total_amount: totalAmount,
       created_at: createdDate.toISOString(),
