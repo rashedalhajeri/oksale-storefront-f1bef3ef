@@ -1,208 +1,15 @@
 
 import React, { useMemo } from 'react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, ArrowUpRight, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
-import { formatCurrencyWithSettings } from '@/utils/dashboard/dashboardUtils';
 
-// Define interfaces for component props
-interface StatsCardProps {
-  title: string;
-  value: string | number;
-  icon: {
-    bgColor: string;
-    element: React.ReactNode;
-  };
-  trend?: boolean;
-  percentage?: number;
-}
-
-// Enhanced StatsCard component with proper typing
-const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend, percentage }) => {
-  return (
-    <Card className="bg-white dark:bg-gray-800 shadow-md border-0">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-            <h3 className="text-2xl font-bold mt-1">{value}</h3>
-          </div>
-          <div className={`p-3 rounded-full ${icon.bgColor}`}>
-            {icon.element}
-          </div>
-        </div>
-        
-        {trend && (
-          <div className="mt-4 flex items-center">
-            <span className={`text-xs font-medium ${percentage && percentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {percentage && percentage >= 0 ? '↑' : '↓'} {percentage ? Math.abs(percentage) : 0}%
-            </span>
-            <span className="text-xs text-gray-500 ms-2">مقارنة بالفترة السابقة</span>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
-
-// Interface for SalesChart props
-interface SalesChartProps {
-  salesData: any[];
-  timeframe: string;
-  currency: string;
-  isLoading: boolean;
-}
-
-// Enhanced SalesChart component
-const SalesChart: React.FC<SalesChartProps> = ({ salesData, timeframe, currency, isLoading }) => {
-  if (isLoading) {
-    return (
-      <div className="h-72 w-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div className="animate-spin h-8 w-8 border-4 border-indigo-600 rounded-full border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  // Format chart data
-  const gradientOffset = () => {
-    const dataMax = Math.max(...salesData.map((i) => i.revenue));
-    const dataMin = Math.min(...salesData.map((i) => i.revenue));
-    
-    if (dataMax <= 0) {
-      return 0;
-    }
-    if (dataMin >= 0) {
-      return 1;
-    }
-    
-    return dataMax / (dataMax - dataMin);
-  };
-
-  return (
-    <div className="h-72 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          data={salesData}
-          margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
-        >
-          <defs>
-            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-              <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-          <XAxis 
-            dataKey="name" 
-            tick={{ fill: '#6b7280', fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis 
-            tickFormatter={(value) => `${value}`}
-            tick={{ fill: '#6b7280', fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip 
-            formatter={(value, name) => [
-              name === 'revenue' 
-                ? formatCurrencyWithSettings(Number(value), currency)
-                : value,
-              name === 'revenue' ? 'الإيرادات' : 'المبيعات'
-            ]}
-            labelFormatter={(label) => `${label}`}
-            contentStyle={{ 
-              backgroundColor: 'white', 
-              border: '1px solid #e5e7eb',
-              borderRadius: '0.375rem',
-              padding: '0.5rem'
-            }}
-          />
-          <Area 
-            type="monotone" 
-            dataKey="revenue" 
-            stroke="#8884d8" 
-            strokeWidth={2}
-            fillOpacity={1} 
-            fill="url(#colorRevenue)" 
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-// Featured promotions component
-const FeaturedPromotions: React.FC = () => {
-  return (
-    <Card className="border-none bg-gradient-to-br from-purple-50 to-indigo-50 shadow-md dark:from-gray-800 dark:to-gray-900">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">العروض المميزة</h3>
-          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full dark:bg-purple-900 dark:text-purple-100">قريباً</span>
-        </div>
-        
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-          قم بإنشاء وتخصيص عروض خاصة للعملاء لزيادة المبيعات
-        </p>
-        
-        <button className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center dark:text-indigo-400 dark:hover:text-indigo-300">
-          معرفة المزيد
-          <ArrowUpRight className="h-4 w-4 mr-1" />
-        </button>
-      </CardContent>
-    </Card>
-  );
-};
-
-// Interface for RecentOrdersPreview props
-interface RecentOrdersPreviewProps {
-  recentOrders: any[];
-  loading: boolean;
-  currency: string;
-}
-
-// Enhanced RecentOrdersPreview component
-const RecentOrdersPreview: React.FC<RecentOrdersPreviewProps> = ({ recentOrders, loading, currency }) => {
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="h-16 bg-gray-100 dark:bg-gray-800 rounded-md animate-pulse"></div>
-        ))}
-      </div>
-    );
-  }
-
-  if (recentOrders.length === 0) {
-    return (
-      <div className="text-center py-6">
-        <p className="text-gray-500 dark:text-gray-400">لا توجد طلبات حديثة</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      {recentOrders.slice(0, 5).map((order, index) => (
-        <div key={index} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-medium">#{order.id}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{order.customer}</p>
-            </div>
-            <div className="text-right">
-              <p className="font-bold" dir="ltr">{order.amount}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(order.created_at).toLocaleDateString('ar-SA')}</p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
+// Import refactored components
+import StatsCard from './stats/StatsCard';
+import SalesChart from './charts/SalesChart';
+import FeaturedPromotions from './promotions/FeaturedPromotions';
+import RecentOrdersPreview from './orders/RecentOrdersPreview';
+import TopProductsPreview from './products/TopProductsPreview';
 
 // Main component interface
 interface MainDashboardProps {
@@ -362,29 +169,11 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
             <CardDescription>أفضل المنتجات أداءً في متجرك</CardDescription>
           </CardHeader>
           <CardContent>
-            {topProductsLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className="h-12 bg-gray-100 dark:bg-gray-800 rounded-md animate-pulse"></div>
-                ))}
-              </div>
-            ) : topProducts.length === 0 ? (
-              <div className="text-center py-6">
-                <p className="text-gray-500 dark:text-gray-400">لا توجد بيانات للمنتجات</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {topProducts.slice(0, 3).map((product, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <span className="font-medium">{product.name}</span>
-                    <div>
-                      <span className="text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded-full">{product.sales}</span>
-                      <span className="ml-2 font-medium" dir="ltr">{product.amount} {currency}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <TopProductsPreview 
+              topProducts={topProducts}
+              loading={topProductsLoading}
+              currency={currency}
+            />
           </CardContent>
         </Card>
       </div>
