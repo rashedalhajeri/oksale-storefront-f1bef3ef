@@ -2,6 +2,7 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import MobileNavigation from "@/components/MobileNavigation";
 
 const NotFound = () => {
   const location = useLocation();
@@ -33,6 +34,9 @@ const NotFound = () => {
           العودة للصفحة الرئيسية
         </Button>
       </div>
+      
+      {/* Show the mobile navigation when in a store context */}
+      {handle && <MobileNavigation />}
     </div>
   );
 };
