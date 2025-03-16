@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -6,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadFile } from "@/utils/uploadUtils";
 
 // Import refactored components
-import StorePreview from "./sections/StorePreview";
+import StorePreview from "./sections/store-preview";
 import StoreInformationSection from "./sections/StoreInformationSection";
 import ContactInformationSection from "./sections/ContactInformationSection";
 import SocialMediaSection from "./sections/SocialMediaSection";
