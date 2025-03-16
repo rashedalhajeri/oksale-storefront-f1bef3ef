@@ -284,10 +284,15 @@ const StorePage = () => {
     rating: 4.8,
     reviewCount: 256,
     featured: activeStore.is_active,
+    address: activeStore.address || '',
     socialLinks: {
       instagram: activeStore.instagram || '',
       twitter: activeStore.twitter || '',
-      facebook: activeStore.facebook || ''
+      facebook: activeStore.facebook || '',
+      website: activeStore.website || '',
+      snapchat: activeStore.snapchat || '',
+      tiktok: activeStore.tiktok || '',
+      whatsapp: activeStore.whatsapp || ''
     }
   };
 

@@ -55,6 +55,7 @@ const StoreHeader = ({
   const getSocialLinks = () => {
     if (!store.socialLinks) return [];
     
+    // Include all social media types in the filtering
     const links = Object.entries(store.socialLinks)
       .filter(([_, value]) => !!value)
       .slice(0, 3); // Limit to 3 social links
