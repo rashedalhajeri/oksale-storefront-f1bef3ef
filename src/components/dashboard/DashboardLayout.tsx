@@ -35,7 +35,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <div className="fixed top-4 right-4 z-50">
           <button 
             onClick={toggleSidebar} 
-            className="p-2.5 rounded-full bg-white shadow-md dark:bg-[#1A1F2C] focus:outline-none" 
+            className="p-2.5 rounded-full bg-white shadow-md dark:bg-[#0E1632] focus:outline-none" 
             aria-label={sidebarOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             {sidebarOpen ? 

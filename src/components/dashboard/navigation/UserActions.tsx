@@ -33,13 +33,13 @@ const UserActions: React.FC = () => {
   };
 
   return (
-    <div className="p-3 border-t">
+    <div className="p-3">
       <Button 
         variant="ghost" 
-        className="w-full justify-start text-gray-700 hover:text-red-600 hover:bg-red-50"
+        className="w-full justify-start text-white/70 hover:text-white hover:bg-[#1A2747]/50"
         onClick={handleSignOut}
       >
-        <LogOut className="h-4 w-4 mr-2" />
+        <LogOut className="h-4 w-4 ml-2" />
         تسجيل الخروج
       </Button>
     </div>
