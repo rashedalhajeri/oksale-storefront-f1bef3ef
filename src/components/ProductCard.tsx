@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Heart } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface ProductCardProps {
   product: {
@@ -26,11 +27,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <div 
-      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
+      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 h-full border border-neutral-100"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative aspect-square overflow-hidden">
+        {!product.inStock && (
+          <Badge className="absolute top-2 right-2 z-10 bg-neutral-800 text-white">
+            غير متوفر
+          </Badge>
+        )}
+        
         <img
           src={product.image}
           alt={product.name}
@@ -41,15 +48,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
           )}
           onLoad={() => setImageLoaded(true)}
         />
-        
-        {/* Out of stock overlay */}
-        {!product.inStock && (
-          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-            <span className="bg-white text-neutral-800 px-3 py-1 rounded-md font-medium text-xs">
-              غير متوفر
-            </span>
-          </div>
-        )}
         
         {/* Add to cart button overlay on hover */}
         <div className={cn(
@@ -62,36 +60,25 @@ const ProductCard = ({ product }: ProductCardProps) => {
             className="bg-white hover:bg-neutral-50 text-indigo-600 shadow-md"
             disabled={!product.inStock}
           >
-            <ShoppingCart className="h-4 w-4 mr-1" />
+            <ShoppingCart className="h-4 w-4 ml-1.5 rtl:mr-1.5 rtl:ml-0" />
             إضافة للسلة
           </Button>
         </div>
       </div>
       
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-medium text-neutral-800 text-base line-clamp-2 h-[48px] leading-tight">{product.name}</h3>
-        </div>
+      <div className="p-3">
+        <h3 className="font-medium text-neutral-800 text-sm line-clamp-2 h-[40px] leading-tight mb-2">{product.name}</h3>
+        
         <div className="flex items-center justify-between">
           <span className="font-semibold text-indigo-700">{formattedPrice}</span>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="hover:bg-indigo-50 text-indigo-600 h-8 w-8"
-              disabled={!product.inStock}
-            >
-              <Heart className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="hover:bg-indigo-50 text-indigo-600 h-8 w-8"
-              disabled={!product.inStock}
-            >
-              <ShoppingCart className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="hover:bg-indigo-50 text-indigo-600 h-8 w-8 rounded-full"
+            disabled={!product.inStock}
+          >
+            <ShoppingCart className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
