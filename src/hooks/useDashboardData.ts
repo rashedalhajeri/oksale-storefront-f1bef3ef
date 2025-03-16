@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/components/ui/use-toast";
@@ -57,7 +58,8 @@ export const useDashboardData = (storeId: string) => {
       setTopProducts(topProductsData);
       
       setRecentOrdersLoading(true);
-      const recentOrdersData = await getRecentOrders(storeId);
+      // Get more orders (15 instead of 5) to ensure we have enough pending orders
+      const recentOrdersData = await getRecentOrders(storeId, 15);
       setRecentOrders(recentOrdersData);
       
       setOrderStatusLoading(true);

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { CheckCircle2, AlertCircle, Clock, LayoutDashboard } from 'lucide-react'
 import StatisticsSection from './StatisticsSection';
 import ChartSection from './ChartSection';
 import OrderStatusCard from './OrderStatusCard';
+import RecentPendingOrdersCard from './RecentPendingOrdersCard';
 
 interface MainDashboardProps {
   statistics: any[];
@@ -38,6 +40,9 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
   orderStatusLoading,
   currency
 }) => {
+  // Filter pending orders
+  const pendingOrders = recentOrders.filter(order => order.status === 'pending');
+
   return (
     <div className="space-y-6">
       <div className="mb-6">
@@ -64,6 +69,14 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
 
       {/* Statistics Section */}
       <StatisticsSection statistics={statistics} loading={statsLoading} timeframe={timeframe} />
+
+      {/* Pending Orders Section */}
+      <div className="mb-6">
+        <RecentPendingOrdersCard 
+          pendingOrders={pendingOrders} 
+          loading={recentOrdersLoading} 
+        />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}
