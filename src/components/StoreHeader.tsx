@@ -40,9 +40,6 @@ const StoreHeader = ({
     ? store.handle
     : `@${store.handle}`;
 
-  // Ensure we have valid socialLinks object
-  const socialLinks = store.socialLinks || {};
-
   return (
     <div className="relative">
       {/* Cover image container with fixed height */}
@@ -104,11 +101,11 @@ const StoreHeader = ({
                 </div>
                 
                 {/* Social links - only show if they exist */}
-                {(socialLinks.instagram || socialLinks.twitter || socialLinks.facebook) && (
+                {(store.socialLinks?.instagram || store.socialLinks?.twitter || store.socialLinks?.facebook) && (
                   <div className="flex items-center gap-3 md:gap-4 mt-2">
-                    {socialLinks.instagram && (
+                    {store.socialLinks?.instagram && (
                       <a 
-                        href={socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://instagram.com/${socialLinks.instagram}`} 
+                        href={store.socialLinks.instagram.startsWith('http') ? store.socialLinks.instagram : `https://instagram.com/${store.socialLinks.instagram}`} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="text-white hover:text-blue-200 transition-colors"
@@ -116,9 +113,9 @@ const StoreHeader = ({
                         <Instagram className="w-4 h-4 md:w-5 md:h-5" />
                       </a>
                     )}
-                    {socialLinks.twitter && (
+                    {store.socialLinks?.twitter && (
                       <a 
-                        href={socialLinks.twitter.startsWith('http') ? socialLinks.twitter : `https://twitter.com/${socialLinks.twitter}`} 
+                        href={store.socialLinks.twitter.startsWith('http') ? store.socialLinks.twitter : `https://twitter.com/${store.socialLinks.twitter}`} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="text-white hover:text-blue-200 transition-colors"
@@ -126,9 +123,9 @@ const StoreHeader = ({
                         <Twitter className="w-4 h-4 md:w-5 md:h-5" />
                       </a>
                     )}
-                    {socialLinks.facebook && (
+                    {store.socialLinks?.facebook && (
                       <a 
-                        href={socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://facebook.com/${socialLinks.facebook}`} 
+                        href={store.socialLinks.facebook.startsWith('http') ? store.socialLinks.facebook : `https://facebook.com/${store.socialLinks.facebook}`} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="text-white hover:text-blue-200 transition-colors"

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,6 @@ const StorePage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [isOwnStore, setIsOwnStore] = useState(false);
   
-  // جلب بيانات المستخدم الحالي إذا كان مسجل دخول
   const { data: session } = useQuery({
     queryKey: ['auth-session'],
     queryFn: async () => {
@@ -47,7 +45,6 @@ const StorePage = () => {
     },
   });
   
-  // جلب متجر المستخدم الحالي إذا كان مسجل دخول
   const { data: userStore, isLoading: isLoadingUserStore } = useQuery({
     queryKey: ['user-store', session?.user?.id],
     queryFn: async () => {
@@ -69,19 +66,16 @@ const StorePage = () => {
     enabled: !!session?.user?.id,
   });
   
-  // جلب بيانات المتجر من الرابط
   const { data: storeData, isLoading, error } = useQuery({
     queryKey: ['store', handle],
     queryFn: async () => {
       if (!handle) {
-        // إذا لم يكن هناك معرف في الرابط وكان المستخدم مسجل دخول ولديه متجر، نستخدم متجره
         if (userStore) {
           return userStore;
         }
         throw new Error('معرف المتجر غير موجود');
       }
       
-      // بحث عن المتجر بالمعرف (إضافة @ إذا لم تكن موجودة)
       const cleanHandle = handle.startsWith('@') ? handle : `@${handle}`;
       
       const { data, error } = await supabase
@@ -113,7 +107,6 @@ const StorePage = () => {
     }
   });
   
-  // التحقق مما إذا كان المتجر الذي نعرضه هو متجر المستخدم الحالي
   useEffect(() => {
     if (userStore && storeData) {
       setIsOwnStore(userStore.id === storeData.id);
@@ -124,7 +117,6 @@ const StorePage = () => {
     }
   }, [userStore, storeData, handle]);
   
-  // بيانات المنتجات (ثابتة كما طلبت)
   const products = [
     {
       id: 1,
@@ -200,10 +192,8 @@ const StorePage = () => {
     }
   ];
   
-  // تحديد فئات المنتجات (ثابتة)
   const categories = ['Women', 'Men', 'Accessories', 'New Arrivals'];
   
-  // الفلترة حسب البحث والفئة
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -235,7 +225,6 @@ const StorePage = () => {
     }
   };
 
-  // عرض رسالة تحميل أثناء جلب بيانات المتجر
   if ((isLoading || isLoadingUserStore) && (!storeData && !userStore)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -247,7 +236,6 @@ const StorePage = () => {
     );
   }
 
-  // عرض رسالة خطأ إذا فشل جلب البيانات ولم يكن لدينا بيانات متجر المستخدم
   if (error && !userStore) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -264,7 +252,6 @@ const StorePage = () => {
     );
   }
 
-  // اختيار المتجر المناسب للعرض (إما متجر من الرابط أو متجر المستخدم الحالي)
   const activeStore = storeData || userStore;
   
   if (!activeStore) {
@@ -283,7 +270,6 @@ const StorePage = () => {
     );
   }
 
-  // ترتيب بيانات المتجر بالشكل المناسب للكومبوننت
   const store = {
     id: activeStore.id,
     name: activeStore.name,
@@ -292,16 +278,16 @@ const StorePage = () => {
     logo: activeStore.logo_url || 'https://images.unsplash.com/photo-1589985270958-b90dewe1e358?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
     handle: activeStore.handle,
     description: activeStore.description || 'متجر يقدم منتجات عالية الجودة.',
-    categories: categories, // استخدام الفئات الثابتة
+    categories: categories,
     location: activeStore.country || 'غير محدد',
     foundedYear: new Date(activeStore.created_at).getFullYear(),
-    rating: 4.8, // قيمة ثابتة
-    reviewCount: 256, // قيمة ثابتة
+    rating: 4.8,
+    reviewCount: 256,
     featured: activeStore.is_active,
     socialLinks: {
-      instagram: 'https://instagram.com',
-      twitter: 'https://twitter.com',
-      facebook: 'https://facebook.com'
+      instagram: activeStore.instagram || '',
+      twitter: activeStore.twitter || '',
+      facebook: activeStore.facebook || ''
     }
   };
 
