@@ -8,7 +8,6 @@ import {
   CardDescription, 
   CardContent 
 } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { 
   ResponsiveContainer, 
   BarChart, 
@@ -17,8 +16,10 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  Legend 
+  Legend,
+  TooltipProps 
 } from "recharts";
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface SalesData {
   name: string;
@@ -31,6 +32,23 @@ interface ChartSectionProps {
   loading: boolean;
   timeframe: string;
 }
+
+// Custom tooltip component
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-2 border border-gray-200 shadow-sm rounded">
+        <p className="font-semibold">{label}</p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ color: entry.color }}>
+            {entry.name}: {entry.value}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 const ChartSection: React.FC<ChartSectionProps> = ({ 
   salesData, 
@@ -95,7 +113,10 @@ const ChartSection: React.FC<ChartSectionProps> = ({
             <p className="text-gray-500">لا توجد بيانات للفترة المحددة</p>
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="h-64">
+          <div className="h-64" style={{ 
+            "--color-sales": chartConfig.sales.color, 
+            "--color-revenue": chartConfig.revenue.color 
+          } as React.CSSProperties}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -109,40 +130,25 @@ const ChartSection: React.FC<ChartSectionProps> = ({
                   tickLine={false}
                   width={40}
                 />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <ChartTooltipContent
-                          className="p-2 border border-gray-200"
-                          items={payload.map(entry => ({
-                            label: chartConfig[entry.dataKey]?.label || entry.dataKey,
-                            value: entry.value,
-                            color: entry.color,
-                          }))}
-                          title={payload[0].payload.name}
-                        />
-                      );
-                    }
-                    return null;
-                  }}
-                />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 <Bar
+                  name={chartConfig.sales.label}
                   dataKey="sales"
-                  fill="var(--color-sales)"
+                  fill={chartConfig.sales.color}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={40}
                 />
                 <Bar
+                  name={chartConfig.revenue.label}
                   dataKey="revenue"
-                  fill="var(--color-revenue)"
+                  fill={chartConfig.revenue.color}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={40}
                 />
               </BarChart>
             </ResponsiveContainer>
-          </ChartContainer>
+          </div>
         )}
       </CardContent>
     </Card>

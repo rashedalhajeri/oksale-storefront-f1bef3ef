@@ -13,7 +13,7 @@ import { Progress } from "@/components/ui/progress";
 interface StatisticItem {
   name: string;
   value: string;
-  icon: React.ReactNode;
+  icon: string;
   description: string;
   change: string;
   trendUp: boolean;
@@ -26,6 +26,22 @@ interface StatisticsSectionProps {
 }
 
 const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loading }) => {
+  // Icon mapping
+  const getIcon = (iconName: string) => {
+    switch(iconName) {
+      case 'products':
+        return <Package className="h-5 w-5 text-indigo-600" />;
+      case 'visitors':
+        return <Users className="h-5 w-5 text-blue-600" />;
+      case 'orders':
+        return <ShoppingCart className="h-5 w-5 text-green-600" />;
+      case 'revenue':
+        return <Banknote className="h-5 w-5 text-emerald-600" />;
+      default:
+        return <Package className="h-5 w-5 text-indigo-600" />;
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -62,7 +78,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
         <Card key={index} className="border-none shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex justify-between items-start">
-              <div className="p-2 rounded-full bg-gray-50">{item.icon}</div>
+              <div className="p-2 rounded-full bg-gray-50">{getIcon(item.icon)}</div>
               <div className={`flex items-center text-xs font-medium ${item.trendUp ? 'text-green-600' : 'text-red-600'}`}>
                 {item.change}
                 <ArrowUpRight className={`h-3 w-3 ml-1 ${!item.trendUp && 'rotate-180'}`} />
