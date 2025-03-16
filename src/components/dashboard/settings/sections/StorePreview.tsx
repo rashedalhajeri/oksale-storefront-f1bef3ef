@@ -195,17 +195,7 @@ const StorePreview: React.FC<StorePreviewProps> = ({
                       <ShoppingBag className="w-6 h-6 md:w-8 md:h-8 text-neutral-500" />
                     </div>
                   )}
-                  <button 
-                    className="absolute bottom-0 right-0 p-1 bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                    onClick={() => logoInputRef.current?.click()}
-                    disabled={logoUploading}
-                  >
-                    {logoUploading ? (
-                      <span className="animate-spin block w-3 h-3 border-2 border-oksale-600 border-t-transparent rounded-full"/>
-                    ) : (
-                      <Upload className="h-3 w-3" />
-                    )}
-                  </button>
+                  {/* Removed the logo upload button that was here */}
                 </div>
                 
                 {/* Store details with consistent text sizes */}
