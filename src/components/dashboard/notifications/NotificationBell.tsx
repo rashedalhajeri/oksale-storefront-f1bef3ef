@@ -12,6 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/utils/dashboard/orderStatus";
 
+interface NotificationBellProps {
+  storeId?: string;
+}
+
 interface Notification {
   id: string;
   title: string;
@@ -21,7 +25,7 @@ interface Notification {
   type: 'order' | 'system' | 'payment';
 }
 
-const NotificationBell: React.FC = () => {
+const NotificationBell: React.FC<NotificationBellProps> = ({ storeId }) => {
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: '1',
@@ -48,6 +52,9 @@ const NotificationBell: React.FC = () => {
       type: 'system'
     }
   ]);
+
+  // We can use the storeId prop in the future to fetch notifications for this specific store
+  // console.log('NotificationBell for store:', storeId);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
