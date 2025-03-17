@@ -1,6 +1,5 @@
-
 import { useState, useEffect, useCallback } from 'react';
-import { setupRealtimeSubscriptions } from '@/utils/dashboard/realtimeUtils';
+import { setupRealtimeSubscriptions } from '@/utils/dashboard/realtimeUtils.tsx';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseOrdersRealtimeProps {
