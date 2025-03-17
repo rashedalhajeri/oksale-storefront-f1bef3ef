@@ -1,385 +1,148 @@
 
+import { format, formatDistance, isToday, isYesterday, subDays } from 'date-fns';
+import { ar } from 'date-fns/locale';
+
 /**
- * تنسيق الرقم للعرض
- * @param value الرقم المراد تنسيقه
- * @returns الرقم المنسق كنص
+ * تنسيق الرقم بإضافة فواصل الآلاف
+ * @param num الرقم المراد تنسيقه
+ * @returns النص المنسق
  */
-export const formatNumber = (value: number): string => {
-  return new Intl.NumberFormat('ar-SA').format(value);
+export const formatNumber = (num: number): string => {
+  return num.toLocaleString('ar-SA');
 };
 
 /**
  * تنسيق العملة مع إعدادات محددة
  * @param amount المبلغ
  * @param currency رمز العملة
- * @returns المبلغ المنسق مع رمز العملة
+ * @param locale اللغة المحلية
+ * @returns النص المنسق
  */
-export const formatCurrencyWithSettings = (amount: number, currency: string = 'SAR'): string => {
-  let formatter;
-  
-  // تحديد تنسيق العملة بناءً على رمز العملة
-  switch (currency) {
-    case 'USD':
-      formatter = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 2
-      });
-      break;
-    case 'EUR':
-      formatter = new Intl.NumberFormat('de-DE', {
-        style: 'currency',
-        currency: 'EUR',
-        maximumFractionDigits: 2
-      });
-      break;
-    case 'KWD':
-      formatter = new Intl.NumberFormat('ar-KW', {
-        style: 'currency',
-        currency: 'KWD',
-        maximumFractionDigits: 3
-      });
-      break;
-    case 'SAR':
-    default:
-      formatter = new Intl.NumberFormat('ar-SA', {
-        style: 'currency',
-        currency: currency || 'SAR',
-        maximumFractionDigits: 2
-      });
-      break;
+export const formatCurrencyWithSettings = (
+  amount: number, 
+  currency = 'SAR', 
+  locale = 'ar-SA'
+): string => {
+  // معالجة القيم الخاصة
+  if (amount === null || amount === undefined) {
+    return '0 ' + currency;
   }
-  
-  return formatter.format(amount);
+
+  try {
+    // محاولة استخدام Intl.NumberFormat إذا كان متاحًا
+    if (typeof Intl !== 'undefined' && Intl.NumberFormat) {
+      return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(amount);
+    }
+  } catch (error) {
+    console.error('Error formatting currency:', error);
+  }
+
+  // طريقة احتياطية بسيطة
+  return amount.toFixed(2) + ' ' + currency;
 };
 
 /**
- * حساب الوقت النسبي منذ تاريخ معين
+ * الحصول على لون زمني بناءً على تاريخ والحالة
  * @param dateString تاريخ كنص
- * @returns النص النسبي بالعربية
+ * @param status حالة الطلب (اختياري)
+ * @returns فئة CSS للون
  */
-export const formatRelativeTime = (dateString: string): string => {
-  if (!dateString) return '';
+export const getTimeColor = (dateString: string, status?: string): string => {
+  if (!dateString) return 'text-gray-500';
   
   const date = new Date(dateString);
   const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
   
-  if (diffInSeconds < 60) {
-    return 'الآن';
-  } else if (diffInSeconds < 3600) {
-    const minutes = Math.floor(diffInSeconds / 60);
-    return `منذ ${minutes} دقيقة`;
-  } else if (diffInSeconds < 86400) {
-    const hours = Math.floor(diffInSeconds / 3600);
-    return `منذ ${hours} ساعة`;
-  } else if (diffInSeconds < 2592000) {
-    const days = Math.floor(diffInSeconds / 86400);
-    return `منذ ${days} يوم`;
-  } else if (diffInSeconds < 31536000) {
-    const months = Math.floor(diffInSeconds / 2592000);
-    return `منذ ${months} شهر`;
-  } else {
-    const years = Math.floor(diffInSeconds / 31536000);
-    return `منذ ${years} سنة`;
-  }
-};
-
-/**
- * الحصول على لون النص للوقت النسبي بناءً على الحالة
- * @param dateString تاريخ كنص
- * @param status حالة الطلب
- * @returns فئة CSS للون النص
- */
-export const getTimeColor = (dateString: string, status: string): string => {
-  if (!dateString) return 'text-gray-500';
-  
-  // إذا كانت الحالة مكتملة أو ملغاة، نستخدم لون رمادي دائمًا
-  if (['completed', 'cancelled', 'delivered', 'refunded'].includes(status)) {
+  // إذا كان الطلب مكتملًا أو ملغى، عد اللون الافتراضي
+  if (status === 'completed' || status === 'cancelled') {
     return 'text-gray-500';
   }
   
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+  // حساب الفرق بالساعات
+  const diffHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
   
-  if (diffInHours < 2) {
-    return 'text-green-600';
-  } else if (diffInHours < 24) {
-    return 'text-blue-600';
-  } else if (diffInHours < 48) {
-    return 'text-yellow-600';
-  } else {
-    return 'text-red-600';
+  if (diffHours < 1) {
+    return 'text-red-500 font-medium'; // أقل من ساعة
+  } else if (diffHours < 3) {
+    return 'text-orange-500'; // أقل من 3 ساعات
+  } else if (diffHours < 24) {
+    return 'text-yellow-600'; // أقل من يوم
+  } else if (diffHours < 48) {
+    return 'text-blue-500'; // أقل من يومين
   }
+  
+  return 'text-gray-500'; // أكثر من ذلك
 };
 
 /**
- * الحصول على ألوان حالة الطلب بناءً على حالة الطلب
+ * الحصول على لون حالة الطلب
  * @param status حالة الطلب
- * @returns فئات CSS للخلفية والنص
+ * @returns مصفوفة تحتوي على فئات CSS للخلفية والنص
  */
-export const getOrderStatusColor = (status: string) => {
+export const getOrderStatusColor = (status: string): [string, string] => {
   switch (status) {
     case 'completed':
-      return { 
-        bg: 'bg-green-100',
-        text: 'text-green-800',
-        icon: 'text-green-600'
-      };
+      return ['bg-green-100', 'text-green-800'];
     case 'processing':
-      return {
-        bg: 'bg-blue-100',
-        text: 'text-blue-800',
-        icon: 'text-blue-600'
-      };
+      return ['bg-blue-100', 'text-blue-800'];
     case 'pending':
-      return {
-        bg: 'bg-yellow-100',
-        text: 'text-yellow-800',
-        icon: 'text-yellow-600'
-      };
+      return ['bg-yellow-100', 'text-yellow-800'];
     case 'cancelled':
-      return {
-        bg: 'bg-red-100',
-        text: 'text-red-800',
-        icon: 'text-red-600'
-      };
-    case 'shipped':
-      return {
-        bg: 'bg-indigo-100',
-        text: 'text-indigo-800',
-        icon: 'text-indigo-600'
-      };
-    case 'delivered':
-      return {
-        bg: 'bg-emerald-100',
-        text: 'text-emerald-800',
-        icon: 'text-emerald-600'
-      };
-    case 'refunded':
-      return {
-        bg: 'bg-orange-100',
-        text: 'text-orange-800',
-        icon: 'text-orange-600'
-      };
+      return ['bg-red-100', 'text-red-800'];
     default:
-      return {
-        bg: 'bg-gray-100',
-        text: 'text-gray-800',
-        icon: 'text-gray-600'
-      };
+      return ['bg-gray-100', 'text-gray-800'];
   }
 };
 
 /**
- * إنشاء بيانات المبيعات للرسم البياني
- * @param orders قائمة الطلبات
- * @param timeframe إطار زمني (day, week, month, year)
- * @returns بيانات المبيعات المنسقة للرسم البياني
+ * تنسيق التاريخ بتنسيق محدد
+ * @param date التاريخ المراد تنسيقه
+ * @param formatStr تنسيق التاريخ (اختياري)
+ * @param localeObj كائن اللغة (اختياري)
+ * @returns نص التاريخ المنسق
  */
-export const generateSalesData = (orders: any[], timeframe: string) => {
-  if (!orders || orders.length === 0) {
-    return getEmptySalesData(timeframe);
-  }
+export const formatDate = (
+  date: Date | string,
+  formatStr = 'dd/MM/yyyy',
+  localeObj = ar
+): string => {
+  if (!date) return '';
   
-  // تصنيف الطلبات حسب التاريخ
-  const salesByDate = new Map();
-  const now = new Date();
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   
-  // تحديد تاريخ البداية بناءً على الإطار الزمني
-  let startDate: Date;
-  let dateFormat: Intl.DateTimeFormatOptions;
-  let increment: (date: Date) => Date;
-  
-  switch (timeframe) {
-    case 'day':
-      startDate = new Date(now);
-      startDate.setHours(0, 0, 0, 0);
-      dateFormat = { hour: '2-digit' };
-      increment = (date) => {
-        const newDate = new Date(date);
-        newDate.setHours(newDate.getHours() + 1);
-        return newDate;
-      };
-      break;
-    case 'week':
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - 6);
-      startDate.setHours(0, 0, 0, 0);
-      dateFormat = { weekday: 'short' };
-      increment = (date) => {
-        const newDate = new Date(date);
-        newDate.setDate(newDate.getDate() + 1);
-        return newDate;
-      };
-      break;
-    case 'month':
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - 29);
-      startDate.setHours(0, 0, 0, 0);
-      dateFormat = { day: '2-digit', month: 'short' };
-      increment = (date) => {
-        const newDate = new Date(date);
-        newDate.setDate(newDate.getDate() + 1);
-        return newDate;
-      };
-      break;
-    case 'year':
-    default:
-      startDate = new Date(now);
-      startDate.setMonth(now.getMonth() - 11);
-      startDate.setDate(1);
-      startDate.setHours(0, 0, 0, 0);
-      dateFormat = { month: 'short' };
-      increment = (date) => {
-        const newDate = new Date(date);
-        newDate.setMonth(newDate.getMonth() + 1);
-        return newDate;
-      };
-      break;
-  }
-  
-  // تهيئة الخريطة بجميع الفترات الزمنية
-  let currentDate = new Date(startDate);
-  const endDate = new Date(now);
-  endDate.setHours(23, 59, 59, 999);
-  
-  while (currentDate <= endDate) {
-    const dateKey = formatDateKey(currentDate, timeframe);
-    salesByDate.set(dateKey, { name: dateKey, sales: 0, revenue: 0 });
-    currentDate = increment(currentDate);
-  }
-  
-  // حساب المبيعات والإيرادات لكل فترة زمنية
-  orders.forEach(order => {
-    const orderDate = new Date(order.created_at);
-    if (orderDate >= startDate && orderDate <= endDate) {
-      const dateKey = formatDateKey(orderDate, timeframe);
-      if (salesByDate.has(dateKey)) {
-        const data = salesByDate.get(dateKey);
-        data.sales += 1;
-        data.revenue += Number(order.total_amount) || 0;
-        salesByDate.set(dateKey, data);
-      }
-    }
-  });
-  
-  // تحويل الخريطة إلى مصفوفة للرسم البياني
-  return Array.from(salesByDate.values());
-};
-
-/**
- * تنسيق مفتاح التاريخ بناءً على الإطار الزمني
- * @param date التاريخ
- * @param timeframe الإطار الزمني
- * @returns مفتاح التاريخ المنسق
- */
-const formatDateKey = (date: Date, timeframe: string): string => {
-  switch (timeframe) {
-    case 'day':
-      return `${date.getHours()}:00`;
-    case 'week':
-      return new Intl.DateTimeFormat('ar', { weekday: 'short' }).format(date);
-    case 'month':
-      return `${date.getDate()}`;
-    case 'year':
-      return new Intl.DateTimeFormat('ar', { month: 'short' }).format(date);
-    default:
-      return date.toISOString().split('T')[0];
+  try {
+    return format(dateObj, formatStr, {
+      locale: localeObj
+    });
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return String(date);
   }
 };
 
 /**
- * إنشاء بيانات مبيعات فارغة للإطار الزمني المحدد
- * @param timeframe الإطار الزمني
- * @returns بيانات مبيعات فارغة
- */
-const getEmptySalesData = (timeframe: string) => {
-  switch (timeframe) {
-    case 'day':
-      return Array.from({ length: 24 }, (_, i) => ({
-        name: `${i}:00`,
-        sales: 0,
-        revenue: 0
-      }));
-    case 'week':
-      const weekdays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-      return weekdays.map(day => ({
-        name: day,
-        sales: 0,
-        revenue: 0
-      }));
-    case 'month':
-      return Array.from({ length: 30 }, (_, i) => ({
-        name: `${i + 1}`,
-        sales: 0,
-        revenue: 0
-      }));
-    case 'year':
-      const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-      return months.map(month => ({
-        name: month,
-        sales: 0,
-        revenue: 0
-      }));
-    default:
-      return [];
-  }
-};
-
-/**
- * معالجة الدفع باستخدام My Fatoorah
- * @param storeId معرف المتجر
- * @param orderId معرف الطلب
+ * معالجة دفع My Fatoorah
  * @param amount المبلغ
- * @param customerData بيانات العميل
- * @returns نتيجة العملية
+ * @param currency العملة
+ * @returns وعد بنتيجة الدفع
  */
-export const processMyFatoorahPayment = async (
-  storeId: string,
-  orderId: string,
-  amount: number,
-  customerData: {
-    name: string;
-    email: string;
-    phone?: string;
-  }
-) => {
-  // هذه الوظيفة ستتطلب استدعاء واجهة برمجة التطبيقات الخاصة بـ My Fatoorah
-  console.log('معالجة الدفع باستخدام My Fatoorah', { storeId, orderId, amount, customerData });
-  
-  // تنفيذ تجريبي - في التطبيق الحقيقي سيتم استدعاء واجهة API الفعلية
-  return {
-    transactionId: `mf-${Date.now()}`,
-    paymentUrl: `https://myfatoorah.com/pay?id=${Date.now()}`
-  };
+export const processMyFatoorahPayment = async (amount: number, currency: string) => {
+  // وظيفة وهمية لمعالجة الدفع
+  return { success: true, transactionId: `mf-${Date.now()}` };
 };
 
 /**
- * معالجة الدفع باستخدام Tap Payments
- * @param storeId معرف المتجر
- * @param orderId معرف الطلب
+ * معالجة دفع Tap
  * @param amount المبلغ
- * @param customerData بيانات العميل
- * @returns نتيجة العملية
+ * @param currency العملة
+ * @returns وعد بنتيجة الدفع
  */
-export const processTapPayment = async (
-  storeId: string,
-  orderId: string,
-  amount: number,
-  customerData: {
-    name: string;
-    email: string;
-    phone?: string;
-  }
-) => {
-  // هذه الوظيفة ستتطلب استدعاء واجهة برمجة التطبيقات الخاصة بـ Tap Payments
-  console.log('معالجة الدفع باستخدام Tap Payments', { storeId, orderId, amount, customerData });
-  
-  // تنفيذ تجريبي - في التطبيق الحقيقي سيتم استدعاء واجهة API الفعلية
-  return {
-    transactionId: `tap-${Date.now()}`,
-    paymentUrl: `https://tap.company/pay?id=${Date.now()}`
-  };
+export const processTapPayment = async (amount: number, currency: string) => {
+  // وظيفة وهمية لمعالجة الدفع
+  return { success: true, transactionId: `tap-${Date.now()}` };
 };
