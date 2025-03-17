@@ -14,11 +14,12 @@ interface OrderStatusItem {
 interface OrderStatusSectionProps {
   orderStatusData: OrderStatusItem[];
   loading: boolean;
+  className?: string; // Added className prop as optional
 }
 
-const OrderStatusSection: React.FC<OrderStatusSectionProps> = ({ orderStatusData, loading }) => {
+const OrderStatusSection: React.FC<OrderStatusSectionProps> = ({ orderStatusData, loading, className }) => {
   return (
-    <Card className="dashboard-card">
+    <Card className={`dashboard-card ${className || ''}`}>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">حالة الطلبات</CardTitle>
         <CardDescription>

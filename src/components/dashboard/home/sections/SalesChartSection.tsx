@@ -12,13 +12,15 @@ interface SalesChartSectionProps {
   loading: boolean;
   timeframe: string;
   currency: string;
+  className?: string; // Added className prop as optional
 }
 
 const SalesChartSection: React.FC<SalesChartSectionProps> = ({ 
   salesData, 
   loading, 
   timeframe,
-  currency 
+  currency,
+  className 
 }) => {
   const isMobile = useIsMobile();
   
@@ -64,7 +66,7 @@ const SalesChartSection: React.FC<SalesChartSectionProps> = ({
 
   if (loading) {
     return (
-      <Card className="dashboard-card col-span-2 md:col-span-2">
+      <Card className={`dashboard-card col-span-2 md:col-span-2 ${className || ''}`}>
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-semibold">المبيعات والإيرادات</CardTitle>
         </CardHeader>
@@ -76,7 +78,7 @@ const SalesChartSection: React.FC<SalesChartSectionProps> = ({
   }
 
   return (
-    <Card className="dashboard-card col-span-2 md:col-span-2">
+    <Card className={`dashboard-card col-span-2 md:col-span-2 ${className || ''}`}>
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-blue-50 rounded-full">
