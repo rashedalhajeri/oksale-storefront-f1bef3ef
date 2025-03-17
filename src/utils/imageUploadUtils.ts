@@ -106,7 +106,7 @@ export const uploadProductImageWithFeedback = async (
   storeId: string,
   onSuccess: (url: string) => void,
   onError: (error: any) => void
-): Promise<void> => {
+): Promise<string> => {
   try {
     toast({
       title: "جارِ تحميل الصورة",
@@ -122,6 +122,7 @@ export const uploadProductImageWithFeedback = async (
     });
     
     onSuccess(imageUrl);
+    return imageUrl;
   } catch (error) {
     toast({
       title: "فشل التحميل",
@@ -130,5 +131,6 @@ export const uploadProductImageWithFeedback = async (
     });
     
     onError(error);
+    throw error;
   }
 };

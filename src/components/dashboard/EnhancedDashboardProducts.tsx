@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Package, 
@@ -236,6 +235,7 @@ const EnhancedDashboardProducts: React.FC<EnhancedDashboardProductsProps> = ({ s
       
       if (imageFile) {
         try {
+          // استخدام الدالة المساعدة لتحميل الصورة
           imageUrl = await uploadProductImageWithFeedback(
             imageFile, 
             storeData.id,
@@ -331,7 +331,10 @@ const EnhancedDashboardProducts: React.FC<EnhancedDashboardProductsProps> = ({ s
           imageUrl = await uploadProductImageWithFeedback(
             imageFile, 
             storeData.id,
-            (url) => console.log("Image uploaded:", url),
+            (url) => {
+              console.log("Image uploaded:", url);
+              return url;
+            },
             (error) => {
               console.error("Error uploading image:", error);
               throw error;
@@ -427,6 +430,8 @@ const EnhancedDashboardProducts: React.FC<EnhancedDashboardProductsProps> = ({ s
         title: "فشل حذف المنتج",
         description: "حدث خطأ أثناء حذف المنتج، يرجى المحاولة مرة أخرى.",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
