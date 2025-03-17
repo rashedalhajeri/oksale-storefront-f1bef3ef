@@ -37,7 +37,6 @@ export const showNewOrderNotification = (order: any) => {
   // إظهار إشعار باستخدام مكتبة toast
   toast.success("طلب جديد", {
     description: `تم استلام طلب جديد من ${order.customer_name} بقيمة ${order.total_amount}`,
-    variant: "default",
     duration: 10000,
     action: (
       <ToastAction 
