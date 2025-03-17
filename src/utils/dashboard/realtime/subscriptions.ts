@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { showNewOrderNotification, showOrderStatusChangeNotification } from './notifications';
+import { showNewOrderNotification, showOrderStatusChangeNotification } from './notifications.tsx';
 
 /**
  * دالة إنشاء اشتراك بالوقت الحقيقي للطلبات

@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { createOrdersSubscription, createOrderItemsSubscription } from './subscriptions';
-import { requestNotificationPermission } from './notifications';
+import { requestNotificationPermission } from './notifications.tsx';
 
 /**
  * Interface for callbacks used in realtime subscriptions
@@ -53,4 +53,4 @@ export const setupRealtimeSubscriptions = (
 
 // Re-export subscriptions and notifications for direct import
 export * from './subscriptions';
-export * from './notifications';
+export * from './notifications.tsx';
