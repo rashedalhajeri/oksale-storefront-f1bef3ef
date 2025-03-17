@@ -52,7 +52,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-row-reverse will-change-transform">
+    <div className="min-h-screen flex flex-row-reverse rtl-dashboard will-change-transform">
       {/* Sidebar - always visible on desktop, conditionally visible on mobile, placed on the right in RTL mode */}
       <div className={cn(
         "transition-transform duration-300 transform z-40 will-change-transform", 
@@ -66,13 +66,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       </div>
 
       {/* Main content - in the RTL layout, this is on the left side */}
-      <div className="flex-1 p-4 bg-bluesky-50/50 dark:bg-gray-900 transition-all will-change-transform">
-        {/* Background elements */}
-        <div className="absolute top-10 left-[10%] w-64 h-64 rounded-full bg-bluesky-100/50 blur-3xl opacity-30 pointer-events-none"></div>
-        <div className="absolute bottom-10 right-[5%] w-72 h-72 rounded-full bg-purple-100/50 blur-3xl opacity-30 pointer-events-none"></div>
-        
+      <div className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 transition-all will-change-transform">
         <div className="w-full max-w-7xl mx-auto relative z-10">
-          <div className="bg-white/60 backdrop-blur-sm shadow-sm rounded-2xl p-4 md:p-6 dark:bg-gray-800/60 animate-in fade-in duration-300">
+          <div className="bg-white shadow-sm rounded-2xl p-4 md:p-6 dark:bg-gray-800 animate-in fade-in duration-300">
             {children}
           </div>
         </div>
@@ -97,7 +93,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       {/* Mobile overlay when sidebar is open */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 backdrop-blur-sm will-change-opacity animate-in fade-in duration-200" 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 will-change-opacity animate-in fade-in duration-200" 
           onClick={() => setSidebarOpen(false)} 
         />
       )}

@@ -70,12 +70,11 @@
   unicode-bidi: isolate;
 }
 
-/* Glass card effect for better accessibility */
-.glass-card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* White card background for better accessibility */
+.white-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* Text shadow for better readability on variable backgrounds */
@@ -149,14 +148,14 @@
 .rtl-dashboard .sidebar {
   right: 0;
   left: auto;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
   border-right: none;
 }
 
 .ltr-dashboard .sidebar {
   left: 0;
   right: auto;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
   border-left: none;
 }
 
@@ -167,4 +166,30 @@
 
 .rtl-dashboard .card-actions {
   justify-content: flex-start;
+}
+
+/* Adjust popover and dropdown position for RTL */
+.rtl-dashboard .popover-content {
+  transform-origin: right top;
+}
+
+/* Adjust sheet positions for RTL */
+.rtl-dashboard .sheet-right {
+  right: 0;
+  left: auto;
+}
+
+.rtl-dashboard .sheet-left {
+  left: 0;
+  right: auto;
+}
+
+/* Make sure all cards have white background */
+.card, 
+.popover-content, 
+.dialog-content,
+.sheet-content {
+  background-color: #FFFFFF !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
