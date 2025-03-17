@@ -7,7 +7,8 @@ import {
   Clock,
   AlertCircle,
   FileText,
-  Package
+  Package,
+  Filter
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +47,7 @@ import {
   generateMockOrders
 } from '@/utils/dashboard/orders';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from "@/lib/utils";
 
 // Import refactored components
 import OrderFilterSheet from './orders/OrderFilterSheet';
@@ -400,13 +402,26 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold mb-1">إدارة الطلبات</h1>
-          <p className="text-gray-600 text-sm">إدارة ومتابعة طلبات متجرك ({pagination.total})</p>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            "flex items-center justify-center w-11 h-11 rounded-xl shadow-sm relative overflow-hidden",
+            "bg-gradient-to-br from-purple-800 to-indigo-900",
+            "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
+          )}>
+            <ShoppingCart className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold mb-1">إدارة الطلبات</h1>
+            <p className="text-gray-600">إدارة ومتابعة طلبات متجرك ({pagination.total})</p>
+          </div>
         </div>
         {!isMobile && (
-          <Button variant="outline" size="sm" className="self-start">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
+          >
             تصدير الطلبات
           </Button>
         )}
@@ -467,6 +482,19 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                     <SelectItem value="lowest">الأقل قيمة</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-2 relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
+                >
+                  <div className={cn(
+                    "flex items-center justify-center w-5 h-5 rounded-full shadow-sm relative overflow-hidden",
+                    "bg-gradient-to-br from-purple-800 to-indigo-900",
+                    "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
+                  )}>
+                    <Filter className="h-3 w-3 text-white" />
+                  </div>
+                  تصفية
+                </Button>
               </div>
             </CardContent>
           </Card>
