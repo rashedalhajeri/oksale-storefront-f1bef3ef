@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,8 +8,7 @@ import { supabase } from "./integrations/supabase/client";
 import { AuthProvider } from './features/authentication/providers/AuthProvider';
 
 // Import pages from the correct locations based on the new structure
-import NewIndex from "./pages/Index"; // Our completely redesigned homepage
-import StoreDiscovery from "./pages/StoreDiscovery";
+import HomePage from "./pages/HomePage"; // صفحة رئيسية جديدة
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -104,7 +102,6 @@ const AppRoutes = () => {
     !location.pathname.startsWith('/reset-password') && 
     !location.pathname.startsWith('/store-setup') && 
     !location.pathname.startsWith('/dashboard') && 
-    !location.pathname.startsWith('/explore') && 
     location.pathname !== '/' && 
     !location.pathname.includes('/', 1); // لا يحتوي على / بعد الحرف الأول
   
@@ -113,8 +110,7 @@ const AppRoutes = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<NewIndex />} />
-        <Route path="/explore" element={<StoreDiscovery />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/:handle" element={<StorePage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
