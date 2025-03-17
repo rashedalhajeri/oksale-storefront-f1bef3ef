@@ -62,59 +62,17 @@ const Navbar = () => {
 
         {/* Actions */}
         <div className="flex items-center space-x-4 space-x-reverse">
-          <Link to="/signin">
-            <Button variant="ghost" className="text-gray-700 hidden sm:flex">
-              تسجيل الدخول
-              <LogIn className="mr-2 h-4 w-4" />
-            </Button>
-          </Link>
-          <Link to="/signup">
-            <Button className="bg-black text-white hover:bg-gray-800 hidden sm:flex">
-              إنشاء حساب <ArrowRight className="mr-2 h-4 w-4" />
-            </Button>
-          </Link>
-          <button 
-            className="p-2 text-gray-500 rounded-full hover:bg-gray-100 sm:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          <Button variant="ghost" className="text-gray-700 hidden sm:flex">
+            تسجيل الدخول
+          </Button>
+          <Button className="bg-black text-white hover:bg-gray-800 hidden sm:flex">
+            الوصول المطلق <ArrowRight className="mr-2 h-4 w-4" />
+          </Button>
+          <button className="p-2 text-gray-500 rounded-full hover:bg-gray-100 sm:hidden">
+            <Menu className="h-5 w-5" />
           </button>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="sm:hidden bg-white border-t border-gray-200 shadow-lg">
-          <div className="px-4 py-2 space-y-2">
-            <Link 
-              to="/signin" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              تسجيل الدخول
-            </Link>
-            <Link 
-              to="/signup" 
-              className="block px-3 py-2 rounded-md text-base font-medium bg-gray-50 text-gray-900 hover:bg-gray-100"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              إنشاء حساب جديد
-            </Link>
-            <div className="pt-4 pb-2">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="البحث في المتاجر..."
-                  className="w-full py-2 pr-10 pl-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluesky-500 focus:border-transparent"
-                />
-                <div className="absolute left-3 top-2.5 h-4 w-4 text-gray-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 };
