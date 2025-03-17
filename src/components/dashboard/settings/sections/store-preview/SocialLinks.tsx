@@ -5,10 +5,9 @@ import {
   Twitter, 
   Facebook, 
   Globe, 
-  Snapchat, 
-  MessageCircle,
-  TikTok
+  MessageCircle
 } from 'lucide-react';
+import { FaSnapchat, FaTiktok } from 'react-icons/fa';
 
 export type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website' | 'snapchat' | 'tiktok' | 'whatsapp';
 
@@ -36,9 +35,9 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
       case 'website':
         return <Globe className="w-3.5 h-3.5 md:w-4 md:h-4" />;
       case 'snapchat':
-        return <Snapchat className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+        return <FaSnapchat className="w-3.5 h-3.5 md:w-4 md:h-4" />;
       case 'tiktok':
-        return <TikTok className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+        return <FaTiktok className="w-3.5 h-3.5 md:w-4 md:h-4" />;
       case 'whatsapp':
         return <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4" />;
       default:

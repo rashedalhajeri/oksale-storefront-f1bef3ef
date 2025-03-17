@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { supabase } from '../integrations/supabase/client';
 
 // Helper function to convert hex to RGBA
 const hexToRgba = (hex: string, alpha = 1) => {
@@ -15,8 +16,10 @@ const hexToRgba = (hex: string, alpha = 1) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-export const useThemeColors = () => {
+export const useThemeColors = (storeId?: string) => {
   const [customColor, setCustomColor] = useState<string>('#6366f1'); // Default indigo color
+  const [useCustomColors, setUseCustomColors] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [colors, setColors] = useState({
     primary: '#6366f1',
     primaryDark: '#4f46e5',
@@ -52,12 +55,40 @@ export const useThemeColors = () => {
     );
   }
 
+  // Function to update theme colors in the database
+  const updateThemeColors = async (useCustom: boolean, color: string) => {
+    if (!storeId) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('stores')
+        .update({
+          use_custom_colors: useCustom,
+          custom_color: color
+        })
+        .eq('id', storeId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating theme colors:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return { 
     customColor, 
-    setCustomColor, 
+    setCustomColor,
+    useCustomColors,
+    setUseCustomColors,
+    isLoading,
     colors,
+    updateThemeColors,
     // Utility function to create gradients
     createGradient: (startColor = customColor, endColor = adjustColor(customColor, 40)) => 
       `linear-gradient(to right, ${startColor}, ${endColor})`
   };
 };
+
