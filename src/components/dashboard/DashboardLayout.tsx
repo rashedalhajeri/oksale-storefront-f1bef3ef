@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import '@/styles/dashboard.css';
 import { Toaster } from '@/components/ui/sonner';
+import NotificationBell from './notifications/NotificationBell';
 
 // Memoized Sidebar component with proper dependency checks
 const MemoizedSidebar = React.memo(
@@ -85,6 +86,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       {/* Main content - in the RTL layout, this is on the left side */}
       <div className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 transition-all will-change-transform overflow-hidden">
         <div className="w-full max-w-7xl mx-auto relative z-10 overflow-hidden">
+          {/* Add notification bell to the top right of content area */}
+          <div className="flex justify-between items-center mb-4">
+            <div></div> {/* Empty div for flex spacing */}
+            <div className="flex items-center gap-2">
+              {storeData?.id && <NotificationBell storeId={storeData.id} />}
+            </div>
+          </div>
+          
           <div className="bg-white shadow-sm rounded-2xl p-4 md:p-6 dark:bg-gray-800 animate-in fade-in duration-300 overflow-hidden">
             {children}
           </div>

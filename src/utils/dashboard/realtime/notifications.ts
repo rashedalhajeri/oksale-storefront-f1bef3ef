@@ -1,6 +1,7 @@
 
 import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { Bell } from "lucide-react";
 
 /**
  * عرض إشعار بطلب جديد
@@ -47,21 +48,31 @@ export const showNewOrderNotification = (order: any) => {
  * @param oldStatus الحالة القديمة
  */
 export const showOrderStatusChangeNotification = (order: any, oldStatus: string) => {
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed': return 'مكتمل';
-      case 'processing': return 'قيد التجهيز';
-      case 'pending': return 'قيد الانتظار';
-      case 'cancelled': return 'ملغي';
-      default: return status;
-    }
-  };
+  const sound = new Audio('/sounds/status-change.mp3');
   
-  toast({
-    title: "تم تحديث حالة الطلب",
-    description: `تم تغيير حالة الطلب #${order.id} من ${getStatusText(oldStatus)} إلى ${getStatusText(order.status)}`,
-    variant: "default"
-  });
+  try {
+    // تشغيل صوت الإشعار بصوت منخفض
+    sound.volume = 0.5;
+    sound.play().catch(err => console.error("Couldn't play notification sound:", err));
+    
+    const getStatusText = (status: string) => {
+      switch (status) {
+        case 'completed': return 'مكتمل';
+        case 'processing': return 'قيد التجهيز';
+        case 'pending': return 'قيد الانتظار';
+        case 'cancelled': return 'ملغي';
+        default: return status;
+      }
+    };
+    
+    toast({
+      title: "تم تحديث حالة الطلب",
+      description: `تم تغيير حالة الطلب #${order.id} من ${getStatusText(oldStatus)} إلى ${getStatusText(order.status)}`,
+      variant: "default"
+    });
+  } catch (error) {
+    console.error("Error showing status change notification:", error);
+  }
 };
 
 /**
