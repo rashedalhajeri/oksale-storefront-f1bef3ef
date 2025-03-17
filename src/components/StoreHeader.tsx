@@ -123,9 +123,9 @@ const StoreHeader = ({
                   </div>
                 )}
                 
-                {/* Social links - same level as logo with proper alignment */}
+                {/* Social links - centered and without background */}
                 {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
-                  <div className="flex items-center flex-wrap gap-2 mt-1">
+                  <div className="flex items-center justify-center flex-wrap gap-3 mt-1">
                     {getSocialLinks().map(([type, username]) => {
                       if (!username) return null;
                       
@@ -135,7 +135,7 @@ const StoreHeader = ({
                           href={getSocialUrl(type as SocialMediaType, username)} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="text-white hover:text-blue-200 transition-colors flex items-center rounded-full bg-black/30 p-1.5 shadow-sm"
+                          className="text-white hover:text-blue-200 transition-colors flex items-center"
                           title={type}
                         >
                           {getSocialIcon(type as SocialMediaType, "w-4 h-4 md:w-5 md:h-5")}
