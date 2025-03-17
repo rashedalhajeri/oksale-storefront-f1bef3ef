@@ -31,21 +31,21 @@ const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, g
                 <span className="truncate max-w-[120px]">{order.relativeTime}</span>
               </div>
             </div>
-            <p className="font-medium text-sm mb-1 truncate">{order.customer}</p>
+            <p className="font-medium text-gray-800 text-sm mb-1 truncate">{order.customer}</p>
             
             {order.phone && (
               <div className="flex items-center gap-1 text-xs text-gray-500 mt-1.5">
                 <Phone className="h-3 w-3 flex-shrink-0" />
-                <span dir="ltr" className="truncate max-w-[120px] inline-block">{order.phone}</span>
+                <span dir="ltr" className="truncate max-w-[120px] inline-block font-mono">{order.phone}</span>
               </div>
             )}
             
             <h3 className="text-gray-400 text-xs mt-2 font-medium flex items-center gap-1">
               <Package className="h-3 w-3 flex-shrink-0 text-gray-400" />
-              <span dir="ltr" className="inline-block font-bold">{order.id}</span>
+              <span dir="ltr" className="inline-block font-bold font-mono">{order.id}</span>
             </h3>
           </div>
-          <span className="font-bold text-sm text-oksale-700 whitespace-nowrap pr-1 rtl:ml-0 rtl:mr-2" dir="ltr">
+          <span className="font-bold text-sm text-oksale-700 whitespace-nowrap pr-1 rtl:ml-0 rtl:mr-2 font-mono" dir="ltr">
             {order.amount}
           </span>
         </div>

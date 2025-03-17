@@ -12,4 +12,15 @@
   .text-shadow {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
+  
+  /* RTL specific utilities */
+  .dir-ltr {
+    direction: ltr;
+    display: inline-block;
+  }
+  
+  .dir-rtl {
+    direction: rtl;
+    display: inline-block;
+  }
 }

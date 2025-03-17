@@ -2,6 +2,25 @@
 import { Order } from './orderTypes';
 import { getOrderStatusText, getOrderStatusColors } from './orderStatus';
 
+// List of realistic Arabic names
+const arabicNames = [
+  'راشد الهاجري',
+  'سارة القحطاني',
+  'عبدالله العتيبي',
+  'نورة السبيعي',
+  'فهد الدوسري',
+  'ريم الشمري',
+  'محمد البلوي',
+  'لولوة الزهراني',
+  'سلطان الشهراني',
+  'دانة القرني',
+  'ماجد العنزي',
+  'هيا المطيري',
+  'خالد السديس',
+  'منيرة الحربي',
+  'وليد الغامدي'
+];
+
 // Add mock orders generation for the front-end 
 export const generateMockOrders = (storeId: string): Order[] => {
   const statuses = ['pending', 'processing', 'completed', 'cancelled'];
@@ -12,10 +31,13 @@ export const generateMockOrders = (storeId: string): Order[] => {
     const createdAt = new Date();
     createdAt.setDate(createdAt.getDate() - Math.floor(Math.random() * 30));
     
+    // Get a random Arabic name from the list
+    const customerName = arabicNames[Math.floor(Math.random() * arabicNames.length)];
+    
     const order = {
       id: `order-${storeId.slice(0, 4)}-${i}`,
       rawId: `order-${storeId.slice(0, 4)}-${i}`,
-      customer: `عميل ${i}`,
+      customer: customerName,
       email: `customer${i}@example.com`,
       phone: `+9665${Math.floor(10000000 + Math.random() * 90000000)}`,
       date: createdAt.toISOString(),
@@ -30,7 +52,7 @@ export const generateMockOrders = (storeId: string): Order[] => {
       created_at: createdAt.toISOString(),
       store_id: storeId,
       total_amount: Number((Math.random() * 1000).toFixed(2)),
-      customer_name: `عميل ${i}`,
+      customer_name: customerName,
       customer_email: `customer${i}@example.com`,
       customer_phone: `+9665${Math.floor(10000000 + Math.random() * 90000000)}`,
       items: [

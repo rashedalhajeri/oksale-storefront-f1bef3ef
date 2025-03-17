@@ -49,7 +49,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from "@/lib/utils";
 import { formatOrderId, getCachedFormattedOrders } from '@/utils/dashboard/orderFormatters';
 
-// Import refactored components
 import OrderFilterSheet from './orders/OrderFilterSheet';
 import OrderCardMobile from './orders/OrderCardMobile';
 import OrderDetailSheet from './orders/OrderDetailSheet';
@@ -79,7 +78,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   });
   const isMobile = useIsMobile();
 
-  // Format dates and relative times - Updated to be more compact with just numbers
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -92,14 +90,12 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }).replace(/\//g, '-');
   };
 
-  // Reset filters
   const resetFilters = useCallback(() => {
     setSearchTerm('');
     setTabValue('all');
     setSortOption('newest');
   }, []);
 
-  // Fetch orders based on current filters and pagination
   const fetchOrders = useCallback(async () => {
     if (!storeData?.id) return;
 
@@ -139,7 +135,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       
       const result = await getOrders(storeData.id, options);
       
-      // Use the new formatter to process orders
       const formattedOrders = getCachedFormattedOrders(result.orders, storeData.currency || 'SAR');
       
       if (formattedOrders.length === 0 && !searchTerm && tabValue === 'all' && pagination.page === 1) {
@@ -176,12 +171,10 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   }, [storeData?.id, pagination.page, pagination.limit, tabValue, sortOption, searchTerm, toast]);
 
-  // Fetch orders on filter or pagination change - reduce dependencies to prevent duplicate loading
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Debounce search input
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (pagination.page === 1) {
@@ -194,13 +187,11 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);
 
-  // Handle viewing order details
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
     setIsDetailOpen(true);
   };
 
-  // Handle updating order status
   const handleUpdateStatus = async (status: string) => {
     if (!selectedOrder) return;
 
@@ -218,7 +209,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         throw error;
       }
 
-      // Update order in UI
       setOrders(orders.map(order => 
         order.id === selectedOrder.id 
           ? { ...order, status, updated_at: new Date().toISOString() }
@@ -241,13 +231,12 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   };
 
-  // Get status text for display - Made more concise
   const getStatusText = (status: string) => {
     switch (status) {
       case 'completed':
         return 'مكتمل';
       case 'processing':
-        return 'قيد التجهيز';
+        return 'تجهيز';
       case 'pending':
         return 'انتظار';
       case 'cancelled':
@@ -257,7 +246,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   };
 
-  // Get status badge for display - Made more concise
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
@@ -273,7 +261,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   };
 
-  // Get icon for status
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
@@ -289,13 +276,11 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   };
 
-  // Handle page change for pagination
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  // Render table for desktop view
   const renderOrdersTable = () => {
     return (
       <div className="rounded-md border">
@@ -307,7 +292,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               <TableHead className="font-bold">المبلغ</TableHead>
               <TableHead className="font-bold">التاريخ</TableHead>
               <TableHead className="font-bold">الحالة</TableHead>
-              <TableHead className="text-left">إجراءات</TableHead>
+              <TableHead className="text-center">إجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -316,11 +301,11 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-700 font-bold dir-ltr">{order.id}</span>
+                    <span className="text-sm text-gray-700 font-bold font-mono dir-ltr">{order.id}</span>
                   </div>
                 </TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell className="font-semibold">{order.amount}</TableCell>
+                <TableCell className="font-medium text-gray-800">{order.customer}</TableCell>
+                <TableCell className="font-semibold font-mono">{order.amount}</TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="text-sm font-mono">{formatDate(order.created_at)}</span>
@@ -328,7 +313,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   </div>
                 </TableCell>
                 <TableCell>{getStatusBadge(order.status)}</TableCell>
-                <TableCell>
+                <TableCell className="text-center">
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -347,7 +332,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     );
   };
 
-  // Render the appropriate order content based on filters and device type
   const renderOrderContent = () => {
     if (loading) {
       return <OrderLoadingState isMobile={isMobile} count={isMobile ? 4 : 6} />;
@@ -372,7 +356,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       );
     }
 
-    // Desktop view - table layout
     return (
       <>
         {renderOrdersTable()}
@@ -412,7 +395,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         )}
       </div>
 
-      {/* Mobile filter controls */}
       {isMobile && (
         <div className="mb-4 flex gap-2">
           <OrderFilterSheet 
@@ -438,7 +420,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         </div>
       )}
 
-      {/* Desktop filter controls */}
       {!isMobile && (
         <>
           <Card className="mb-4 border-none shadow-sm">
@@ -493,7 +474,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               <TabsTrigger value="cancelled" className="flex-shrink-0">ملغي</TabsTrigger>
             </TabsList>
             
-            {/* TabsContent must be inside the Tabs component */}
             <TabsContent value={tabValue}>
               {renderOrderContent()}
             </TabsContent>
@@ -501,10 +481,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         </>
       )}
 
-      {/* Mobile view - wrap content in a Tabs component */}
       {isMobile && (
         <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
-          {/* Hidden TabsList for mobile - the actual UI is in OrderFilterSheet */}
           <TabsList className="hidden">
             <TabsTrigger value="all">الكل</TabsTrigger>
             <TabsTrigger value="pending">قيد الانتظار</TabsTrigger>
@@ -513,14 +491,12 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
             <TabsTrigger value="cancelled">ملغي</TabsTrigger>
           </TabsList>
           
-          {/* TabsContent for mobile */}
           <TabsContent value={tabValue}>
             {renderOrderContent()}
           </TabsContent>
         </Tabs>
       )}
 
-      {/* Order details sheet */}
       <OrderDetailSheet 
         isOpen={isDetailOpen}
         setIsOpen={setIsDetailOpen}
