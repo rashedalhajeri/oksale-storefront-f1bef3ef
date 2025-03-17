@@ -2,15 +2,15 @@
 import React from 'react';
 import { useDashboardContext } from '@/context/DashboardContext';
 
-// Original components
-import MainDashboard from '../MainDashboard';
+// Import the new dashboard home component
+import DashboardHome from '../home/DashboardHome';
+
+// Import existing components (these will be refactored in later steps)
 import DashboardProducts from '../DashboardProducts';
 import DashboardOrders from '../DashboardOrders';
 import DashboardCustomers from '../DashboardCustomers';
 import DashboardCategories from '../DashboardCategories';
 import DashboardMarketingOffers from '../DashboardMarketingOffers';
-
-// Settings components
 import DashboardSettingsGeneral from '../settings/DashboardSettingsGeneral';
 import DashboardSettingsAppearance from '../settings/DashboardSettingsAppearance';
 import DashboardSettingsPayment from '../settings/DashboardSettingsPayment';
@@ -19,97 +19,67 @@ import DashboardSettingsNotifications from '../settings/DashboardSettingsNotific
 import DashboardSettingsWhatsApp from '../settings/DashboardSettingsWhatsApp';
 import DashboardSettingsUsers from '../settings/DashboardSettingsUsers';
 
-// Wrapper for MainDashboard
+// Wrapper components that provide context to each dashboard section
+
 export const MainDashboardWithContext = () => {
-  const contextValues = useDashboardContext();
-  
-  return (
-    <MainDashboard 
-      statistics={contextValues.statistics || []}
-      salesData={contextValues.salesData || []}
-      timeframe={contextValues.timeframe || 'week'}
-      setTimeframe={contextValues.setTimeframe || (() => {})}
-      recentOrders={contextValues.recentOrders || []}
-      topProducts={contextValues.topProducts || []}
-      orderStatusData={contextValues.orderStatusData || []}
-      statsLoading={contextValues.statsLoading || false}
-      chartLoading={contextValues.chartLoading || false}
-      recentOrdersLoading={contextValues.recentOrdersLoading || false}
-      topProductsLoading={contextValues.topProductsLoading || false}
-      orderStatusLoading={contextValues.orderStatusLoading || false}
-      currency={contextValues.currency || 'KWD'}
-    />
-  );
+  return <DashboardHome />;
 };
 
-// Wrapper for DashboardProducts
 export const DashboardProductsWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardProducts storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardProducts storeData={storeData} />;
 };
 
-// Wrapper for DashboardOrders
 export const DashboardOrdersWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardOrders storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardOrders storeData={storeData} />;
 };
 
-// Wrapper for DashboardCustomers
 export const DashboardCustomersWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardCustomers storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardCustomers storeData={storeData} />;
 };
 
-// Wrapper for DashboardCategories
 export const DashboardCategoriesWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardCategories storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardCategories storeData={storeData} />;
 };
 
-// Wrapper for DashboardOffers
 export const DashboardOffersWithContext = () => {
-  const contextValues = useDashboardContext();
   return <DashboardMarketingOffers />;
 };
 
-// Wrapper for DashboardSettingsGeneral
 export const DashboardSettingsGeneralWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardSettingsGeneral storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardSettingsGeneral storeData={storeData} />;
 };
 
-// Wrapper for DashboardSettingsAppearance
 export const DashboardSettingsAppearanceWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardSettingsAppearance storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardSettingsAppearance storeData={storeData} />;
 };
 
-// Wrapper for DashboardSettingsPayment
 export const DashboardSettingsPaymentWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardSettingsPayment storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardSettingsPayment storeData={storeData} />;
 };
 
-// Wrapper for DashboardSettingsShipping
 export const DashboardSettingsShippingWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardSettingsShipping storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardSettingsShipping storeData={storeData} />;
 };
 
-// Wrapper for DashboardSettingsNotifications
 export const DashboardSettingsNotificationsWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardSettingsNotifications storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardSettingsNotifications storeData={storeData} />;
 };
 
-// Wrapper for DashboardSettingsWhatsApp
 export const DashboardSettingsWhatsAppWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardSettingsWhatsApp storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardSettingsWhatsApp storeData={storeData} />;
 };
 
-// Wrapper for DashboardSettingsUsers
 export const DashboardSettingsUsersWithContext = () => {
-  const contextValues = useDashboardContext();
-  return <DashboardSettingsUsers storeData={contextValues.storeData} />;
+  const { storeData } = useDashboardContext();
+  return <DashboardSettingsUsers storeData={storeData} />;
 };

@@ -1,7 +1,135 @@
 
-/* Dashboard performance optimizations */
+/* Dashboard styles with improved RTL support */
 
-/* Improve scrolling */
+/* ============= Core layout styles ============= */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* RTL layout direction */
+.rtl-layout {
+  direction: rtl;
+  text-align: right;
+}
+
+/* ============= Sidebar styles ============= */
+.dashboard-sidebar {
+  width: 260px;
+  background-color: #0E1632;
+  color: #fff;
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 40;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Sidebar states */
+.dashboard-sidebar.collapsed {
+  width: 70px;
+}
+
+.dashboard-sidebar.mobile-hidden {
+  transform: translateX(100%);
+}
+
+/* Main content area */
+.dashboard-main {
+  flex: 1;
+  margin-right: 260px;
+  padding: 1.5rem;
+  transition: margin 0.3s ease-in-out;
+}
+
+.dashboard-main.sidebar-collapsed {
+  margin-right: 70px;
+}
+
+.dashboard-main.sidebar-hidden {
+  margin-right: 0;
+}
+
+/* ============= Component styles ============= */
+
+/* Card styles */
+.dashboard-card {
+  background-color: #FFFFFF;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Section headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+/* Stats cards */
+.stats-card {
+  padding: 1.25rem;
+  height: 100%;
+}
+
+.stats-card-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+/* Tables */
+.dashboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.dashboard-table th {
+  text-align: right;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dashboard-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dashboard-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Utility classes */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -11,185 +139,103 @@
   scrollbar-width: none;
 }
 
-/* Transition effects */
-.animate-in {
-  animation-duration: 150ms;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  animation-fill-mode: both;
-  animation-delay: 0ms;
+/* Mobile overlay */
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
+.mobile-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Mobile toggle button */
+.sidebar-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation classes */
 .fade-in {
-  animation-name: fadeIn;
+  animation: fadeIn 0.3s ease forwards;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Performance optimizations */
-.will-change-transform {
-  will-change: transform;
+/* Ensure all popups and modals have white backgrounds */
+.popup-content,
+.dialog-content,
+.sheet-content,
+.dropdown-content {
+  background-color: #FFFFFF !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.will-change-opacity {
-  will-change: opacity;
-}
-
-/* Menu item optimizations */
-.menu-item {
-  transition: all 100ms ease;
-}
-
-/* Card hover optimizations */
-.card-hover {
-  transition: transform 150ms ease, box-shadow 150ms ease;
-  will-change: transform, box-shadow;
-}
-
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-}
-
-/* Text direction utilities */
-.ltr-text {
-  direction: ltr;
-  text-align: left;
-  unicode-bidi: isolate;
-}
-
-.rtl-text {
-  direction: rtl;
-  text-align: right;
-  unicode-bidi: isolate;
-}
-
-/* White card background for better accessibility */
-.white-card {
-  background: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-/* Text shadow for better readability on variable backgrounds */
-.text-shadow {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-/* RTL-specific styles */
-/* These help ensure proper layout in RTL context */
-
-/* Dashboard RTL layout - properly flips the entire layout */
-.rtl-dashboard {
-  direction: rtl;
-}
-
-/* Menu hover effects - based on text direction */
-.rtl-dashboard .menu-item:hover {
-  transform: translateX(-2px);
-}
-
-.ltr-dashboard .menu-item:hover {
-  transform: translateX(2px);
-}
-
-/* Improve table formatting for RTL support */
-.rtl-table th,
-.rtl-table td {
-  text-align: right;
-}
-
-/* Improve form controls in RTL context */
-.rtl-form .form-label {
-  text-align: right;
-}
-
-/* Optimized loading animations */
-.shine {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shine 1.5s infinite;
-}
-
-@keyframes shine {
-  to {
-    background-position: -200% 0;
-  }
-}
-
-/* Enhanced RTL for dashboard */
-.rtl-dashboard .header-content {
-  flex-direction: row-reverse;
-}
-
-.rtl-dashboard .store-header {
-  display: flex;
-  flex-direction: row-reverse;
-}
-
-/* Icon alignment for RTL/LTR layouts */
-.rtl-dashboard .icon-label {
-  margin-left: 0;
-  margin-right: 0.5rem;
-}
-
-.ltr-dashboard .icon-label {
-  margin-right: 0;
-  margin-left: 0.5rem;
-}
-
-/* Sidebar positioning */
-.rtl-dashboard .sidebar {
+/* RTL-specific adjustments */
+.rtl-dashboard .dashboard-sidebar {
   right: 0;
   left: auto;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
-  border-right: none;
 }
 
-.ltr-dashboard .sidebar {
-  left: 0;
-  right: auto;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-  border-left: none;
+.rtl-dashboard .dashboard-main {
+  margin-right: 260px;
+  margin-left: 0;
 }
 
-/* Adjust card layout for RTL */
-.rtl-dashboard .card-header {
-  flex-direction: row-reverse;
+.rtl-dashboard .dashboard-main.sidebar-collapsed {
+  margin-right: 70px;
+  margin-left: 0;
 }
 
-.rtl-dashboard .card-actions {
-  justify-content: flex-start;
+.rtl-dashboard .sidebar-toggle {
+  right: 1rem;
+  left: auto;
 }
 
-/* Adjust popover and dropdown position for RTL */
+/* Adjust popover and dropdown positions */
 .rtl-dashboard .popover-content {
   transform-origin: right top;
 }
 
-/* Adjust sheet positions for RTL */
-.rtl-dashboard .sheet-right {
-  right: 0;
-  left: auto;
+/* Ensure proper text directions */
+.rtl-dashboard .ltr-text {
+  direction: ltr;
+  text-align: left;
 }
 
-.rtl-dashboard .sheet-left {
-  left: 0;
-  right: auto;
-}
-
-/* Make sure all cards have white background */
-.card, 
-.popover-content, 
-.dialog-content,
-.sheet-content {
-  background-color: #FFFFFF !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-sidebar {
+    transform: translateX(100%);
+  }
+  
+  .dashboard-sidebar.mobile-visible {
+    transform: translateX(0);
+  }
+  
+  .dashboard-main {
+    margin-right: 0;
+  }
 }
