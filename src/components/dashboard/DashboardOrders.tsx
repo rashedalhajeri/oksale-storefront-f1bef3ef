@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   ShoppingCart, 
@@ -48,6 +49,8 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from "@/lib/utils";
 import { formatOrderId, getCachedFormattedOrders } from '@/utils/dashboard/orderFormatters';
+import { useOrdersRealtime } from '@/hooks/useOrdersRealtime';
+import { useDebounce } from '@/hooks/useDebounce';
 
 import OrderFilterSheet from './orders/OrderFilterSheet';
 import OrderCardMobile from './orders/OrderCardMobile';
@@ -55,6 +58,7 @@ import OrderDetailSheet from './orders/OrderDetailSheet';
 import OrderPagination from './orders/OrderPagination';
 import OrderEmptyState from './orders/OrderEmptyState';
 import OrderLoadingState from './orders/OrderLoadingState';
+import OrderNotification from './orders/OrderNotification';
 
 interface DashboardOrdersProps {
   storeData: any;
@@ -65,6 +69,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [tabValue, setTabValue] = useState("all");
@@ -77,6 +82,33 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     totalPages: 0
   });
   const isMobile = useIsMobile();
+
+  // استخدام خطاف الوقت الحقيقي للطلبات
+  const { 
+    newOrder, 
+    isNewOrderVisible, 
+    hideNewOrderNotification, 
+    lastUpdateTime 
+  } = useOrdersRealtime({
+    storeId: storeData?.id,
+    autoRefetch: () => fetchOrders(),
+    onOrderUpdate: (payload) => {
+      // تحديث الطلب في القائمة إذا كان موجودًا بالفعل
+      if (payload.new && payload.old) {
+        setOrders(currentOrders => 
+          currentOrders.map(order => 
+            order.rawId === payload.new.id ? { 
+              ...order, 
+              status: payload.new.status,
+              updated_at: payload.new.updated_at,
+              statusText: getStatusText(payload.new.status),
+              statusColors: getStatusColors(payload.new.status)
+            } : order
+          )
+        );
+      }
+    }
+  });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -128,7 +160,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         page: pagination.page,
         limit: pagination.limit,
         status,
-        search: searchTerm || null,
+        search: debouncedSearchTerm || null,
         sortBy,
         sortDirection
       };
@@ -137,7 +169,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       
       const formattedOrders = getCachedFormattedOrders(result.orders, storeData.currency || 'SAR');
       
-      if (formattedOrders.length === 0 && !searchTerm && tabValue === 'all' && pagination.page === 1) {
+      if (formattedOrders.length === 0 && !debouncedSearchTerm && tabValue === 'all' && pagination.page === 1) {
         const mockData = generateMockOrders(storeData.id);
         setOrders(mockData);
         setPagination({
@@ -169,23 +201,27 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     } finally {
       setLoading(false);
     }
-  }, [storeData?.id, pagination.page, pagination.limit, tabValue, sortOption, searchTerm, toast]);
+  }, [storeData?.id, pagination.page, pagination.limit, tabValue, sortOption, debouncedSearchTerm, toast]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
+  // عندما يتغير مصطلح البحث، أعد التحميل عند الصفحة 1
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (pagination.page === 1) {
-        fetchOrders();
-      } else {
-        setPagination(prev => ({ ...prev, page: 1 }));
-      }
-    }, 500);
-    
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+    if (pagination.page === 1) {
+      fetchOrders();
+    } else {
+      setPagination(prev => ({ ...prev, page: 1 }));
+    }
+  }, [debouncedSearchTerm]);
+
+  // تحديث عند تغيير lastUpdateTime
+  useEffect(() => {
+    if (lastUpdateTime) {
+      console.log(`[Orders] Realtime update detected at ${lastUpdateTime.toISOString()}`);
+    }
+  }, [lastUpdateTime]);
 
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
@@ -243,6 +279,41 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         return 'ملغي';
       default:
         return status;
+    }
+  };
+
+  const getStatusColors = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return { 
+          bg: 'bg-green-100',
+          text: 'text-green-800',
+          icon: 'text-green-600'
+        };
+      case 'processing':
+        return {
+          bg: 'bg-blue-100',
+          text: 'text-blue-800',
+          icon: 'text-blue-600'
+        };
+      case 'pending':
+        return {
+          bg: 'bg-yellow-100',
+          text: 'text-yellow-800',
+          icon: 'text-yellow-600'
+        };
+      case 'cancelled':
+        return {
+          bg: 'bg-red-100',
+          text: 'text-red-800',
+          icon: 'text-red-600'
+        };
+      default:
+        return {
+          bg: 'bg-gray-100',
+          text: 'text-gray-800',
+          icon: 'text-gray-600'
+        };
     }
   };
 
@@ -369,144 +440,156 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-3">
-          <div className={cn(
-            "flex items-center justify-center w-11 h-11 rounded-xl shadow-sm relative overflow-hidden",
-            "bg-gradient-to-br from-purple-800 to-indigo-900",
-            "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
-          )}>
-            <ShoppingCart className="h-5 w-5 text-white" />
+    <>
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "flex items-center justify-center w-11 h-11 rounded-xl shadow-sm relative overflow-hidden",
+              "bg-gradient-to-br from-purple-800 to-indigo-900",
+              "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
+            )}>
+              <ShoppingCart className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold mb-1">إدارة الطلبات</h1>
+              <p className="text-gray-600">إدارة ومتابعة طلبات متجرك ({pagination.total})</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold mb-1">إدارة الطلبات</h1>
-            <p className="text-gray-600">إدارة ومتابعة طلبات متجرك ({pagination.total})</p>
-          </div>
+          {!isMobile && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
+            >
+              تصدير الطلبات
+            </Button>
+          )}
         </div>
-        {!isMobile && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
-          >
-            تصدير الطلبات
-          </Button>
-        )}
-      </div>
 
-      {isMobile && (
-        <div className="mb-4 flex gap-2">
-          <OrderFilterSheet 
-            isOpen={isFilterOpen}
-            setIsOpen={setIsFilterOpen}
-            tabValue={tabValue}
-            setTabValue={setTabValue}
-            sortOption={sortOption}
-            setSortOption={setSortOption}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-          />
-          
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="البحث..."
-              className="pl-10 h-9"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+        {isMobile && (
+          <div className="mb-4 flex gap-2">
+            <OrderFilterSheet 
+              isOpen={isFilterOpen}
+              setIsOpen={setIsFilterOpen}
+              tabValue={tabValue}
+              setTabValue={setTabValue}
+              sortOption={sortOption}
+              setSortOption={setSortOption}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
             />
+            
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="البحث..."
+                className="pl-10 h-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {!isMobile && (
-        <>
-          <Card className="mb-4 border-none shadow-sm">
-            <CardContent className="p-3">
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="البحث عن طلب..."
-                    className="pl-10"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <Select 
-                  value={sortOption} 
-                  onValueChange={(value) => setSortOption(value)}
-                >
-                  <SelectTrigger className="w-full md:w-[150px]">
-                    <SelectValue placeholder="ترتيب حسب" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest">الأحدث</SelectItem>
-                    <SelectItem value="oldest">الأقدم</SelectItem>
-                    <SelectItem value="highest">الأعلى قيمة</SelectItem>
-                    <SelectItem value="lowest">الأقل قيمة</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center gap-2 relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
-                >
-                  <div className={cn(
-                    "flex items-center justify-center w-5 h-5 rounded-full shadow-sm relative overflow-hidden",
-                    "bg-gradient-to-br from-purple-800 to-indigo-900",
-                    "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
-                  )}>
-                    <Filter className="h-3 w-3 text-white" />
+        {!isMobile && (
+          <>
+            <Card className="mb-4 border-none shadow-sm">
+              <CardContent className="p-3">
+                <div className="flex flex-col md:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="البحث عن طلب..."
+                      className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                   </div>
-                  تصفية
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  <Select 
+                    value={sortOption} 
+                    onValueChange={(value) => setSortOption(value)}
+                  >
+                    <SelectTrigger className="w-full md:w-[150px]">
+                      <SelectValue placeholder="ترتيب حسب" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">الأحدث</SelectItem>
+                      <SelectItem value="oldest">الأقدم</SelectItem>
+                      <SelectItem value="highest">الأعلى قيمة</SelectItem>
+                      <SelectItem value="lowest">الأقل قيمة</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-2 relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
+                  >
+                    <div className={cn(
+                      "flex items-center justify-center w-5 h-5 rounded-full shadow-sm relative overflow-hidden",
+                      "bg-gradient-to-br from-purple-800 to-indigo-900",
+                      "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
+                    )}>
+                      <Filter className="h-3 w-3 text-white" />
+                    </div>
+                    تصفية
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
+            <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
+              <TabsList className="mb-3 w-full overflow-x-auto flex-nowrap justify-start">
+                <TabsTrigger value="all" className="flex-shrink-0">الكل</TabsTrigger>
+                <TabsTrigger value="pending" className="flex-shrink-0">قيد الانتظار</TabsTrigger>
+                <TabsTrigger value="processing" className="flex-shrink-0">قيد التجهيز</TabsTrigger>
+                <TabsTrigger value="completed" className="flex-shrink-0">مكتمل</TabsTrigger>
+                <TabsTrigger value="cancelled" className="flex-shrink-0">ملغي</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value={tabValue}>
+                {renderOrderContent()}
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+
+        {isMobile && (
           <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
-            <TabsList className="mb-3 w-full overflow-x-auto flex-nowrap justify-start">
-              <TabsTrigger value="all" className="flex-shrink-0">الكل</TabsTrigger>
-              <TabsTrigger value="pending" className="flex-shrink-0">قيد الانتظار</TabsTrigger>
-              <TabsTrigger value="processing" className="flex-shrink-0">قيد التجهيز</TabsTrigger>
-              <TabsTrigger value="completed" className="flex-shrink-0">مكتمل</TabsTrigger>
-              <TabsTrigger value="cancelled" className="flex-shrink-0">ملغي</TabsTrigger>
+            <TabsList className="hidden">
+              <TabsTrigger value="all">الكل</TabsTrigger>
+              <TabsTrigger value="pending">قيد الانتظار</TabsTrigger>
+              <TabsTrigger value="processing">قيد التجهيز</TabsTrigger>
+              <TabsTrigger value="completed">مكتمل</TabsTrigger>
+              <TabsTrigger value="cancelled">ملغي</TabsTrigger>
             </TabsList>
             
             <TabsContent value={tabValue}>
               {renderOrderContent()}
             </TabsContent>
           </Tabs>
-        </>
-      )}
+        )}
 
-      {isMobile && (
-        <Tabs value={tabValue} onValueChange={setTabValue} className="mb-4">
-          <TabsList className="hidden">
-            <TabsTrigger value="all">الكل</TabsTrigger>
-            <TabsTrigger value="pending">قيد الانتظار</TabsTrigger>
-            <TabsTrigger value="processing">قيد التجهيز</TabsTrigger>
-            <TabsTrigger value="completed">مكتمل</TabsTrigger>
-            <TabsTrigger value="cancelled">ملغي</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value={tabValue}>
-            {renderOrderContent()}
-          </TabsContent>
-        </Tabs>
-      )}
+        <OrderDetailSheet 
+          isOpen={isDetailOpen}
+          setIsOpen={setIsDetailOpen}
+          selectedOrder={selectedOrder}
+          getStatusBadge={getStatusBadge}
+          formatDate={formatDate}
+          handleUpdateStatus={handleUpdateStatus}
+          isMobile={isMobile}
+        />
+      </div>
 
-      <OrderDetailSheet 
-        isOpen={isDetailOpen}
-        setIsOpen={setIsDetailOpen}
-        selectedOrder={selectedOrder}
-        getStatusBadge={getStatusBadge}
-        formatDate={formatDate}
-        handleUpdateStatus={handleUpdateStatus}
-        isMobile={isMobile}
-      />
-    </div>
+      {/* إشعار الطلب الجديد */}
+      {newOrder && (
+        <OrderNotification 
+          order={newOrder}
+          isVisible={isNewOrderVisible}
+          onClose={hideNewOrderNotification}
+          autoCloseTime={15000}
+        />
+      )}
+    </>
   );
 };
 

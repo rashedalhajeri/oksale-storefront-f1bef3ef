@@ -16,6 +16,7 @@ import {
 
 import { formatOrders } from '@/utils/dashboard/orderFormatters';
 import { Order } from '@/utils/dashboard/orderTypes';
+import { useOrdersRealtime } from './useOrdersRealtime';
 
 // Define a type for the possible response formats from getRecentOrders
 interface OrdersResponseObject {
@@ -146,45 +147,22 @@ export const useDashboardData = (storeId: string) => {
     refetchOnWindowFocus: false,
   });
 
-  // Setup Realtime subscription for new orders
+  // استخدام الخطاف الجديد للوقت الحقيقي
+  const { lastUpdateTime } = useOrdersRealtime({
+    storeId,
+    autoRefetch: () => {
+      // إعادة تحميل البيانات عند وصول طلب جديد
+      refetchRecentOrders();
+      refetchStats();
+    }
+  });
+
+  // تحديث عند تغيير lastUpdateTime
   useEffect(() => {
-    if (!storeId) return;
-
-    // Subscribe to realtime updates for orders table
-    const channel = supabase
-      .channel('order-changes')
-      .on(
-        'postgres_changes',
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'orders',
-          filter: `store_id=eq.${storeId}`
-        },
-        (payload) => {
-          console.log('Realtime order update received:', payload);
-          
-          // Toast notification for new orders
-          if (payload.eventType === 'INSERT') {
-            toast({
-              title: "طلب جديد!",
-              description: `تم استلام طلب جديد برقم ${payload.new.id}`,
-              variant: "default",
-            });
-          }
-          
-          // Refetch the orders and stats to update the UI
-          refetchRecentOrders();
-          refetchStats();
-        }
-      )
-      .subscribe();
-
-    // Cleanup subscription when component unmounts
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [storeId, toast, refetchRecentOrders, refetchStats]);
+    if (lastUpdateTime) {
+      console.log(`[Dashboard] Realtime update detected at ${lastUpdateTime.toISOString()}`);
+    }
+  }, [lastUpdateTime]);
 
   // Optimize statistics with useMemo
   const statistics = useMemo(() => [
@@ -238,6 +216,7 @@ export const useDashboardData = (storeId: string) => {
     recentOrdersLoading,
     orderStatusLoading,
     loadDashboardData,
-    currency: dashboardStats.currency
+    currency: dashboardStats.currency,
+    lastUpdateTime // إضافة lastUpdateTime إلى القيم المعادة
   };
 };
