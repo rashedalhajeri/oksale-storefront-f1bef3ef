@@ -14,34 +14,34 @@ interface OrderCardMobileProps {
 const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, getStatusBadge }) => {
   return (
     <Card 
-      className="border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden max-w-full"
+      className="border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
       onClick={() => onViewOrder(order)}
     >
-      <CardContent className="p-3 overflow-hidden">
-        <div className="flex justify-between items-start overflow-hidden">
-          <div className="flex-1 min-w-0 overflow-hidden">
+      <CardContent className="p-3">
+        <div className="flex justify-between items-start">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-1 flex-wrap">
               {getStatusBadge(order.status)}
-              <div className={`text-xs ${order.timeColor || 'text-gray-500'} flex items-center gap-1 mr-2`}>
+              <div className={`text-xs ${order.timeColor || 'text-gray-500'} flex items-center gap-1`}>
                 <Clock3 className="h-3 w-3 flex-shrink-0" />
-                <span>{order.relativeTime}</span>
+                <span className="truncate">{order.relativeTime}</span>
               </div>
             </div>
             <p className="font-medium text-sm mb-0.5 truncate">{order.customer}</p>
             
             {order.phone && (
-              <div className="flex items-center gap-1 text-xs text-gray-500 mt-1 overflow-hidden">
+              <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
                 <Phone className="h-3 w-3 flex-shrink-0" />
-                <span dir="ltr" className="truncate block max-w-full">{order.phone}</span>
+                <span dir="ltr" className="truncate block">{order.phone}</span>
               </div>
             )}
             
             <h3 className="text-gray-400 text-xs mt-1 font-medium overflow-hidden">
-              <span dir="ltr" className="inline-block">{order.id}</span>
+              <span dir="ltr" className="inline-block truncate">{order.id}</span>
             </h3>
           </div>
-          <span className="font-bold text-sm text-oksale-700 whitespace-nowrap pr-1 flex-shrink-0 mr-1">
-            <span dir="ltr">{order.amount}</span>
+          <span className="font-bold text-sm text-oksale-700 whitespace-nowrap pr-1 rtl:ml-0 rtl:mr-2" dir="ltr">
+            {order.amount}
           </span>
         </div>
       </CardContent>

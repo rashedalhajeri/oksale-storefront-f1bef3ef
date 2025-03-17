@@ -9,7 +9,7 @@
   width: 100%;
   overflow-x: hidden; /* Prevent horizontal scrolling */
   position: relative; /* Establish positioning context */
-  max-width: 100vw; /* Added this line */
+  max-width: 100vw; /* Limit width to viewport width */
 }
 
 /* RTL layout direction */
@@ -17,7 +17,8 @@
   direction: rtl;
   text-align: right;
   overflow-x: hidden; /* Prevent horizontal scrolling at html level */
-  max-width: 100vw; /* Added this line */
+  max-width: 100vw; /* Limit width to viewport width */
+  width: 100%;
 }
 
 /* ============= Sidebar styles ============= */
@@ -31,6 +32,8 @@
   bottom: 0;
   z-index: 40;
   transition: transform 0.3s ease-in-out;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Sidebar states */
@@ -50,7 +53,7 @@
   transition: margin 0.3s ease-in-out;
   width: 100%;
   max-width: calc(100% - 260px); /* Ensure it doesn't exceed available space */
-  overflow-x: hidden; /* Added this line */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .dashboard-main.sidebar-collapsed {
@@ -159,10 +162,41 @@
   max-width: 100%;
 }
 
+/* Mobile dashboard styles */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Stats card mobile styles */
+.stats-card {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.5rem;
+  background: white;
+  height: 100%;
+  overflow: hidden;
+}
+
+.stats-card-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .dashboard-sidebar {
     transform: translateX(100%);
+    width: 100%; /* Full width on mobile */
+    max-width: 100vw;
   }
   
   .dashboard-sidebar.mobile-visible {
@@ -174,27 +208,44 @@
     max-width: 100%;
     width: 100%;
     overflow-x: hidden;
+    padding: 1rem;
   }
   
   /* Fix horizontal scrolling in mobile */
   .rtl-dashboard {
     width: 100%;
     overflow-x: hidden;
-    max-width: 100vw; /* Added this line */
+    max-width: 100vw;
   }
   
   /* Ensure content stays within viewport */
   .rtl-dashboard .dashboard-main {
     width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    overflow-x: hidden; /* Added this line */
+    padding: 0.75rem;
+    overflow-x: hidden;
   }
   
   /* Fix for mobile cards */
   .rtl-dashboard .card {
     max-width: 100%;
     overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Stats card for mobile */
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .stats-card {
+    padding: 0.75rem;
+  }
+  
+  .stats-card-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
   }
   
   /* Fix for tables in mobile */
@@ -210,5 +261,22 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  
+  /* Better typography for mobile */
+  .rtl-dashboard h1 {
+    font-size: 1.5rem;
+  }
+  
+  .rtl-dashboard h2 {
+    font-size: 1.25rem;
+  }
+  
+  .rtl-dashboard .text-sm {
+    font-size: 0.8125rem;
+  }
+  
+  .rtl-dashboard .text-xs {
+    font-size: 0.75rem;
   }
 }

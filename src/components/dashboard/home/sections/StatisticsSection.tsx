@@ -69,18 +69,15 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="dashboard-stats-grid mb-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Card key={index} className="dashboard-card">
-            <div className="p-5">
-              <div className="flex justify-between items-start">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <Skeleton className="h-4 w-20 rounded" />
-              </div>
-              <div className="mt-4">
-                <Skeleton className="h-7 w-24 rounded mb-2" />
-                <Skeleton className="h-4 w-32 rounded" />
-              </div>
+          <Card key={index} className="stats-card">
+            <div className="flex justify-between items-start">
+              <Skeleton className="h-8 w-8 rounded-full" />
+            </div>
+            <div className="mt-2">
+              <Skeleton className="h-6 w-16 rounded mb-1" />
+              <Skeleton className="h-4 w-12 rounded" />
             </div>
           </Card>
         ))}
@@ -89,18 +86,18 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="dashboard-stats-grid mb-4">
       {statistics.map((item, index) => (
-        <Card key={index} className="dashboard-card stats-card">
-          <div className="flex items-center gap-3">
+        <Card key={index} className="stats-card">
+          <div className="flex items-center justify-between gap-1 mb-2">
+            <span className="font-medium text-sm truncate">{item.name}</span>
             <div className={`stats-card-icon ${getIconBgColor(item.icon)}`}>
               {getIcon(item.icon)}
             </div>
-            <span className="font-medium">{item.name}</span>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl font-bold">{item.value}</div>
-            <p className="text-gray-500 text-sm">{getTimePeriodLabel()}</p>
+          <div>
+            <div className="text-xl font-bold" dir="ltr">{item.value}</div>
+            <p className="text-gray-500 text-xs mt-1">{getTimePeriodLabel()}</p>
           </div>
         </Card>
       ))}
