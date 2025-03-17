@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   ShoppingCart, 
@@ -39,7 +38,7 @@ import {
 } from "@/components/ui/table";
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
-import { formatRelativeTime, getTimeColor } from '@/utils/dashboard/dashboardUtils';
+import { getTimeColor } from '@/utils/dashboard/dashboardUtils';
 import { 
   getOrders, 
   OrderOptions, 
@@ -52,6 +51,7 @@ import { cn } from "@/lib/utils";
 import { formatOrderId, getCachedFormattedOrders } from '@/utils/dashboard/orderFormatters';
 import { useOrdersRealtime } from '@/hooks/useOrdersRealtime';
 import { useDebounce } from '@/hooks/useDebounce';
+import { formatRelativeTime } from '@/utils/dashboard/orderStatus';
 
 import OrderFilterSheet from './orders/OrderFilterSheet';
 import OrderCardMobile from './orders/OrderCardMobile';
@@ -60,6 +60,8 @@ import OrderPagination from './orders/OrderPagination';
 import OrderEmptyState from './orders/OrderEmptyState';
 import OrderLoadingState from './orders/OrderLoadingState';
 import OrderNotification from './orders/OrderNotification';
+import OrdersStatistics from './orders/OrdersStatistics';
+import OrderStatusConfirmDialog from './orders/OrderStatusConfirmDialog';
 
 interface DashboardOrdersProps {
   storeData: any;
@@ -82,9 +84,17 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     limit: 20,
     totalPages: 0
   });
+  const [isStatusConfirmOpen, setIsStatusConfirmOpen] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState<string | null>(null);
+  const [orderStats, setOrderStats] = useState({
+    all: 0,
+    pending: 0,
+    processing: 0,
+    completed: 0,
+    cancelled: 0
+  });
   const isMobile = useIsMobile();
 
-  // استخدام خطاف الوقت الحقيقي للطلبات
   const { 
     newOrder, 
     isNewOrderVisible, 
@@ -94,7 +104,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     storeId: storeData?.id,
     autoRefetch: () => fetchOrders(),
     onOrderUpdate: (payload) => {
-      // تحديث الطلب في القائمة إذا كان موجودًا بالفعل
       if (payload.new && payload.old) {
         setOrders(currentOrders => 
           currentOrders.map(order => 
@@ -166,7 +175,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         sortDirection
       };
       
-      // استعلام مباشر من قاعدة البيانات بدلاً من استخدام بيانات تجريبية
       const { data: ordersData, error } = await supabase
         .from('orders')
         .select('id, customer_name, customer_email, customer_phone, total_amount, created_at, status, store_id')
@@ -176,7 +184,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       
       if (error) throw error;
       
-      // الحصول على إجمالي عدد الطلبات
       const { count, error: countError } = await supabase
         .from('orders')
         .select('id', { count: 'exact', head: true })
@@ -194,11 +201,27 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         totalPages
       });
       
+      const { data: statsData, error: statsError } = await supabase
+        .from('orders')
+        .select('status')
+        .eq('store_id', storeData.id);
+        
+      if (statsError) throw statsError;
+      
+      const newStats = {
+        all: statsData?.length || 0,
+        pending: statsData?.filter(o => o.status === 'pending').length || 0,
+        processing: statsData?.filter(o => o.status === 'processing').length || 0,
+        completed: statsData?.filter(o => o.status === 'completed').length || 0,
+        cancelled: statsData?.filter(o => o.status === 'cancelled').length || 0
+      };
+      
+      setOrderStats(newStats);
+      
       if (ordersData && ordersData.length > 0) {
         const formattedOrders = getCachedFormattedOrders(ordersData, storeData.currency || 'SAR');
         setOrders(formattedOrders);
       } else {
-        // إذا لم تكن هناك بيانات، استخدم البيانات التجريبية
         const mockOrders = generateMockOrders(storeData.id);
         setOrders(mockOrders);
       }
@@ -227,7 +250,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // عندما يتغير مصطلح البحث، أعد التحميل عند الصفحة 1
   useEffect(() => {
     if (pagination.page === 1) {
       fetchOrders();
@@ -236,7 +258,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   }, [debouncedSearchTerm, tabValue, sortOption]);
 
-  // تحديث عند تغيير lastUpdateTime
   useEffect(() => {
     if (lastUpdateTime) {
       console.log(`[Orders] Realtime update detected at ${lastUpdateTime.toISOString()}`);
@@ -248,14 +269,19 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     setIsDetailOpen(true);
   };
 
-  const handleUpdateStatus = async (status: string) => {
-    if (!selectedOrder) return;
+  const initiateStatusChange = (status: string) => {
+    setPendingStatusChange(status);
+    setIsStatusConfirmOpen(true);
+  };
+
+  const handleUpdateStatus = async () => {
+    if (!selectedOrder || !pendingStatusChange) return;
 
     try {
       const { error } = await supabase
         .from('orders')
         .update({ 
-          status,
+          status: pendingStatusChange,
           updated_at: new Date().toISOString()
         })
         .eq('id', selectedOrder.rawId || selectedOrder.id);
@@ -267,15 +293,29 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
 
       setOrders(orders.map(order => 
         order.id === selectedOrder.id 
-          ? { ...order, status, updated_at: new Date().toISOString() }
+          ? { 
+              ...order, 
+              status: pendingStatusChange, 
+              updated_at: new Date().toISOString(),
+              statusText: getStatusText(pendingStatusChange),
+              statusColors: getStatusColors(pendingStatusChange)
+            }
           : order
       ));
 
-      setSelectedOrder(prev => prev ? { ...prev, status, updated_at: new Date().toISOString() } : null);
+      setSelectedOrder(prev => prev ? { 
+        ...prev, 
+        status: pendingStatusChange, 
+        updated_at: new Date().toISOString(),
+        statusText: getStatusText(pendingStatusChange),
+        statusColors: getStatusColors(pendingStatusChange)
+      } : null);
+      
+      fetchOrders();
       
       toast({
         title: "تم تحديث حالة الطلب",
-        description: `تم تغيير حالة الطلب إلى ${getStatusText(status)}`,
+        description: `تم تغيير حالة الطلب إلى ${getStatusText(pendingStatusChange)}`,
       });
     } catch (error) {
       console.error("Failed to update order status:", error);
@@ -284,6 +324,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         title: "فشل تحديث حالة الطلب",
         description: "حدث خطأ أثناء تحديث حالة الطلب، يرجى المحاولة مرة أخرى.",
       });
+    } finally {
+      setPendingStatusChange(null);
     }
   };
 
@@ -372,10 +414,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  // وظيفة تصدير الطلبات
   const exportOrders = () => {
     try {
-      // إنشاء مصفوفة من البيانات للتصدير
       const exportData = orders.map(order => ({
         'رقم الطلب': order.id,
         'العميل': order.customer,
@@ -386,14 +426,12 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         'الحالة': getStatusText(order.status)
       }));
 
-      // تحويل البيانات إلى CSV
       const headers = Object.keys(exportData[0]);
       const csvContent = [
         headers.join(','),
         ...exportData.map(row => headers.map(header => `"${row[header]}"`).join(','))
       ].join('\n');
 
-      // إنشاء رابط تنزيل
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -535,6 +573,13 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
           )}
         </div>
 
+        <OrdersStatistics 
+          statistics={orderStats}
+          loading={loading}
+          currentTab={tabValue}
+          onTabChange={setTabValue}
+        />
+
         {isMobile && (
           <div className="mb-4 flex gap-2">
             <OrderFilterSheet 
@@ -644,12 +689,19 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
           selectedOrder={selectedOrder}
           getStatusBadge={getStatusBadge}
           formatDate={formatDate}
-          handleUpdateStatus={handleUpdateStatus}
+          handleUpdateStatus={initiateStatusChange}
           isMobile={isMobile}
+        />
+        
+        <OrderStatusConfirmDialog
+          isOpen={isStatusConfirmOpen}
+          setIsOpen={setIsStatusConfirmOpen}
+          onConfirm={handleUpdateStatus}
+          status={pendingStatusChange || ''}
+          orderId={selectedOrder?.id || ''}
         />
       </div>
 
-      {/* إشعار الطلب الجديد */}
       {newOrder && (
         <OrderNotification 
           order={newOrder}
