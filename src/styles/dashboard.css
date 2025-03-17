@@ -1,3 +1,4 @@
+
 /* Dashboard performance optimizations */
 
 /* Improve scrolling */
@@ -46,7 +47,7 @@
 }
 
 .menu-item:hover {
-  transform: translateX(-2px);
+  transform: translateX(2px);
 }
 
 /* Card hover optimizations */
@@ -118,4 +119,9 @@
 .dashboard-rtl .store-header {
   display: flex;
   flex-direction: row-reverse;
+}
+
+/* Right sidebar specific styles */
+.right-sidebar .menu-item:hover {
+  transform: translateX(-2px);
 }
