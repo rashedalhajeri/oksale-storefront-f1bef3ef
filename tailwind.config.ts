@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -184,6 +183,13 @@ export default {
 				'floating': 'floating 3s ease-in-out infinite',
 				'pulse-light': 'pulse-light 3s ease-in-out infinite',
 				'spin-slow': 'spin-slow 10s linear infinite'
+			},
+			backdropFilter: {
+				'none': 'none',
+				'blur': 'blur(20px)',
+			},
+			backgroundColor: {
+				'glass': 'rgba(255, 255, 255, 0.1)',
 			},
 			fontFamily: {
 				sans: ['Tajawal', 'SF Pro Display', 'Inter', 'system-ui', 'sans-serif'],

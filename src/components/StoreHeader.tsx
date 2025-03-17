@@ -104,10 +104,10 @@ const StoreHeader = ({
                 )}
               </div>
               
-              {/* Store details with fixed height container - Applied glass effect */}
-              <div className="glass-morphism px-3 py-2 rounded-lg min-h-[4.5rem] md:min-h-[6.5rem] flex flex-col justify-center">
-                <div className="flex items-center gap-1 md:gap-1.5 mb-1 md:mb-2">
-                  <h1 className="text-base md:text-xl font-bold truncate text-shadow">{store.name}</h1>
+              {/* Store details with fixed height container - Improved glass effect and content positioning */}
+              <div className="glass-morphism px-4 py-3 rounded-lg min-h-[4.5rem] md:min-h-[6.5rem] flex flex-col justify-center backdrop-blur-md bg-black/20">
+                <div className="flex items-center justify-center gap-1 md:gap-1.5 mb-2">
+                  <h1 className="text-base md:text-xl font-bold truncate text-shadow text-center">{store.name}</h1>
                   {store.featured && (
                     <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
                       <CheckCircle2 className="w-2 h-2 md:w-3 md:h-3" />
@@ -117,15 +117,15 @@ const StoreHeader = ({
                 
                 {/* Display address if available instead of handle */}
                 {store.address && (
-                  <div className="flex items-center gap-1 text-white text-xs md:text-sm mb-2 text-shadow">
+                  <div className="flex items-center justify-center gap-1 text-white text-xs md:text-sm mb-3 text-shadow">
                     <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                     <span className="truncate">{store.address}</span>
                   </div>
                 )}
                 
-                {/* Social links - display all available social media links aligned with store name */}
+                {/* Social links - centered under store name with better spacing */}
                 {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
-                  <div className="flex items-center flex-wrap ml-0.5 gap-5 mt-auto">
+                  <div className="flex items-center justify-center flex-wrap gap-4 mt-1">
                     {getSocialLinks().map(([type, username]) => {
                       if (!username) return null;
                       
