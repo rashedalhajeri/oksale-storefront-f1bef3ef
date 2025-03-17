@@ -6,9 +6,7 @@ import {
   Clock,
   AlertCircle,
   FileText,
-  Package,
-  Filter,
-  Download
+  Package
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -559,17 +557,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               <p className="text-gray-600">إدارة ومتابعة طلبات متجرك ({pagination.total})</p>
             </div>
           </div>
-          {!isMobile && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
-              onClick={exportOrders}
-            >
-              <Download className="h-4 w-4 ml-2" />
-              تصدير الطلبات
-            </Button>
-          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -672,20 +659,6 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                       <SelectItem value="lowest">الأقل قيمة</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button 
-                    variant="outline" 
-                    className="flex items-center gap-2 relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
-                    onClick={() => setIsFilterOpen(true)}
-                  >
-                    <div className={cn(
-                      "flex items-center justify-center w-5 h-5 rounded-full shadow-sm relative overflow-hidden",
-                      "bg-gradient-to-br from-purple-800 to-indigo-900",
-                      "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
-                    )}>
-                      <Filter className="h-3 w-3 text-white" />
-                    </div>
-                    تصفية
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -754,4 +727,3 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
 };
 
 export default DashboardOrders;
-
