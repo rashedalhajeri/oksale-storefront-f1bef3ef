@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { setupRealtimeSubscriptions } from '@/utils/dashboard/realtimeUtils';
-import { showNewOrderNotification } from '@/utils/dashboard/realtimeUtils';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseOrdersRealtimeProps {
