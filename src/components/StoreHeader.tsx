@@ -104,8 +104,8 @@ const StoreHeader = ({
                 )}
               </div>
               
-              {/* Store details with fixed height container */}
-              <div className="glass-card px-3 py-2 rounded-lg backdrop-blur-sm bg-black/20 min-h-[4.5rem] md:min-h-[6.5rem] flex flex-col justify-center">
+              {/* Store details with fixed height container - Applied glass effect */}
+              <div className="glass-morphism px-3 py-2 rounded-lg min-h-[4.5rem] md:min-h-[6.5rem] flex flex-col justify-center">
                 <div className="flex items-center gap-1 md:gap-1.5 mb-1 md:mb-2">
                   <h1 className="text-base md:text-xl font-bold truncate text-shadow">{store.name}</h1>
                   {store.featured && (
@@ -115,12 +115,7 @@ const StoreHeader = ({
                   )}
                 </div>
                 
-                {/* Display handle with LTR direction */}
-                <div className="flex items-center gap-1 text-white text-xs md:text-sm mb-2 text-shadow">
-                  <span className="ltr-text truncate" dir="ltr">{displayHandle}</span>
-                </div>
-                
-                {/* Display address if available */}
+                {/* Display address if available instead of handle */}
                 {store.address && (
                   <div className="flex items-center gap-1 text-white text-xs md:text-sm mb-2 text-shadow">
                     <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
