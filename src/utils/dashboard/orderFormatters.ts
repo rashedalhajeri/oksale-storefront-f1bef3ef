@@ -1,8 +1,8 @@
 
 import { Order } from './orderTypes';
 import { formatCurrencyWithSettings } from './dashboardUtils';
-import { getOrderStatusText, getOrderStatusColors } from './orderStatus';
-import { formatRelativeTime, getTimeColor } from './dashboardUtils';
+import { getOrderStatusText, getOrderStatusColors, formatRelativeTime } from './orderStatus';
+import { getTimeColor } from './dashboardUtils';
 
 // Format order ID to a shorter, more readable format with OK- prefix
 export const formatOrderId = (orderId: string, storeId?: string): string => {

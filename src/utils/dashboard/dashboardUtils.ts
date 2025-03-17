@@ -1,6 +1,7 @@
 
 import { format, formatDistance, isToday, isYesterday, subDays } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { formatRelativeTime } from './orderStatus';
 
 /**
  * تنسيق الرقم بإضافة فواصل الآلاف
@@ -146,3 +147,7 @@ export const processTapPayment = async (amount: number, currency: string) => {
   // وظيفة وهمية لمعالجة الدفع
   return { success: true, transactionId: `tap-${Date.now()}` };
 };
+
+// Re-export formatRelativeTime from orderStatus for backward compatibility
+export { formatRelativeTime };
+

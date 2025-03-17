@@ -40,5 +40,6 @@ export {
   getTimeColor,
   getOrderStatusColor,
   processMyFatoorahPayment,
-  processTapPayment
+  processTapPayment,
+  formatRelativeTime
 } from './dashboardUtils';
