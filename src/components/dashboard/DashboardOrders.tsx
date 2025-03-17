@@ -60,7 +60,6 @@ import OrderPagination from './orders/OrderPagination';
 import OrderEmptyState from './orders/OrderEmptyState';
 import OrderLoadingState from './orders/OrderLoadingState';
 import OrderNotification from './orders/OrderNotification';
-import OrdersStatistics from './orders/OrdersStatistics';
 import OrderStatusConfirmDialog from './orders/OrderStatusConfirmDialog';
 
 interface DashboardOrdersProps {
