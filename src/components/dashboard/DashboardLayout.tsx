@@ -5,6 +5,7 @@ import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import '@/styles/dashboard.css';
+import { Toaster } from '@/components/ui/sonner';
 
 // Memoized Sidebar component with proper dependency checks
 const MemoizedSidebar = React.memo(
@@ -34,12 +35,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   useEffect(() => {
     document.documentElement.classList.add('dashboard', 'rtl-dashboard');
     document.body.style.overflowX = 'hidden'; // Prevent horizontal scrolling
-    document.documentElement.style.overflowX = 'hidden'; // Added this line
+    document.documentElement.style.overflowX = 'hidden'; 
+    
+    // Set CSS variables for fixing popups and modals
+    document.documentElement.style.setProperty('--tooltip-background', '#fff');
+    document.documentElement.style.setProperty('--popover-background', '#fff');
+    document.documentElement.style.setProperty('--dialog-background', '#fff');
+    document.documentElement.style.setProperty('--sheet-background', '#fff');
     
     return () => {
       document.documentElement.classList.remove('dashboard', 'rtl-dashboard');
       document.body.style.overflowX = '';
-      document.documentElement.style.overflowX = ''; // Added this line
+      document.documentElement.style.overflowX = ''; 
+      
+      // Clean up CSS variables
+      document.documentElement.style.removeProperty('--tooltip-background');
+      document.documentElement.style.removeProperty('--popover-background');
+      document.documentElement.style.removeProperty('--dialog-background');
+      document.documentElement.style.removeProperty('--sheet-background');
     };
   }, []);
 
@@ -83,7 +96,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
         <div className="fixed top-4 right-4 z-50">
           <button 
             onClick={toggleSidebar} 
-            className="p-2.5 rounded-full bg-white shadow-md dark:bg-[#0E1632] focus:outline-none will-change-transform" 
+            className="p-2.5 rounded-full bg-white shadow-md dark:bg-[#0E1632] focus:outline-none will-change-transform hover:scale-105 transition-transform" 
             aria-label={sidebarOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             {sidebarOpen ? 
@@ -97,10 +110,23 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       {/* Mobile overlay when sidebar is open */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 will-change-opacity animate-in fade-in duration-200" 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 will-change-opacity animate-in fade-in duration-200 backdrop-blur-sm" 
           onClick={() => setSidebarOpen(false)} 
         />
       )}
+      
+      {/* Custom Toaster with white background */}
+      <Toaster 
+        position="top-right" 
+        toastOptions={{
+          style: {
+            background: 'white',
+            color: '#333',
+            border: '1px solid rgba(0,0,0,0.05)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          },
+        }}
+      />
     </div>
   );
 };
