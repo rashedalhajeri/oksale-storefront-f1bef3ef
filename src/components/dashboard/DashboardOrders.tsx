@@ -8,12 +8,14 @@ import {
   AlertCircle,
   FileText,
   Package,
-  Filter
+  Filter,
+  Download
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Select,
   SelectContent,
@@ -35,7 +37,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
 import { formatRelativeTime, getTimeColor } from '@/utils/dashboard/dashboardUtils';
@@ -165,22 +166,41 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         sortDirection
       };
       
-      const result = await getOrders(storeData.id, options);
+      // استعلام مباشر من قاعدة البيانات بدلاً من استخدام بيانات تجريبية
+      const { data: ordersData, error } = await supabase
+        .from('orders')
+        .select('id, customer_name, customer_email, customer_phone, total_amount, created_at, status, store_id')
+        .eq('store_id', storeData.id)
+        .order(sortBy, { ascending: sortDirection === 'asc' })
+        .range((pagination.page - 1) * pagination.limit, pagination.page * pagination.limit - 1);
       
-      const formattedOrders = getCachedFormattedOrders(result.orders, storeData.currency || 'SAR');
+      if (error) throw error;
       
-      if (formattedOrders.length === 0 && !debouncedSearchTerm && tabValue === 'all' && pagination.page === 1) {
-        const mockData = generateMockOrders(storeData.id);
-        setOrders(mockData);
-        setPagination({
-          total: mockData.length,
-          page: 1,
-          limit: pagination.limit,
-          totalPages: Math.ceil(mockData.length / pagination.limit)
-        });
-      } else {
+      // الحصول على إجمالي عدد الطلبات
+      const { count, error: countError } = await supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('store_id', storeData.id);
+      
+      if (countError) throw countError;
+      
+      const totalItems = count || 0;
+      const totalPages = Math.ceil(totalItems / pagination.limit);
+      
+      setPagination({
+        total: totalItems,
+        page: pagination.page,
+        limit: pagination.limit,
+        totalPages
+      });
+      
+      if (ordersData && ordersData.length > 0) {
+        const formattedOrders = getCachedFormattedOrders(ordersData, storeData.currency || 'SAR');
         setOrders(formattedOrders);
-        setPagination(result.pagination);
+      } else {
+        // إذا لم تكن هناك بيانات، استخدم البيانات التجريبية
+        const mockOrders = generateMockOrders(storeData.id);
+        setOrders(mockOrders);
       }
     } catch (error) {
       console.error("Failed to fetch orders:", error);
@@ -214,7 +234,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     } else {
       setPagination(prev => ({ ...prev, page: 1 }));
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, tabValue, sortOption]);
 
   // تحديث عند تغيير lastUpdateTime
   useEffect(() => {
@@ -352,6 +372,52 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
+  // وظيفة تصدير الطلبات
+  const exportOrders = () => {
+    try {
+      // إنشاء مصفوفة من البيانات للتصدير
+      const exportData = orders.map(order => ({
+        'رقم الطلب': order.id,
+        'العميل': order.customer,
+        'البريد الإلكتروني': order.email || '-',
+        'الهاتف': order.phone || '-',
+        'المبلغ': order.amount,
+        'التاريخ': formatDate(order.created_at),
+        'الحالة': getStatusText(order.status)
+      }));
+
+      // تحويل البيانات إلى CSV
+      const headers = Object.keys(exportData[0]);
+      const csvContent = [
+        headers.join(','),
+        ...exportData.map(row => headers.map(header => `"${row[header]}"`).join(','))
+      ].join('\n');
+
+      // إنشاء رابط تنزيل
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `orders-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "تم تصدير الطلبات بنجاح",
+        description: "تم تصدير بيانات الطلبات بنجاح."
+      });
+    } catch (error) {
+      console.error("Failed to export orders:", error);
+      toast({
+        variant: "destructive",
+        title: "فشل تصدير الطلبات",
+        description: "حدث خطأ أثناء تصدير بيانات الطلبات."
+      });
+    }
+  };
+
   const renderOrdersTable = () => {
     return (
       <div className="rounded-md border">
@@ -461,7 +527,9 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
               variant="outline" 
               size="sm" 
               className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
+              onClick={exportOrders}
             >
+              <Download className="h-4 w-4 ml-2" />
               تصدير الطلبات
             </Button>
           )}
@@ -523,6 +591,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                   <Button 
                     variant="outline" 
                     className="flex items-center gap-2 relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300"
+                    onClick={() => setIsFilterOpen(true)}
                   >
                     <div className={cn(
                       "flex items-center justify-center w-5 h-5 rounded-full shadow-sm relative overflow-hidden",

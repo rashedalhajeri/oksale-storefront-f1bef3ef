@@ -1,129 +1,102 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { showNewOrderNotification, showOrderStatusChangeNotification } from './notifications.tsx';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
-/**
- * دالة إنشاء اشتراك بالوقت الحقيقي للطلبات
- * تتيح هذه الدالة مراقبة التغييرات على جدول الطلبات في الوقت الحقيقي
- * @param storeId معرف المتجر
- * @param onOrderUpdate دالة يتم استدعاؤها عند تحديث طلب
- * @param onNewOrder دالة يتم استدعاؤها عند إنشاء طلب جديد
- * @param onOrderDelete دالة يتم استدعاؤها عند حذف طلب
- * @returns كائن قناة الاشتراك
- */
-export const createOrdersSubscription = (
-  storeId: string, 
-  onOrderUpdate?: (payload: any) => void,
-  onNewOrder?: (payload: any) => void,
-  onOrderDelete?: (payload: any) => void
-) => {
-  if (!storeId) return null;
+interface RealtimeConfig {
+  onNewOrder?: (payload: any) => void;
+  onOrderUpdate?: (payload: any) => void;
+  onOrderDelete?: (payload: any) => void;
+}
 
-  console.log(`[Realtime] Creating subscription for store: ${storeId}`);
+export const setupRealtimeSubscriptions = (storeId: string, config: RealtimeConfig) => {
+  if (!storeId) {
+    console.error('[Realtime] No storeId provided for realtime subscriptions');
+    return () => {};
+  }
 
-  // إنشاء قناة مشتركة لجميع أنواع الأحداث الخاصة بالطلبات
+  console.log('[Realtime] Setting up realtime subscriptions for store:', storeId);
+
+  // Enable REPLICA IDENTITY FULL for the orders table to get old record values in updates
+  supabase.rpc('dblab_enable_replica_identity', {
+    table_name: 'orders'
+  }).then(({ error }) => {
+    if (error) {
+      console.error('[Realtime] Failed to enable REPLICA IDENTITY:', error);
+    } else {
+      console.log('[Realtime] REPLICA IDENTITY enabled for orders table');
+    }
+  });
+
+  // Set up the realtime channel for orders-related events
   const channel = supabase
-    .channel(`orders-${storeId}`)
-    .on(
-      'postgres_changes',
-      { 
-        event: 'INSERT', 
-        schema: 'public', 
-        table: 'orders',
-        filter: `store_id=eq.${storeId}`
-      },
-      (payload) => {
-        console.log('[Realtime] New order:', payload);
-        
-        // معالجة الطلب الجديد
-        if (onNewOrder) {
-          onNewOrder(payload);
-        }
-        
-        // طلب جديد
-        showNewOrderNotification(payload.new);
+    .channel(`store-orders-${storeId}`)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'orders',
+      filter: `store_id=eq.${storeId}`
+    }, (payload) => {
+      console.log('[Realtime] New order received:', payload);
+      if (config.onNewOrder) {
+        config.onNewOrder(payload);
       }
-    )
-    .on(
-      'postgres_changes',
-      { 
-        event: 'UPDATE', 
-        schema: 'public', 
-        table: 'orders',
-        filter: `store_id=eq.${storeId}`
-      },
-      (payload) => {
-        console.log('[Realtime] Order updated:', payload);
-        
-        if (onOrderUpdate) {
-          onOrderUpdate(payload);
-        }
-        
-        // إذا تم تغيير حالة الطلب
-        if (payload.old.status !== payload.new.status) {
-          showOrderStatusChangeNotification(payload.new, payload.old.status);
-        }
+    })
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'orders',
+      filter: `store_id=eq.${storeId}`
+    }, (payload) => {
+      console.log('[Realtime] Order updated:', payload);
+      if (config.onOrderUpdate) {
+        config.onOrderUpdate(payload);
       }
-    )
-    .on(
-      'postgres_changes',
-      { 
-        event: 'DELETE', 
-        schema: 'public', 
-        table: 'orders',
-        filter: `store_id=eq.${storeId}`
-      },
-      (payload) => {
-        console.log('[Realtime] Order deleted:', payload);
-        
-        if (onOrderDelete) {
-          onOrderDelete(payload);
-        }
+    })
+    .on('postgres_changes', {
+      event: 'DELETE',
+      schema: 'public',
+      table: 'orders',
+      filter: `store_id=eq.${storeId}`
+    }, (payload) => {
+      console.log('[Realtime] Order deleted:', payload);
+      if (config.onOrderDelete) {
+        config.onOrderDelete(payload);
       }
-    )
-    .subscribe((status) => {
-      console.log(`[Realtime] Subscription status: ${status}`);
+    })
+    .subscribe((status, err) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('[Realtime] Successfully subscribed to orders changes');
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error('[Realtime] Channel error:', err);
+      } else if (status === 'TIMED_OUT') {
+        console.error('[Realtime] Subscription timed out');
+      } else {
+        console.log('[Realtime] Subscription status:', status);
+      }
     });
 
-  return channel;
+  // Return a cleanup function
+  return () => {
+    console.log('[Realtime] Cleaning up subscriptions');
+    supabase.removeChannel(channel);
+  };
 };
 
-/**
- * دالة إنشاء اشتراك بالوقت الحقيقي لعناصر الطلبات
- * @param storeId معرف المتجر
- * @param onOrderItemUpdate دالة يتم استدعاؤها عند تحديث عنصر طلب
- * @returns كائن قناة الاشتراك
- */
-export const createOrderItemsSubscription = (
-  storeId: string, 
-  onOrderItemUpdate?: (payload: any) => void
-) => {
-  if (!storeId) return null;
+export const setupRealtime = async (storeId: string) => {
+  try {
+    const { error } = await supabase
+      .from('pgrst_watch')
+      .insert([{ table_name: 'orders' }]);
 
-  // للحصول على المعلومات المحدثة لعناصر الطلبات، نحتاج إلى الاشتراك في جدول order_items
-  // ولكن نحتاج أيضًا إلى التحقق من أن عنصر الطلب ينتمي إلى متجر المستخدم
-  // هذا يتطلب استعلامًا أكثر تعقيدًا أو نهجًا مختلفًا
-  
-  // هذا نهج مبسط سيتطلب تعديلًا إضافيًا للتأكد من أن العناصر تنتمي إلى المتجر المناسب
-  const channel = supabase
-    .channel(`order-items-${storeId}`)
-    .on(
-      'postgres_changes',
-      { 
-        event: '*', 
-        schema: 'public', 
-        table: 'order_items'
-      },
-      (payload) => {
-        if (onOrderItemUpdate) {
-          // سنحتاج إلى التحقق من أن الطلب ينتمي إلى المتجر قبل معالجته
-          // هذا يتطلب استعلامًا إضافيًا أو مخزنًا مؤقتًا للطلبات
-          // للتبسيط، سنفترض أن الرسالة مرتبطة بالمتجر
-          onOrderItemUpdate(payload);
-        }
-      }
-    )
-    .subscribe();
+    if (error) {
+      console.error('[Realtime Setup] Error setting up realtime:', error);
+      return false;
+    }
 
-  return channel;
+    console.log('[Realtime Setup] Successfully set up realtime for orders');
+    return true;
+  } catch (err) {
+    console.error('[Realtime Setup] Exception setting up realtime:', err);
+    return false;
+  }
 };

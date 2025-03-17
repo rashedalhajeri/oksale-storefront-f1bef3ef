@@ -47,27 +47,20 @@ export const useDashboardData = (storeId: string) => {
     staleTime: 5 * 60 * 1000, // Increase stale time to 5 minutes
     gcTime: 10 * 60 * 1000, // Increase GC time to 10 minutes
     refetchOnWindowFocus: false, // Don't refetch on window focus to prevent duplicate fetches
-    meta: {
-      onSuccess: (data: any) => {
-        if (data) {
-          setDashboardStats({
-            productsCount: data.productsCount || 0,
-            ordersCount: data.ordersCount || 0,
-            revenue: parseFloat(data.revenue || '0'),
-            soldProductsCount: data.soldProductsCount || 0,
-            currency: data.currency || 'SAR'
-          });
-        }
-      },
-      onError: (error: any) => {
-        console.error("Error loading dashboard stats:", error);
-        toast({
-          title: "فشل تحميل الإحصائيات",
-          description: "حدث خطأ أثناء تحميل إحصائيات لوحة التحكم، يرجى المحاولة مرة أخرى.",
-        });
-      }
-    }
   });
+  
+  // Update dashboard stats when data changes
+  useEffect(() => {
+    if (statsData) {
+      setDashboardStats({
+        productsCount: statsData.productsCount || 0,
+        ordersCount: statsData.ordersCount || 0,
+        revenue: parseFloat(statsData.revenue || '0'),
+        soldProductsCount: statsData.soldProductsCount || 0,
+        currency: statsData.currency || 'SAR'
+      });
+    }
+  }, [statsData]);
   
   // Optimize useMemo to avoid unnecessary recalculations
   const salesData = useMemo(() => {
