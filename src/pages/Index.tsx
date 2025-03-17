@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Search, Sparkles } from 'lucide-react';
@@ -8,9 +9,7 @@ import Testimonials from '@/components/Testimonials';
 
 const Index = () => {
   return (
-    {/* خلفية كاملة بارتفاع الشاشة */}
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white via-blue-50 to-purple-50">
-
       {/* Top Banner */}
       <TopBanner />
 
