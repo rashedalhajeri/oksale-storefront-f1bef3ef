@@ -572,12 +572,52 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
           )}
         </div>
 
-        <OrdersStatistics 
-          statistics={orderStats}
-          loading={loading}
-          currentTab={tabValue}
-          onTabChange={setTabValue}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className={`shadow-sm border-none ${tabValue === 'all' ? 'bg-gray-100' : 'bg-white'}`}>
+            <CardContent className="p-4 flex flex-col">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600">جميع الطلبات</span>
+                <div className="p-1.5 rounded-md bg-gray-200">
+                  <Package className="h-4 w-4 text-gray-700" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold">{loading ? '-' : orderStats.all}</h3>
+            </CardContent>
+          </Card>
+          <Card className={`shadow-sm border-none ${tabValue === 'pending' ? 'bg-yellow-50' : 'bg-white'}`}>
+            <CardContent className="p-4 flex flex-col">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600">قيد الانتظار</span>
+                <div className="p-1.5 rounded-md bg-yellow-100">
+                  <Clock className="h-4 w-4 text-yellow-600" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold">{loading ? '-' : orderStats.pending}</h3>
+            </CardContent>
+          </Card>
+          <Card className={`shadow-sm border-none ${tabValue === 'processing' ? 'bg-blue-50' : 'bg-white'}`}>
+            <CardContent className="p-4 flex flex-col">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600">قيد التجهيز</span>
+                <div className="p-1.5 rounded-md bg-blue-100">
+                  <Clock className="h-4 w-4 text-blue-600" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold">{loading ? '-' : orderStats.processing}</h3>
+            </CardContent>
+          </Card>
+          <Card className={`shadow-sm border-none ${tabValue === 'completed' ? 'bg-green-50' : 'bg-white'}`}>
+            <CardContent className="p-4 flex flex-col">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600">مكتملة</span>
+                <div className="p-1.5 rounded-md bg-green-100">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold">{loading ? '-' : orderStats.completed}</h3>
+            </CardContent>
+          </Card>
+        </div>
 
         {isMobile && (
           <div className="mb-4 flex gap-2">
@@ -714,3 +754,4 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
 };
 
 export default DashboardOrders;
+
