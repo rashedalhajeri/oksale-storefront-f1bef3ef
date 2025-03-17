@@ -33,11 +33,12 @@ const SalesChartSection: React.FC<SalesChartSectionProps> = ({
     }
   };
 
-  const formatYAxisTick = (value: number) => {
+  // Modified to always return a string to match the expected type
+  const formatYAxisTick = (value: number): string => {
     if (value >= 1000) {
       return `${(value / 1000).toFixed(0)}K`;
     }
-    return value;
+    return value.toString(); // Convert number to string
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
