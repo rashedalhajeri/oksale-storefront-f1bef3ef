@@ -1,182 +1,168 @@
 
+// This is the same file that was previously at src/pages/public/ResetPassword.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from "@/components/ui/separator";
-import { toast } from '@/components/ui/use-toast';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ShoppingBag, AlertCircle, Lock, CheckCircle } from 'lucide-react';
+
+const formSchema = z.object({
+  password: z.string().min(8, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' }),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'كلمات المرور غير متطابقة',
+  path: ['confirmPassword'],
+});
 
 const ResetPassword = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isValidResetLink, setIsValidResetLink] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      password: '',
+      confirmPassword: '',
+    },
+  });
 
   useEffect(() => {
-    // التحقق من أن URL يحتوي على المعلومات المطلوبة
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    if (!hashParams.get('access_token')) {
-      setErrorMessage('رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية.');
-    }
+    const checkResetLink = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // يتحقق من وجود كود إعادة تعيين كلمة المرور في عنوان URL
+      const url = new URL(window.location.href);
+      const hasResetToken = url.hash.includes('type=recovery') || url.searchParams.has('type');
+      
+      setIsValidResetLink(!!hasResetToken || !!session);
+    };
+    
+    checkResetLink();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
-    
-    if (password !== confirmPassword) {
-      setErrorMessage('كلمتا المرور غير متطابقتين');
-      return;
-    }
-    
-    if (password.length < 6) {
-      setErrorMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-      return;
-    }
-    
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    setError(null);
     
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
+      const { error } = await supabase.auth.updateUser({ 
+        password: values.password 
       });
       
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       
-      setIsSuccess(true);
       toast({
-        title: "تم تغيير كلمة المرور بنجاح",
-        description: "يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة"
+        title: 'تم تحديث كلمة المرور بنجاح',
+        description: 'يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة',
       });
+      
+      navigate('/signin');
+      
     } catch (error: any) {
-      console.error('خطأ في تحديث كلمة المرور:', error);
-      setErrorMessage(error.message || 'فشل تحديث كلمة المرور، يرجى المحاولة مرة أخرى');
+      console.error('Error updating password:', error.message);
+      
+      setError('حدث خطأ أثناء تحديث كلمة المرور. يرجى المحاولة مرة أخرى.');
+      
+      toast({
+        variant: 'destructive',
+        title: 'حدث خطأ',
+        description: 'لم نتمكن من تحديث كلمة المرور. يرجى المحاولة مرة أخرى.',
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-bluesky-50 to-purple-50">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <Link to="/" className="inline-block">
-            <div className="flex items-center justify-center gap-2">
-              <div className="relative flex items-center justify-center">
-                <div className="absolute w-10 h-10 bg-gradient-to-r from-bluesky-500 to-purple-500 rounded-lg opacity-70 blur-sm"></div>
-                <ShoppingBag className="h-8 w-8 text-white relative z-10" />
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-bluesky-600 to-bluesky-950">OK</span>
-                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-900">sale</span>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        <Card className="border-bluesky-100 shadow-xl backdrop-blur-sm bg-white/90">
-          <CardHeader className="flex flex-col items-center space-y-1">
-            <div className="w-16 h-16 bg-bluesky-50 rounded-full flex items-center justify-center mb-2">
-              <Lock className="h-8 w-8 text-bluesky-600" />
-            </div>
-            <CardTitle className="text-2xl">تعيين كلمة مرور جديدة</CardTitle>
-            <CardDescription>
-              أدخل كلمة المرور الجديدة لحسابك
-            </CardDescription>
-          </CardHeader>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">إعادة تعيين كلمة المرور</CardTitle>
+          <CardDescription>
+            أدخل كلمة المرور الجديدة
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!isValidResetLink ? (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>رابط غير صالح</AlertTitle>
+              <AlertDescription>
+                رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية. يرجى طلب رابط جديد.
+              </AlertDescription>
+            </Alert>
+          ) : error ? (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>حدث خطأ</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
           
-          <CardContent>
-            {isSuccess ? (
-              <div className="text-center py-4">
-                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-lg font-medium text-green-700 mb-2">تم تغيير كلمة المرور بنجاح!</h3>
-                <p className="text-gray-600 mb-4">
-                  تم تغيير كلمة المرور الخاصة بك بنجاح. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.
-                </p>
-                <Button 
-                  className="mx-auto mt-2 bg-gradient-to-r from-bluesky-600 to-bluesky-700 hover:from-bluesky-700 hover:to-bluesky-800"
-                  onClick={() => navigate('/signin')}
-                >
-                  تسجيل الدخول
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="password">كلمة المرور الجديدة</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      id="password"
-                      type="password"
-                      dir="ltr"
-                      placeholder="أدخل كلمة المرور الجديدة"
-                      className="pl-10"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">تأكيد كلمة المرور</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      dir="ltr"
-                      placeholder="أدخل كلمة المرور مرة أخرى"
-                      className="pl-10"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                {errorMessage && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{errorMessage}</AlertDescription>
-                  </Alert>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>كلمة المرور الجديدة</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-                
-                <Button 
-                  type="submit" 
-                  className="w-full bg-gradient-to-r from-bluesky-600 to-bluesky-700 hover:from-bluesky-700 hover:to-bluesky-800"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'جارِ التحديث...' : 'تعيين كلمة المرور الجديدة'}
-                </Button>
-              </form>
-            )}
-          </CardContent>
-          
-          <CardFooter className="flex flex-col">
-            <Separator className="my-4" />
-            <div className="text-center">
-              <Button
-                variant="link"
-                onClick={() => navigate('/signin')}
-                className="text-sm text-bluesky-700 hover:text-bluesky-800"
-              >
-                العودة لتسجيل الدخول
+              />
+              
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>تأكيد كلمة المرور</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <Button type="submit" className="w-full" disabled={isLoading || !isValidResetLink}>
+                {isLoading ? 'جارٍ التحديث...' : 'تحديث كلمة المرور'}
               </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
+            </form>
+          </Form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <div className="text-center text-sm">
+            <Link to="/signin" className="font-medium text-oksale-600 hover:text-oksale-500">
+              العودة إلى تسجيل الدخول
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

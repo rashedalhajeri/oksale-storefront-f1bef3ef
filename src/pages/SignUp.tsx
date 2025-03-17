@@ -1,56 +1,92 @@
 
+// This is the same file that was previously at src/pages/public/SignUp.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Form } from "@/components/ui/form";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ShoppingBag } from 'lucide-react';
-import { simpleSignUpSchema, SimpleSignUpValues } from '@/types/auth';
-import { useSimpleSignUp } from '@/hooks/useSimpleSignUp';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useSignUp } from '@/hooks/useSignUp';
+import { SignUpValues } from '@/types/auth';
 import AccountFormStep from '@/components/signup/AccountFormStep';
+import StoreFormStep from '@/components/signup/StoreFormStep';
+
+const signUpFormSchema = z.object({
+  email: z.string().email({ message: 'يرجى إدخال بريد إلكتروني صحيح' }),
+  password: z.string().min(8, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' }),
+  storeName: z.string().min(3, { message: 'اسم المتجر يجب أن يكون 3 أحرف على الأقل' }),
+  storeHandle: z.string().min(3, { message: 'معرّف المتجر يجب أن يكون 3 أحرف على الأقل' })
+    .max(20, { message: 'معرّف المتجر يجب أن لا يتجاوز 20 حرف' })
+    .regex(/^[a-z0-9_-]+$/, { message: 'معرّف المتجر يجب أن يحتوي على أحرف إنجليزية صغيرة وأرقام وشرطات فقط' }),
+});
 
 const SignUp = () => {
-  const form = useForm<SimpleSignUpValues>({
-    resolver: zodResolver(simpleSignUpSchema),
+  const form = useForm<SignUpValues>({
+    resolver: zodResolver(signUpFormSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
+      storeName: '',
+      storeHandle: '',
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
-  // Force TypeScript to recognize the form as having the correct type
-  const typedForm = form as UseFormReturn<SimpleSignUpValues>;
-
-  const {
-    isLoading,
-    onSubmit
-  } = useSimpleSignUp(typedForm);
+  const { isLoading, currentStep, handleNextStep, handlePrevStep, onSubmit } = useSignUp(form);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 to-oksale-50">
-      <div className="w-full max-w-md space-y-6 rounded-xl bg-white p-6 shadow-lg sm:p-8">
-        <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="flex items-center justify-center rounded-full bg-oksale-100 p-2">
-            <ShoppingBag className="h-6 w-6 text-oksale-700" />
-          </div>
-          <h1 className="text-2xl font-bold text-oksale-800">إنشاء حساب جديد</h1>
-          <p className="text-sm text-oksale-600">أنشئ حسابك الخاص بخطوات بسيطة</p>
-        </div>
-
-        <Form {...form}>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">إنشاء حساب جديد</CardTitle>
+          <CardDescription>
+            {currentStep === 0 ? 'أدخل بياناتك لإنشاء حساب جديد' : 'أدخل بيانات متجرك'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <AccountFormStep form={typedForm} submitButtonText="إنشاء الحساب" isLoading={isLoading} />
+            {currentStep === 0 ? (
+              <AccountFormStep form={form} />
+            ) : (
+              <StoreFormStep form={form} />
+            )}
+            
+            <div className="flex justify-between pt-4">
+              {currentStep === 1 && (
+                <Button type="button" variant="outline" onClick={handlePrevStep} disabled={isLoading}>
+                  السابق
+                </Button>
+              )}
+              
+              {currentStep === 0 ? (
+                <Button type="button" onClick={handleNextStep} className="ml-auto">
+                  التالي
+                </Button>
+              ) : (
+                <Button type="submit" disabled={isLoading} className="ml-auto">
+                  {isLoading ? 'جارِ التسجيل...' : 'إنشاء الحساب'}
+                </Button>
+              )}
+            </div>
           </form>
-        </Form>
-
-        <div className="mt-4 text-center text-sm text-oksale-600">
-          لديك حساب بالفعل؟{" "}
-          <Link to="/signin" className="font-medium text-oksale-700 hover:text-oksale-800">
-            تسجيل الدخول
-          </Link>
-        </div>
-      </div>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <div className="text-center text-sm">
+            لديك حساب بالفعل؟{' '}
+            <Link to="/signin" className="font-medium text-oksale-600 hover:text-oksale-500">
+              تسجيل الدخول
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

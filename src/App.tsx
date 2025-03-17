@@ -5,19 +5,21 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import Index from "./pages/public/Index";
 import NotFound from "./pages/NotFound";
-import StoreDiscovery from "./pages/public/StoreDiscovery";
 import StorePage from "./pages/StorePage";
-import SignIn from "./pages/public/SignIn";
-import SignUp from "./pages/public/SignUp";
-import ForgotPassword from "./pages/public/ForgotPassword";
-import ResetPassword from "./pages/public/ResetPassword";
 import StoreSetup from "./pages/StoreSetup"; 
-import Dashboard from "./pages/dashboard/Dashboard";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { AuthProvider } from './features/authentication/providers/AuthProvider';
+
+// Import pages from the correct locations based on the new structure
+import Index from "./pages/Index";
+import StoreDiscovery from "./pages/StoreDiscovery";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import Dashboard from "./pages/Dashboard";
 
 // Import dashboard component wrappers
 import {

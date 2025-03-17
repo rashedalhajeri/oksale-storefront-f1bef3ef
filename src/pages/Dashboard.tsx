@@ -1,4 +1,5 @@
 
+// This file is the same as the original src/pages/Dashboard.tsx
 import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
