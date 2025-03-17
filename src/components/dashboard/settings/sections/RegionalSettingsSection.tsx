@@ -24,10 +24,12 @@ const RegionalSettingsSection: React.FC<RegionalSettingsSectionProps> = ({
   countries
 }) => {
   return (
-    <Card>
-      <CardHeader className="border-b">
+    <Card className="overflow-hidden glow-card hover:shadow-lg transition-all duration-300">
+      <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardTitle className="text-lg flex items-center">
-          <GlobeIcon className="h-5 w-5 ml-2" />
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-2 rounded-full mr-2">
+            <GlobeIcon className="h-5 w-5" />
+          </div>
           إعدادات المنطقة واللغة
         </CardTitle>
         <CardDescription>إعدادات اللغة والعملة والدولة</CardDescription>
@@ -40,7 +42,10 @@ const RegionalSettingsSection: React.FC<RegionalSettingsSectionProps> = ({
               value={storeInfo.language}
               onValueChange={(value) => handleSelectChange(value, 'language')}
             >
-              <SelectTrigger id="store-language" className="w-full">
+              <SelectTrigger 
+                id="store-language" 
+                className="w-full focus-ring transition-all duration-300"
+              >
                 <SelectValue placeholder="اختر اللغة" />
               </SelectTrigger>
               <SelectContent>
@@ -57,13 +62,17 @@ const RegionalSettingsSection: React.FC<RegionalSettingsSectionProps> = ({
               value={storeInfo.currency}
               onValueChange={(value) => handleSelectChange(value, 'currency')}
             >
-              <SelectTrigger id="store-currency" className="w-full">
+              <SelectTrigger 
+                id="store-currency" 
+                className="w-full focus-ring transition-all duration-300"
+              >
                 <SelectValue placeholder="اختر العملة" />
               </SelectTrigger>
               <SelectContent>
                 {currencies.map((currency) => (
-                  <SelectItem key={currency.value} value={currency.value}>
-                    {currency.label} ({getCurrencySymbol(currency.value)})
+                  <SelectItem key={currency.value} value={currency.value} className="flex items-center">
+                    <span className="mr-1">{currency.label}</span>
+                    <span className="rtl-number text-xs text-gray-500">({getCurrencySymbol(currency.value)})</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -79,7 +88,10 @@ const RegionalSettingsSection: React.FC<RegionalSettingsSectionProps> = ({
               value={storeInfo.country}
               onValueChange={(value) => handleSelectChange(value, 'country')}
             >
-              <SelectTrigger id="store-country" className="w-full">
+              <SelectTrigger 
+                id="store-country" 
+                className="w-full focus-ring transition-all duration-300"
+              >
                 <SelectValue placeholder="اختر الدولة" />
               </SelectTrigger>
               <SelectContent>

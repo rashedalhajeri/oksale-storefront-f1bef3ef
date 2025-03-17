@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
@@ -38,10 +37,10 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
     tiktok: storeData?.tiktok || '',
     whatsapp: storeData?.whatsapp || '',
     language: storeData?.language || 'ar',
-    currency: storeData?.currency || 'SAR',
-    country: storeData?.country || 'SA',
+    currency: storeData?.currency || 'KWD',
+    country: storeData?.country || 'KW',
     use_custom_colors: storeData?.use_custom_colors || false,
-    custom_color: storeData?.custom_color || '#4B5563'
+    custom_color: storeData?.custom_color || '#4B5CF6'
   });
   
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -213,22 +212,22 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   };
 
   const currencies = [
+    { value: "KWD", label: "دينار كويتي (KWD)" },
     { value: "SAR", label: "ريال سعودي (SAR)" },
     { value: "AED", label: "درهم إماراتي (AED)" },
-    { value: "USD", label: "دولار أمريكي (USD)" },
-    { value: "EUR", label: "يورو (EUR)" },
-    { value: "KWD", label: "دينار كويتي (KWD)" },
     { value: "BHD", label: "دينار بحريني (BHD)" },
     { value: "QAR", label: "ريال قطري (QAR)" },
     { value: "OMR", label: "ريال عماني (OMR)" },
+    { value: "USD", label: "دولار أمريكي (USD)" },
+    { value: "EUR", label: "يورو (EUR)" },
     { value: "EGP", label: "جنيه مصري (EGP)" },
     { value: "JOD", label: "دينار أردني (JOD)" },
   ];
 
   const countries = [
-    { value: "SA", label: "المملكة العربية السعودية" },
-    { value: "AE", label: "الإما��ات العربية المتحدة" },
     { value: "KW", label: "الكويت" },
+    { value: "SA", label: "المملكة العربية السعودية" },
+    { value: "AE", label: "الإمارات العربية المتحدة" },
     { value: "BH", label: "البحرين" },
     { value: "QA", label: "قطر" },
     { value: "OM", label: "عمان" },
@@ -249,7 +248,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">إعدادات المتجر</h1>
+        <h1 className="text-2xl font-bold mb-1 gradient-text">إعدادات المتجر</h1>
         <p className="text-gray-600">تخصيص وإدارة معلومات متجرك الأساسية</p>
       </div>
 
@@ -313,7 +312,7 @@ const DashboardSettingsGeneral: React.FC<DashboardSettingsGeneralProps> = ({ sto
           <Button 
             onClick={handleSaveChanges} 
             disabled={loading}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 glow-button hover:scale-105 transition-transform"
           >
             {loading ? 'جارِ الحفظ...' : (
               <>
