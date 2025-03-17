@@ -3,6 +3,7 @@ import React from 'react';
 import { Package, ShoppingBag, ShoppingCart, Banknote } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface StatisticItem {
   name: string;
@@ -23,31 +24,15 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
   const getIcon = (iconName: string) => {
     switch(iconName) {
       case 'products':
-        return <Package className="h-5 w-5 text-indigo-500" />;
+        return <Package className="h-5 w-5 text-white" />;
       case 'sold':
-        return <ShoppingBag className="h-5 w-5 text-blue-500" />;
+        return <ShoppingBag className="h-5 w-5 text-white" />;
       case 'orders':
-        return <ShoppingCart className="h-5 w-5 text-green-500" />;
+        return <ShoppingCart className="h-5 w-5 text-white" />;
       case 'revenue':
-        return <Banknote className="h-5 w-5 text-purple-500" />;
+        return <Banknote className="h-5 w-5 text-white" />;
       default:
-        return <Package className="h-5 w-5 text-indigo-500" />;
-    }
-  };
-
-  // Icon background colors
-  const getIconBgColor = (iconName: string) => {
-    switch(iconName) {
-      case 'products':
-        return 'bg-indigo-50';
-      case 'sold':
-        return 'bg-blue-50';
-      case 'orders':
-        return 'bg-green-50';
-      case 'revenue':
-        return 'bg-purple-50';
-      default:
-        return 'bg-indigo-50';
+        return <Package className="h-5 w-5 text-white" />;
     }
   };
 
@@ -91,7 +76,11 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
         <Card key={index} className="stats-card">
           <div className="flex items-center justify-between gap-1 mb-2">
             <span className="font-medium text-sm truncate">{item.name}</span>
-            <div className={`stats-card-icon ${getIconBgColor(item.icon)}`}>
+            <div className={cn(
+              "stats-card-icon flex items-center justify-center w-10 h-10 rounded-full shadow-sm relative overflow-hidden",
+              "bg-gradient-to-br from-bluesky-800 to-bluesky-700",
+              "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
+            )}>
               {getIcon(item.icon)}
             </div>
           </div>
