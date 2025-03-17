@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   ShoppingCart, 
@@ -317,7 +316,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">{order.id}</span>
+                    <span className="text-sm text-gray-700 font-bold dir-ltr">{order.id}</span>
                   </div>
                 </TableCell>
                 <TableCell>{order.customer}</TableCell>
