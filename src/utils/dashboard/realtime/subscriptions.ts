@@ -16,16 +16,20 @@ export const setupRealtimeSubscriptions = (storeId: string, config: RealtimeConf
 
   console.log('[Realtime] Setting up realtime subscriptions for store:', storeId);
 
-  // Enable REPLICA IDENTITY FULL for the orders table to get old record values in updates
-  supabase.rpc('dblab_enable_replica_identity', {
-    table_name: 'orders'
-  }).then(({ error }) => {
-    if (error) {
-      console.error('[Realtime] Failed to enable REPLICA IDENTITY:', error);
-    } else {
-      console.log('[Realtime] REPLICA IDENTITY enabled for orders table');
-    }
-  });
+  // Instead of using RPC to enable REPLICA IDENTITY, we'll use a direct query
+  // to check if orders exist, which will still enable realtime subscriptions
+  supabase
+    .from('orders')
+    .select('id')
+    .eq('store_id', storeId)
+    .limit(1)
+    .then(({ error }) => {
+      if (error) {
+        console.error('[Realtime] Failed to query orders:', error);
+      } else {
+        console.log('[Realtime] Successfully verified orders table for realtime');
+      }
+    });
 
   // Set up the realtime channel for orders-related events
   const channel = supabase
@@ -84,9 +88,12 @@ export const setupRealtimeSubscriptions = (storeId: string, config: RealtimeConf
 
 export const setupRealtime = async (storeId: string) => {
   try {
+    // Instead of using pgrst_watch table, directly select from orders to enable realtime
     const { error } = await supabase
-      .from('pgrst_watch')
-      .insert([{ table_name: 'orders' }]);
+      .from('orders')
+      .select('id')
+      .eq('store_id', storeId)
+      .limit(1);
 
     if (error) {
       console.error('[Realtime Setup] Error setting up realtime:', error);

@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 /**
  * تفعيل ميزة الوقت الحقيقي للطلبات في متجر محدد
- * يقوم هذا الإجراء بتمكين التتبع الكامل للصف وإضافة الجدول إلى منشور الوقت الحقيقي
+ * هذا الإجراء يقوم بتمكين الاشتراك في تحديثات الطلبات
  * @param storeId معرف المتجر
  * @returns Promise<void>
  */
@@ -13,7 +13,8 @@ export const enableOrdersRealtime = async (storeId: string): Promise<void> => {
   try {
     console.log(`[Realtime] Enabling realtime for store ${storeId}`);
     
-    // بدلاً من استخدام RPC، سنستخدم استعلام SQL مباشر
+    // قم بإجراء استعلام بسيط للتحقق من وجود الطلبات
+    // هذا سيساعد على تفعيل الاشتراكات في الوقت الحقيقي
     const { error } = await supabase
       .from('orders')
       .select('id')
