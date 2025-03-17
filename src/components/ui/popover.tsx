@@ -27,6 +27,9 @@ const PopoverContent = React.forwardRef<
         "rtl-dashboard popup-content",
         className
       )}
+      style={{
+        backgroundColor: '#FFFFFF'
+      }}
       {...props}
     />
   </PopoverPrimitive.Portal>

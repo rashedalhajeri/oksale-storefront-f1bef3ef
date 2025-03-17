@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { ChevronLeft, Menu, X } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import '@/styles/dashboard.css';
@@ -12,6 +12,7 @@ interface DashboardLayoutProps {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }) => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isMobile = useIsMobile();
 
   // Apply RTL class to document when component mounts
@@ -38,24 +39,43 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   useEffect(() => {
     if (isMobile) {
       setSidebarVisible(false);
+      setSidebarCollapsed(false);
     } else {
       setSidebarVisible(true);
     }
   }, [isMobile]);
 
   const toggleSidebar = () => {
-    setSidebarVisible(prev => !prev);
+    if (isMobile) {
+      setSidebarVisible(prev => !prev);
+    } else {
+      setSidebarCollapsed(prev => !prev);
+    }
   };
 
   return (
     <div className="dashboard-container rtl-dashboard overflow-hidden" style={{ maxWidth: '100vw', width: '100%' }}>
       {/* Sidebar */}
-      <aside className={`dashboard-sidebar ${!sidebarVisible ? 'mobile-hidden' : ''}`}>
-        <Sidebar storeData={storeData} />
+      <aside 
+        className={`dashboard-sidebar ${!sidebarVisible ? 'mobile-hidden' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}
+        style={{ backgroundColor: '#0f1642' }}
+      >
+        <Sidebar storeData={storeData} collapsed={sidebarCollapsed} />
+        
+        {/* Desktop collapse button */}
+        {!isMobile && (
+          <button 
+            className="sidebar-collapse-btn" 
+            onClick={toggleSidebar}
+            aria-label={sidebarCollapsed ? "توسيع القائمة" : "طي القائمة"}
+          >
+            <ChevronLeft size={16} className={sidebarCollapsed ? 'rotate-180' : ''} />
+          </button>
+        )}
       </aside>
 
       {/* Main content */}
-      <main className={`dashboard-main ${!sidebarVisible ? 'sidebar-hidden' : ''}`}>
+      <main className={`dashboard-main ${!sidebarVisible ? 'sidebar-hidden' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <div className="mx-auto fade-in overflow-hidden" style={{ maxWidth: '100%' }}>
           {children}
         </div>

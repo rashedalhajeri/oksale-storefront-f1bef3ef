@@ -61,7 +61,10 @@ const SheetContent = React.forwardRef<
       <SheetOverlay />
       <SheetPrimitive.Content
         ref={ref}
-        className={cn(sheetVariants({ side }), "rtl-dashboard", className)}
+        className={cn(sheetVariants({ side }), "rtl-dashboard bg-white", className)}
+        style={{
+          backgroundColor: "#FFFFFF"
+        }}
         {...props}
       >
         {children}
