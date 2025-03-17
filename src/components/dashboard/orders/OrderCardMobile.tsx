@@ -16,27 +16,31 @@ const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, g
     <Card 
       className="border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
       onClick={() => onViewOrder(order)}
+      style={{ 
+        borderRadius: '12px',
+        backgroundColor: '#ffffff'
+      }}
     >
-      <CardContent className="p-3">
-        <div className="flex justify-between items-start">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               {getStatusBadge(order.status)}
               <div className={`text-xs ${order.timeColor || 'text-gray-500'} flex items-center gap-1`}>
                 <Clock3 className="h-3 w-3 flex-shrink-0" />
                 <span className="truncate max-w-[120px]">{order.relativeTime}</span>
               </div>
             </div>
-            <p className="font-medium text-sm mb-0.5 truncate max-w-[180px]">{order.customer}</p>
+            <p className="font-medium text-sm mb-1 truncate">{order.customer}</p>
             
             {order.phone && (
-              <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+              <div className="flex items-center gap-1 text-xs text-gray-500 mt-1.5">
                 <Phone className="h-3 w-3 flex-shrink-0" />
                 <span dir="ltr" className="truncate max-w-[120px] inline-block">{order.phone}</span>
               </div>
             )}
             
-            <h3 className="text-gray-400 text-xs mt-1 font-medium overflow-hidden">
+            <h3 className="text-gray-400 text-xs mt-2 font-medium">
               <span dir="ltr" className="inline-block truncate max-w-[150px]">{order.id}</span>
             </h3>
           </div>

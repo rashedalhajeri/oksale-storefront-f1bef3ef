@@ -58,7 +58,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       {/* Sidebar */}
       <aside 
         className={`dashboard-sidebar ${!sidebarVisible ? 'mobile-hidden' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}
-        style={{ backgroundColor: '#0f1642' }}
+        style={{ 
+          backgroundColor: '#0f1642',
+          boxShadow: '-5px 0 20px rgba(0, 0, 0, 0.1)'
+        }}
       >
         <Sidebar storeData={storeData} collapsed={sidebarCollapsed} />
         
@@ -76,7 +79,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
 
       {/* Main content */}
       <main className={`dashboard-main ${!sidebarVisible ? 'sidebar-hidden' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <div className="mx-auto fade-in overflow-hidden" style={{ maxWidth: '100%' }}>
+        <div className="mx-auto fade-in overflow-hidden" style={{ 
+          maxWidth: '100%',
+          borderRadius: '16px',
+          backgroundColor: '#f7f9fc',
+          padding: '16px'
+        }}>
           {children}
         </div>
       </main>
@@ -87,6 +95,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
           className="sidebar-toggle" 
           onClick={toggleSidebar}
           aria-label={sidebarVisible ? "إغلاق القائمة" : "فتح القائمة"}
+          style={{
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            backgroundColor: '#fff'
+          }}
         >
           {sidebarVisible ? <X size={20} /> : <Menu size={20} />}
         </button>
