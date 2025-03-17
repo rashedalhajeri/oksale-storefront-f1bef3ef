@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { LayoutDashboard, Plus, Settings, CreditCard, Truck, BarChart4 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -88,47 +87,11 @@ const DashboardHome: React.FC = () => {
         timeframe={timeframe} 
       />
 
-      {/* Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <ActionCard 
-          icon={Plus}
-          title="إضافة منتجات"
-          description="أضف منتجات جديدة إلى متجرك"
-          buttonText="إضافة منتج"
-          buttonLink="/dashboard/products/new"
-        />
-        <ActionCard 
-          icon={BarChart4}
-          title="تحليلات المتجر"
-          description="اطلع على أداء متجرك والمبيعات"
-          buttonText="التحليلات"
-          buttonLink="/dashboard/analytics"
-        />
-      </div>
-
       {/* Pending Orders */}
       <PendingOrdersSection 
         pendingOrders={pendingOrders} 
         loading={recentOrdersLoading} 
       />
-
-      {/* More Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <ActionCard 
-          icon={CreditCard}
-          title="طرق الدفع"
-          description="قم بإعداد طرق الدفع في متجرك"
-          buttonText="إعداد الدفع"
-          buttonLink="/dashboard/settings/payment"
-        />
-        <ActionCard 
-          icon={Truck}
-          title="خيارات الشحن"
-          description="قم بتفعيل خيارات الشحن والتوصيل"
-          buttonText="إعداد الشحن"
-          buttonLink="/dashboard/settings/shipping"
-        />
-      </div>
 
       {/* Sales Chart and Order Status */}
       <div className={isMobile ? "space-y-4" : "grid grid-cols-1 lg:grid-cols-3 gap-6"}>
