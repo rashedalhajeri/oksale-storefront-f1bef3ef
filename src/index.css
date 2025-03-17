@@ -5,11 +5,11 @@
 
 @layer components {
   .glass-morphism {
-    @apply bg-black/25 backdrop-blur-lg border border-white/15;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+    @apply bg-black/20 backdrop-blur-md border border-white/10;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   }
   
   .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 }
