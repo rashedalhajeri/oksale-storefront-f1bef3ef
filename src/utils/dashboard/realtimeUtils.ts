@@ -144,15 +144,11 @@ export const showNewOrderNotification = (order: any) => {
       title: "طلب جديد! 🎉",
       description: `تم استلام طلب جديد من ${order.customer_name} بقيمة ${order.total_amount}`,
       variant: "default",
-      duration: 10000, // إظهار الإشعار لمدة أطول (10 ثوانٍ)
-      action: (
-        <a 
-          href={`/dashboard/orders/${order.id}`} 
-          className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-xs font-medium"
-        >
-          عرض الطلب
-        </a>
-      )
+      duration: 10000,
+      action: {
+        label: "عرض الطلب",
+        onClick: () => window.location.href = `/dashboard/orders/${order.id}`
+      }
     });
     
     // إذا كان API الإشعارات مدعومًا، أظهر إشعارًا في نظام التشغيل
