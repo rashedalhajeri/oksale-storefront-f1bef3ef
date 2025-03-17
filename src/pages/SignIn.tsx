@@ -1,5 +1,4 @@
 
-// This is the same file that was previously at src/pages/public/SignIn.tsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -15,9 +14,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { LogIn } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'البريد الإلكتروني غير صالح' }),
@@ -79,66 +80,85 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">تسجيل الدخول</CardTitle>
-          <CardDescription>
-            أدخل بياناتك لتسجيل الدخول
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>البريد الإلكتروني</FormLabel>
-                    <FormControl>
-                      <Input placeholder="yourname@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>كلمة المرور</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'جارِ تسجيل الدخول...' : 'تسجيل الدخول'}
-              </Button>
-            </form>
-          </Form>
-          
-          <div className="mt-4 text-center text-sm">
-            <Link to="/forgot-password" className="text-oksale-600 hover:text-oksale-500">
-              نسيت كلمة المرور؟
-            </Link>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <div className="text-center text-sm">
-            ليس لديك حساب؟{' '}
-            <Link to="/signup" className="font-medium text-oksale-600 hover:text-oksale-500">
-              إنشاء حساب جديد
-            </Link>
-          </div>
-        </CardFooter>
-      </Card>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <Card className="border-0 shadow-xl">
+          <CardHeader className="space-y-1 text-center pb-8">
+            <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 p-3 text-white shadow-lg mb-4">
+              <LogIn className="h-full w-full" />
+            </div>
+            <CardTitle className="text-2xl font-bold">تسجيل الدخول</CardTitle>
+            <CardDescription>
+              أدخل بياناتك لتسجيل الدخول إلى حسابك
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>البريد الإلكتروني</FormLabel>
+                      <FormControl>
+                        <Input 
+                          dir="ltr" 
+                          placeholder="name@example.com" 
+                          {...field} 
+                          autoComplete="email"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>كلمة المرور</FormLabel>
+                      <FormControl>
+                        <PasswordInput 
+                          dir="ltr" 
+                          placeholder="••••••••" 
+                          {...field} 
+                          autoComplete="current-password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex items-center justify-end">
+                  <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-500">
+                    نسيت كلمة المرور؟
+                  </Link>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'جارِ تسجيل الدخول...' : 'تسجيل الدخول'}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4 border-t pt-6">
+            <div className="text-center text-sm">
+              ليس لديك حساب؟{' '}
+              <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+                إنشاء حساب جديد
+              </Link>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 };

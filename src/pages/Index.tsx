@@ -1,159 +1,116 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Search, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Shield, StarIcon, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import TopBanner from '@/components/TopBanner';
-import TechLogos from '@/components/TechLogos';
-import Testimonials from '@/components/Testimonials';
+import Hero from '@/components/Hero';
+import { useToast } from '@/components/ui/use-toast';
 
 const Index = () => {
+  const { toast } = useToast();
+  const featuresRef = useRef<HTMLDivElement>(null);
+  
+  // Animation on scroll for features
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('opacity-100', 'translate-y-0');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const features = document.querySelectorAll('.feature-card');
+    features.forEach((feature) => {
+      observer.observe(feature);
+    });
+
+    return () => {
+      features.forEach((feature) => {
+        observer.unobserve(feature);
+      });
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white via-blue-50 to-purple-50">
-      {/* Top Banner */}
-      <TopBanner />
+    <div className="min-h-screen bg-white overflow-hidden">
+      {/* Hero Section */}
+      <Hero />
 
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <div className="relative flex items-center justify-center">
-              {/* خلفية متحركة خلفية الشعار */}
-              <div className="absolute w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-70 blur-sm"></div>
-              <span className="relative z-10 text-white font-bold text-xl">OK</span>
-            </div>
-            <span className="ml-2 font-bold text-2xl text-gray-800">OKsale</span>
-            <span className="ml-2 px-2 py-1 bg-gray-100 text-xs rounded-full font-semibold text-gray-600">Pro</span>
-          </Link>
-
-          {/* Search */}
-          <div className="relative hidden sm:block flex-grow max-w-md mx-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="البحث في المتاجر..."
-                className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400 text-sm"
-              />
-              <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
-              <div className="absolute left-3 top-2 text-xs text-gray-500 border border-gray-200 px-1 rounded">
-                ⌘K
-              </div>
-            </div>
+      {/* Features Section */}
+      <section className="py-24 px-6 bg-gradient-to-b from-white to-gray-50" ref={featuresRef}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              كل ما تحتاجه لإدارة متجرك الإلكتروني
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              منصة متكاملة تمنحك أدوات احترافية وسهلة الاستخدام لإدارة متجرك بكفاءة
+            </p>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center space-x-4 space-x-reverse">
-            <Button variant="ghost" className="text-gray-700 hidden sm:flex">
-              تسجيل الدخول
-            </Button>
-            <Button className="bg-black text-white hover:bg-gray-800 hidden sm:flex">
-              الوصول المطلق
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            {/* زر البحث للشاشات الصغيرة */}
-            <button className="p-2 text-gray-500 rounded-full hover:bg-gray-100 sm:hidden">
-              <Search className="h-5 w-5" />
-            </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="feature-card opacity-0 translate-y-10 transition-all duration-700 ease-out bg-white p-8 rounded-xl shadow-sm hover:shadow-md border border-gray-100">
+              <div className="w-14 h-14 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
+                <Zap className="h-7 w-7 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">سرعة إعداد المتجر</h3>
+              <p className="text-gray-600">
+                إعداد متجرك الإلكتروني خلال دقائق معدودة، مع واجهة سهلة الاستخدام وخطوات بسيطة
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="feature-card opacity-0 translate-y-10 transition-all duration-700 delay-150 ease-out bg-white p-8 rounded-xl shadow-sm hover:shadow-md border border-gray-100">
+              <div className="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
+                <Shield className="h-7 w-7 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">حماية البيانات</h3>
+              <p className="text-gray-600">
+                أمان عالي لحماية بياناتك وبيانات عملائك مع تشفير متطور وحماية ضد الاختراق
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="feature-card opacity-0 translate-y-10 transition-all duration-700 delay-300 ease-out bg-white p-8 rounded-xl shadow-sm hover:shadow-md border border-gray-100">
+              <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center mb-6">
+                <CheckCircle2 className="h-7 w-7 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">إدارة المتجر بسهولة</h3>
+              <p className="text-gray-600">
+                لوحة تحكم متكاملة لإدارة المنتجات، الطلبات، العملاء، والمبيعات بكل سهولة ويسر
+              </p>
+            </div>
           </div>
         </div>
-      </header>
+      </section>
 
-      {/* Main Content */}
-      <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="text-center py-20 px-4 relative overflow-hidden">
-          {/* خلفيات دائرية متدرجة */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-purple-300 rounded-full opacity-20 blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-blue-300 rounded-full opacity-20 blur-3xl animate-pulse"></div>
-          </div>
-
-          {/* Tool Banner */}
-          <div className="mb-12 flex justify-center relative z-10">
-            <Link
-              to="/explore"
-              className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow transition"
-            >
-              <Sparkles className="h-4 w-4 text-purple-500 mr-2" />
-              <span>استكشف جميع المتاجر</span>
-              <ArrowRight className="h-4 w-4 ml-2" />
+      {/* CTA Section */}
+      <section className="py-20 px-6 bg-black text-white">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">ابدأ رحلتك في عالم التجارة الإلكترونية اليوم</h2>
+          <p className="text-lg text-gray-300 mb-10">
+            أكثر من 10,000 متجر يثقون بنا لإدارة أعمالهم عبر الإنترنت. انضم إليهم الآن وابدأ النجاح!
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link to="/signup">
+              <Button className="bg-white text-black hover:bg-gray-100 px-8 py-6 text-lg rounded-xl w-full sm:w-auto">
+                إنشاء حساب مجاني
+                <ArrowRight className="mr-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link to="/explore">
+              <Button variant="outline" className="border-white text-white px-8 py-6 text-lg rounded-xl hover:bg-white/10 w-full sm:w-auto">
+                استكشاف المتاجر
+              </Button>
             </Link>
           </div>
-
-          {/* Heading */}
-          <div className="relative z-10 max-w-5xl mx-auto">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-8 text-gray-800">
-              <span className="block">أنشئ </span>
-              <span className="block">
-                <span className="text-red-500">م</span>
-                <span className="text-orange-500">ت</span>
-                <span className="text-yellow-500">ج</span>
-                <span className="text-green-500">ر</span>
-                <span className="text-blue-500">ك </span>
-                <span className="text-indigo-500">ا</span>
-                <span className="text-purple-500">ل</span>
-                <span className="text-pink-500">ج</span>
-                <span className="text-red-500">م</span>
-                <span className="text-orange-500">ي</span>
-                <span className="text-yellow-500">ل</span>
-              </span>
-              <span className="block mt-2">
-                في <span className="italic font-black text-purple-600">نصف</span> الوقت
-              </span>
-            </h1>
-
-            <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
-              أكثر من 50 قالب وتصميم مبني على React و TypeScript و Tailwind CSS. 
-              وفر ساعات من الوقت وأنشئ متجرك الإلكتروني بسهولة.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-6 text-lg rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
-                البدء مجاناً 
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                variant="outline"
-                className="border-gray-300 px-8 py-6 text-lg rounded-xl hover:bg-gray-50 w-full sm:w-auto"
-              >
-                استعراض القوالب
-              </Button>
-            </div>
-
-            {/* Tech Logos */}
-            <TechLogos />
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <Testimonials />
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white/80 py-12 border-t border-gray-200 shadow-inner">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <Link to="/" className="flex items-center">
-                <div className="relative flex items-center justify-center">
-                  <div className="absolute w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-70 blur-sm"></div>
-                  <span className="relative z-10 text-white font-bold text-lg">OK</span>
-                </div>
-                <span className="ml-2 font-bold text-xl text-gray-800">OKsale</span>
-              </Link>
-              <p className="text-gray-500 mt-2 text-sm">© 2023 OKsale. جميع الحقوق محفوظة.</p>
-            </div>
-            
-            <div className="flex space-x-8 space-x-reverse text-gray-600">
-              <Link to="/about" className="hover:text-gray-900 transition">من نحن</Link>
-              <Link to="/contact" className="hover:text-gray-900 transition">تواصل معنا</Link>
-              <Link to="/privacy" className="hover:text-gray-900 transition">سياسة الخصوصية</Link>
-              <Link to="/terms" className="hover:text-gray-900 transition">شروط الاستخدام</Link>
-            </div>
-          </div>
         </div>
-      </footer>
+      </section>
     </div>
   );
 };

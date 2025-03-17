@@ -1,5 +1,4 @@
 
-// This is the same file that was previously at src/pages/public/SignUp.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { useSignUp } from '@/hooks/useSignUp';
 import { SignUpValues } from '@/types/auth';
+import { CheckCircle, UserPlus, Store } from 'lucide-react';
 import AccountFormStep from '@/components/signup/AccountFormStep';
 import StoreFormStep from '@/components/signup/StoreFormStep';
 
@@ -43,14 +43,43 @@ const SignUp = () => {
   const { isLoading, currentStep, handleNextStep, handlePrevStep, onSubmit } = useSignUp(form);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md border-0 shadow-xl">
         <CardHeader className="space-y-1 text-center">
+          <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-3 text-white shadow-lg mb-4">
+            {currentStep === 0 ? (
+              <UserPlus className="h-full w-full" />
+            ) : (
+              <Store className="h-full w-full" />
+            )}
+          </div>
           <CardTitle className="text-2xl font-bold">إنشاء حساب جديد</CardTitle>
           <CardDescription>
             {currentStep === 0 ? 'أدخل بياناتك لإنشاء حساب جديد' : 'أدخل بيانات متجرك'}
           </CardDescription>
         </CardHeader>
+        
+        {/* Stepper */}
+        <div className="px-6 py-2">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full ${currentStep >= 0 ? 'bg-indigo-600' : 'bg-gray-300'}`}>
+                <CheckCircle className="h-5 w-5 text-white" />
+              </div>
+              <div className={`h-1 w-12 ${currentStep >= 1 ? 'bg-indigo-600' : 'bg-gray-300'}`} />
+            </div>
+            <div className="flex items-center">
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full ${currentStep >= 1 ? 'bg-indigo-600' : 'bg-gray-300'}`}>
+                <CheckCircle className="h-5 w-5 text-white" />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>الحساب</span>
+            <span>المتجر</span>
+          </div>
+        </div>
+        
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {currentStep === 0 ? (
@@ -74,21 +103,29 @@ const SignUp = () => {
               )}
               
               {currentStep === 0 ? (
-                <Button type="button" onClick={handleNextStep} className="ml-auto">
+                <Button 
+                  type="button" 
+                  onClick={handleNextStep} 
+                  className="ml-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                >
                   التالي
                 </Button>
               ) : (
-                <Button type="submit" disabled={isLoading} className="ml-auto">
+                <Button 
+                  type="submit" 
+                  disabled={isLoading} 
+                  className="ml-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                >
                   {isLoading ? 'جارِ التسجيل...' : 'إنشاء الحساب'}
                 </Button>
               )}
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex justify-center border-t pt-6">
           <div className="text-center text-sm">
             لديك حساب بالفعل؟{' '}
-            <Link to="/signin" className="font-medium text-oksale-600 hover:text-oksale-500">
+            <Link to="/signin" className="font-medium text-indigo-600 hover:text-indigo-500">
               تسجيل الدخول
             </Link>
           </div>
