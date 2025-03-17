@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { StoreCard } from '@/components/StoreCard';
+import StoreCard from '@/components/StoreCard';
 import Footer from '@/components/Footer';
 
 const StoreDiscovery = () => {

@@ -54,9 +54,16 @@ const SignUp = () => {
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {currentStep === 0 ? (
-              <AccountFormStep form={form} />
+              <AccountFormStep 
+                form={form} 
+                submitButtonText="التالي" 
+                isLoading={isLoading} 
+              />
             ) : (
-              <StoreFormStep form={form} />
+              <StoreFormStep 
+                form={form} 
+                isLoading={isLoading} 
+              />
             )}
             
             <div className="flex justify-between pt-4">

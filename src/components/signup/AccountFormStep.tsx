@@ -5,10 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
-import { SimpleSignUpValues } from '@/types/auth';
+import { SignUpValues } from '@/types/auth';
 
 interface AccountFormStepProps {
-  form: UseFormReturn<SimpleSignUpValues>;
+  form: UseFormReturn<SignUpValues>;
   submitButtonText: string;
   isLoading: boolean;
 }
