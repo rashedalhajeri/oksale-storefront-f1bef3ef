@@ -39,9 +39,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   useEffect(() => {
     if (isMobile) {
       setSidebarVisible(false);
-      setSidebarCollapsed(false);
     } else {
       setSidebarVisible(true);
+      setSidebarCollapsed(false);
     }
   }, [isMobile]);
 
@@ -60,7 +60,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
         className={`dashboard-sidebar ${!sidebarVisible ? 'mobile-hidden' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}
         style={{ 
           backgroundColor: '#0f1642',
-          boxShadow: '-5px 0 20px rgba(0, 0, 0, 0.1)'
+          boxShadow: '-5px 0 20px rgba(0, 0, 0, 0.1)',
+          transform: isMobile && !sidebarVisible ? 'translateX(100%)' : 'translateX(0)',
+          zIndex: 1000
         }}
       >
         <Sidebar storeData={storeData} collapsed={sidebarCollapsed} />
@@ -89,7 +91,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
         </div>
       </main>
       
-      {/* Mobile toggle button */}
+      {/* Mobile toggle button - make it more visible and fix positioning */}
       {isMobile && (
         <button 
           className="sidebar-toggle" 
@@ -97,7 +99,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
           aria-label={sidebarVisible ? "إغلاق القائمة" : "فتح القائمة"}
           style={{
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            backgroundColor: '#fff'
+            backgroundColor: '#fff',
+            position: 'fixed',
+            top: '16px',
+            right: '16px',
+            zIndex: 1100,
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: 'none'
           }}
         >
           {sidebarVisible ? <X size={20} /> : <Menu size={20} />}
@@ -109,6 +122,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
         <div 
           className={`mobile-overlay ${sidebarVisible ? 'visible' : ''}`} 
           onClick={() => setSidebarVisible(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 900,
+            opacity: sidebarVisible ? 1 : 0,
+            pointerEvents: sidebarVisible ? 'auto' : 'none',
+            transition: 'opacity 0.3s ease'
+          }}
         />
       )}
     </div>
