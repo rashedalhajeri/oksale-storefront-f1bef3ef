@@ -1,92 +1,112 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { setupRealtimeSubscriptions } from '@/utils/dashboard/realtime';
-import { useToast } from '@/hooks/use-toast';
 
-interface UseOrdersRealtimeProps {
+interface OrdersRealtimeOptions {
   storeId: string;
-  onNewOrder?: (order: any) => void;
-  onOrderUpdate?: (order: any) => void;
   autoRefetch?: () => void;
+  onOrderUpdate?: (payload: any) => void;
+  onNewOrder?: (payload: any) => void;
+  onOrderDelete?: (payload: any) => void;
 }
 
-/**
- * خطاف لإدارة الاشتراكات بالوقت الحقيقي للطلبات
- */
 export const useOrdersRealtime = ({
   storeId,
-  onNewOrder,
+  autoRefetch,
   onOrderUpdate,
-  autoRefetch
-}: UseOrdersRealtimeProps) => {
-  const [newOrder, setNewOrder] = useState<any>(null);
+  onNewOrder,
+  onOrderDelete
+}: OrdersRealtimeOptions) => {
+  const [newOrder, setNewOrder] = useState<any | null>(null);
   const [isNewOrderVisible, setIsNewOrderVisible] = useState(false);
-  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
-  const { toast } = useToast();
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
 
-  // إعادة التحميل التلقائي عند وصول طلب جديد
-  const handleNewOrder = useCallback((payload: any) => {
-    console.log('[Realtime Hook] New order received:', payload.new);
-    
-    // تعيين الطلب الجديد وعرض الإشعار
-    setNewOrder(payload.new);
-    setIsNewOrderVisible(true);
-    setLastUpdateTime(new Date());
-    
-    // تشغيل التحديث التلقائي إذا كان متوفرًا
-    if (autoRefetch) {
-      autoRefetch();
-    }
-    
-    // استدعاء الدالة الخارجية إذا تم توفيرها
-    if (onNewOrder) {
-      onNewOrder(payload.new);
-    }
-  }, [autoRefetch, onNewOrder]);
+  // تعريف متغير للتحقق من صحة معرف المتجر
+  const validStoreId = storeId && typeof storeId === 'string' && storeId.length > 0;
 
-  // معالجة تحديثات الطلبات
-  const handleOrderUpdate = useCallback((payload: any) => {
-    console.log('[Realtime Hook] Order updated:', payload.new);
-    setLastUpdateTime(new Date());
-    
-    // تشغيل التحديث التلقائي إذا كان متوفرًا
-    if (autoRefetch) {
-      autoRefetch();
-    }
-    
-    // استدعاء الدالة الخارجية إذا تم توفيرها
-    if (onOrderUpdate) {
-      onOrderUpdate(payload);
-    }
-  }, [autoRefetch, onOrderUpdate]);
-
-  // إعداد الاشتراكات عند تحميل المكون
+  // إعداد اشتراكات في الوقت الحقيقي
   useEffect(() => {
-    if (!storeId) return;
-    
-    console.log(`[useOrdersRealtime] Setting up subscriptions for store: ${storeId}`);
-    
-    // إنشاء الاشتراكات بالوقت الحقيقي
-    const cleanup = setupRealtimeSubscriptions(storeId, {
+    if (!validStoreId) return;
+
+    console.log('[Realtime Hook] Setting up realtime subscriptions for store:', storeId);
+
+    const handleNewOrder = (payload: any) => {
+      console.log('[Realtime Hook] New order received:', payload);
+      setNewOrder(payload.new);
+      setIsNewOrderVisible(true);
+      setLastUpdateTime(new Date());
+
+      // استدعاء وظيفة إعادة التحميل التلقائية إذا تم توفيرها
+      if (autoRefetch && typeof autoRefetch === 'function') {
+        setTimeout(() => {
+          autoRefetch();
+        }, 1000); // تأخير قصير للسماح بإنشاء الطلب بالكامل
+      }
+
+      // استدعاء وظيفة معالجة الطلب الجديد المخصصة إذا تم توفيرها
+      if (onNewOrder) {
+        onNewOrder(payload);
+      }
+    };
+
+    const handleOrderUpdate = (payload: any) => {
+      console.log('[Realtime Hook] Order updated:', payload);
+      setLastUpdateTime(new Date());
+
+      // استدعاء وظيفة إعادة التحميل التلقائية إذا تم توفيرها
+      if (autoRefetch && typeof autoRefetch === 'function') {
+        setTimeout(() => {
+          autoRefetch();
+        }, 1000);
+      }
+
+      // استدعاء وظيفة معالجة تحديث الطلب المخصصة إذا تم توفيرها
+      if (onOrderUpdate) {
+        onOrderUpdate(payload);
+      }
+    };
+
+    const handleOrderDelete = (payload: any) => {
+      console.log('[Realtime Hook] Order deleted:', payload);
+      setLastUpdateTime(new Date());
+
+      // استدعاء وظيفة إعادة التحميل التلقائية إذا تم توفيرها
+      if (autoRefetch && typeof autoRefetch === 'function') {
+        setTimeout(() => {
+          autoRefetch();
+        }, 1000);
+      }
+
+      // استدعاء وظيفة معالجة حذف الطلب المخصصة إذا تم توفيرها
+      if (onOrderDelete) {
+        onOrderDelete(payload);
+      }
+    };
+
+    // إعداد الاشتراكات في الوقت الحقيقي
+    const cleanupSubscription = setupRealtimeSubscriptions(storeId, {
       onNewOrder: handleNewOrder,
       onOrderUpdate: handleOrderUpdate,
-      onOrderDelete: undefined,
-      onOrderItemUpdate: undefined
+      onOrderDelete: handleOrderDelete
     });
-    
-    // تنظيف الاشتراكات عند تفكيك المكون
-    return cleanup;
-  }, [storeId, handleNewOrder, handleOrderUpdate]);
 
-  // إخفاء إشعار الطلب الجديد
+    // تنظيف الاشتراكات عند تفكيك المكون
+    return () => {
+      console.log('[Realtime Hook] Cleaning up subscriptions');
+      cleanupSubscription();
+    };
+  }, [storeId, validStoreId, autoRefetch, onNewOrder, onOrderUpdate, onOrderDelete]);
+
+  // وظيفة لإخفاء إشعار الطلب الجديد
   const hideNewOrderNotification = useCallback(() => {
     setIsNewOrderVisible(false);
+    setNewOrder(null);
   }, []);
 
   return {
     newOrder,
     isNewOrderVisible,
-    lastUpdateTime,
     hideNewOrderNotification,
+    lastUpdateTime
   };
 };

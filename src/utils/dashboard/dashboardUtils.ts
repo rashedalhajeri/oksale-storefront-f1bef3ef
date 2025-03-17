@@ -1,513 +1,271 @@
 
-import { formatDistance, formatRelative, format } from 'date-fns';
-import { ar } from 'date-fns/locale';
-import { getCurrencySymbol } from './currencyUtils';
-import { supabase } from '@/integrations/supabase/client';
-
 /**
- * تحويل تاريخ إلى نص يصف الوقت المنقضي بالعربية
- * بدون كلمة "تقريبًا" وبطريقة أكثر دقة
+ * تنسيق الرقم للعرض
+ * @param value الرقم المراد تنسيقه
+ * @returns الرقم المنسق كنص
  */
-export const formatRelativeTime = (date: string | Date): string => {
-  try {
-    const parsedDate = typeof date === 'string' ? new Date(date) : date;
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - parsedDate.getTime()) / (1000 * 60));
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    const diffInDays = Math.floor(diffInHours / 24);
-
-    // إذا كان الوقت أقل من 3 أيام، نعرض منذ كم ساعة أو دقيقة
-    if (diffInDays < 3) {
-      if (diffInMinutes < 1) {
-        return 'الآن';
-      } else if (diffInMinutes < 60) {
-        return `قبل ${diffInMinutes} دقيقة`;
-      } else if (diffInHours < 24) {
-        const remainingMinutes = diffInMinutes % 60;
-        if (remainingMinutes > 0 && remainingMinutes > 5) {
-          return `قبل ${diffInHours} ساعة و ${remainingMinutes} دقيقة`;
-        }
-        return `قبل ${diffInHours} ساعة`;
-      } else {
-        return `قبل ${diffInDays} يوم`;
-      }
-    } else {
-      // إذا كان أكثر من 3 أيام، نعرض التاريخ
-      return format(parsedDate, 'dd/MM/yyyy', { locale: ar });
-    }
-  } catch (error) {
-    console.error('تعذر تنسيق التاريخ:', error);
-    return '';
-  }
+export const formatNumber = (value: number): string => {
+  return new Intl.NumberFormat('ar-SA').format(value);
 };
 
 /**
- * تحويل تاريخ إلى نص مناسب لعرضه على الواجهة
- * عرض التاريخ النسبي لجميع الطلبات مع لون مختلف حسب الحداثة
+ * تنسيق العملة مع إعدادات محددة
+ * @param amount المبلغ
+ * @param currency رمز العملة
+ * @returns المبلغ المنسق مع رمز العملة
  */
-export const formatOrderTime = (date: string | Date, status: string): string => {
-  try {
-    // عرض الوقت النسبي لجميع الطلبات بغض النظر عن حالتها
-    return formatRelativeTime(date);
-  } catch (error) {
-    console.error('تعذر تنسيق وقت الطلب:', error);
-    return '';
-  }
-};
-
-/**
- * حساب نسبة التقدم مقارنةً بالهدف
- */
-export const calculateProgress = (current: number, target: number): number => {
-  if (target <= 0) return 0;
-  const progress = (current / target) * 100;
-  return Math.min(Math.round(progress), 100);
-};
-
-/**
- * ترجمة حالة الطلب إلى نص عربي
- */
-export const translateOrderStatus = (status: string): string => {
-  switch (status) {
-    case 'completed':
-      return 'مكتمل';
-    case 'processing':
-      return 'قيد التجهيز';
-    case 'pending':
-      return 'قيد الانتظار';
-    case 'cancelled':
-      return 'ملغي';
-    case 'shipped':
-      return 'تم الشحن';
-    case 'delivered':
-      return 'تم التسليم';
+export const formatCurrencyWithSettings = (amount: number, currency: string = 'SAR'): string => {
+  let formatter;
+  
+  // تحديد تنسيق العملة بناءً على رمز العملة
+  switch (currency) {
+    case 'USD':
+      formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 2
+      });
+      break;
+    case 'EUR':
+      formatter = new Intl.NumberFormat('de-DE', {
+        style: 'currency',
+        currency: 'EUR',
+        maximumFractionDigits: 2
+      });
+      break;
+    case 'KWD':
+      formatter = new Intl.NumberFormat('ar-KW', {
+        style: 'currency',
+        currency: 'KWD',
+        maximumFractionDigits: 3
+      });
+      break;
+    case 'SAR':
     default:
-      return status;
-  }
-};
-
-/**
- * الحصول على لون خلفية وحدود لحالة الطلب
- */
-export const getOrderStatusColor = (status: string): { bg: string; text: string; icon: string } => {
-  switch (status) {
-    case 'completed':
-      return { bg: 'bg-green-100', text: 'text-green-700', icon: 'text-green-500' };
-    case 'processing':
-      return { bg: 'bg-blue-100', text: 'text-blue-700', icon: 'text-blue-500' };
-    case 'pending':
-      return { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: 'text-yellow-500' };
-    case 'cancelled':
-      return { bg: 'bg-red-100', text: 'text-red-700', icon: 'text-red-500' };
-    default:
-      return { bg: 'bg-gray-100', text: 'text-gray-700', icon: 'text-gray-500' };
-  }
-};
-
-/**
- * تنسيق رقم بإضافة الفواصل للآلاف
- */
-export const formatNumber = (number: number): string => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
-
-/**
- * تنسيق العملة من الإعدادات
- */
-export const formatCurrencyWithSettings = (amount: number, currency: string): string => {
-  const symbol = getCurrencySymbol(currency);
-  const formattedAmount = formatNumber(Math.round(amount * 100) / 100);
-  
-  // تحديد موضع رمز العملة حسب العملة
-  const currenciesWithSymbolBefore = ['USD', 'EUR', 'GBP'];
-  
-  if (currenciesWithSymbolBefore.includes(currency)) {
-    return `${symbol}${formattedAmount}`;
-  } else {
-    return `${formattedAmount} ${symbol}`;
-  }
-};
-
-/**
- * توليد رقم تسلسلي للطلب مختصر وفريد لكل متجر
- * يبدأ بـ OK- ثم رقم متسلسل
- * 
- * @param storeId معرف المتجر
- * @param date تاريخ الطلب
- * @returns رقم طلب فريد
- */
-export const generateUniqueOrderNumber = (storeId: string, date: Date = new Date()): string => {
-  // استخدام السنة والشهر
-  const year = date.getFullYear().toString().slice(-2);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  
-  // إنشاء رقم عشوائي من 4 أرقام (1000-9999)
-  const randomComponent = Math.floor(1000 + Math.random() * 9000);
-  
-  // دمج المكونات لإنشاء رقم طلب مختصر وفريد
-  return `OK-${year}${month}${randomComponent}`;
-};
-
-/**
- * تنسيق رقم الطلب ليظهر بشكل أصغر ومناسب
- */
-export const formatOrderNumber = (orderNumber: string): string => {
-  // إذا كان الرقم يبدأ بـ OK- نعيده كما هو
-  if (orderNumber.startsWith('OK-')) {
-    return orderNumber;
+      formatter = new Intl.NumberFormat('ar-SA', {
+        style: 'currency',
+        currency: currency || 'SAR',
+        maximumFractionDigits: 2
+      });
+      break;
   }
   
-  // إذا كان الرقم لا يحتوي على OK- نضيفه
-  if (orderNumber.length > 6) {
-    return `OK-${orderNumber.substring(orderNumber.length - 6)}`;
-  }
-  
-  return `OK-${orderNumber}`;
+  return formatter.format(amount);
 };
 
 /**
- * الحصول على لون النص للوقت بناءً على حداثة الطلب
+ * حساب الوقت النسبي منذ تاريخ معين
+ * @param dateString تاريخ كنص
+ * @returns النص النسبي بالعربية
  */
-export const getTimeColor = (dateString: string, status: string): string => {
+export const formatRelativeTime = (dateString: string): string => {
+  if (!dateString) return '';
+  
   const date = new Date(dateString);
   const now = new Date();
-  const diffHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
   
-  // للطلبات الجديدة خلال 24 ساعة
-  if (diffHours < 24 && status === 'pending') {
-    return "text-indigo-600 font-medium"; // لون بارز للطلبات الجديدة
-  } else if (diffHours < 48) {
-    return "text-blue-500"; // لون مميز للطلبات خلال 48 ساعة
-  } else if (diffHours < 72) {
-    return "text-gray-600"; // لون أقل بروزاً للطلبات خلال 3 أيام
+  if (diffInSeconds < 60) {
+    return 'الآن';
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `منذ ${minutes} دقيقة`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `منذ ${hours} ساعة`;
+  } else if (diffInSeconds < 2592000) {
+    const days = Math.floor(diffInSeconds / 86400);
+    return `منذ ${days} يوم`;
+  } else if (diffInSeconds < 31536000) {
+    const months = Math.floor(diffInSeconds / 2592000);
+    return `منذ ${months} شهر`;
+  } else {
+    const years = Math.floor(diffInSeconds / 31536000);
+    return `منذ ${years} سنة`;
+  }
+};
+
+/**
+ * الحصول على لون النص للوقت النسبي بناءً على الحالة
+ * @param dateString تاريخ كنص
+ * @param status حالة الطلب
+ * @returns فئة CSS للون النص
+ */
+export const getTimeColor = (dateString: string, status: string): string => {
+  if (!dateString) return 'text-gray-500';
+  
+  // إذا كانت الحالة مكتملة أو ملغاة، نستخدم لون رمادي دائمًا
+  if (['completed', 'cancelled', 'delivered', 'refunded'].includes(status)) {
+    return 'text-gray-500';
   }
   
-  // اللون الافتراضي للطلبات القديمة
-  return "text-gray-500";
-};
-
-/**
- * إرسال إشعار واتساب للعميل
- * 
- * @param storeId معرف المتجر
- * @param customerPhone رقم هاتف العميل
- * @param templateType نوع القالب (orderConfirmation, orderUpdate, shipping, payment)
- * @param variables المتغيرات المستخدمة في الرسالة
- */
-export const sendWhatsAppNotification = async (
-  storeId: string,
-  customerPhone: string,
-  templateType: 'orderConfirmation' | 'orderUpdate' | 'shipping' | 'payment',
-  variables: Record<string, string>
-): Promise<boolean> => {
-  try {
-    // التحقق من صلاحية رقم الهاتف
-    if (!customerPhone || !customerPhone.match(/^\+[0-9]{10,15}$/)) {
-      console.error('رقم هاتف العميل غير صالح:', customerPhone);
-      return false;
-    }
-
-    // الحصول على إعدادات واتساب للمتجر
-    const { data: storeData, error: storeError } = await supabase
-      .from('stores')
-      .select('whatsapp, whatsapp_notifications_enabled, whatsapp_settings, name')
-      .eq('id', storeId)
-      .single();
-
-    if (storeError || !storeData) {
-      console.error('خطأ في الحصول على إعدادات المتجر:', storeError);
-      return false;
-    }
-
-    // التحقق من تفعيل إشعارات واتساب
-    if (!storeData.whatsapp_notifications_enabled) {
-      console.log('إشعارات واتساب غير مفعلة للمتجر:', storeId);
-      return false;
-    }
-
-    // التحقق من وجود رقم واتساب للمتجر
-    if (!storeData.whatsapp) {
-      console.error('لا يوجد رقم واتساب معرف للمتجر:', storeId);
-      return false;
-    }
-
-    // الحصول على القالب ومعلومات التفعيل
-    const templateSettings = storeData.whatsapp_settings?.[templateType];
-    if (!templateSettings || !templateSettings.enabled) {
-      console.log(`قالب ${templateType} غير مفعل للمتجر:`, storeId);
-      return false;
-    }
-
-    let messageContent = templateSettings.template || '';
-
-    // استبدال المتغيرات في القالب
-    for (const [key, value] of Object.entries(variables)) {
-      messageContent = messageContent.replace(new RegExp(`{${key}}`, 'g'), value);
-    }
-
-    // إضافة متغير اسم المتجر إذا لم يكن موجوداً
-    if (messageContent.includes('{store_name}')) {
-      messageContent = messageContent.replace(/{store_name}/g, storeData.name || '');
-    }
-
-    console.log(`جاري إرسال إشعار واتساب (${templateType}) إلى:`, customerPhone);
-    console.log('محتوى الرسالة:', messageContent);
-
-    // في الإصدار الحالي، نكتفي بتسجيل الرسالة في سجل التطبيق
-    // في الإصدار النهائي، سيتم استدعاء WhatsApp Business API هنا
-    
-    // تسجيل الإشعار في قاعدة البيانات للتتبع
-    const { error: logError } = await supabase
-      .from('whatsapp_notifications_log')
-      .insert({
-        store_id: storeId,
-        customer_phone: customerPhone,
-        template_type: templateType,
-        message_content: messageContent,
-        status: 'queued', // في الإصدار النهائي سيتم تحديثه إلى "sent" أو "failed" بعد محاولة الإرسال
-      });
-
-    if (logError) {
-      console.error('خطأ في تسجيل إشعار واتساب:', logError);
-    }
-
-    return true;
-  } catch (error) {
-    console.error('خطأ في إرسال إشعار واتساب:', error);
-    return false;
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+  
+  if (diffInHours < 2) {
+    return 'text-green-600';
+  } else if (diffInHours < 24) {
+    return 'text-blue-600';
+  } else if (diffInHours < 48) {
+    return 'text-yellow-600';
+  } else {
+    return 'text-red-600';
   }
 };
 
 /**
- * معالجة الدفع باستخدام بوابة ماي فاتورة
- * 
- * @param storeId معرف المتجر
- * @param orderId معرف الطلب
- * @param amount المبلغ
- * @param customerData بيانات العميل
- * @returns رابط صفحة الدفع والمعرف الخاص بالعملية
+ * إنشاء بيانات المبيعات للرسم البياني
+ * @param orders قائمة الطلبات
+ * @param timeframe إطار زمني (day, week, month, year)
+ * @returns بيانات المبيعات المنسقة للرسم البياني
  */
-export const processMyFatoorahPayment = async (
-  storeId: string,
-  orderId: string,
-  amount: number,
-  customerData: {
-    name: string;
-    email: string;
-    phone?: string;
+export const generateSalesData = (orders: any[], timeframe: string) => {
+  if (!orders || orders.length === 0) {
+    return getEmptySalesData(timeframe);
   }
-): Promise<{ paymentUrl: string; invoiceId: string } | null> => {
-  try {
-    // الحصول على إعدادات المتجر وبوابة الدفع
-    const { data: storeData, error: storeError } = await supabase
-      .from('stores')
-      .select('payment_gateways, currency')
-      .eq('id', storeId)
-      .single();
-
-    if (storeError) {
-      console.error('خطأ في الحصول على إعدادات المتجر:', storeError);
-      return null;
+  
+  // تصنيف الطلبات حسب التاريخ
+  const salesByDate = new Map();
+  const now = new Date();
+  
+  // تحديد تاريخ البداية بناءً على الإطار الزمني
+  let startDate: Date;
+  let dateFormat: Intl.DateTimeFormatOptions;
+  let increment: (date: Date) => Date;
+  
+  switch (timeframe) {
+    case 'day':
+      startDate = new Date(now);
+      startDate.setHours(0, 0, 0, 0);
+      dateFormat = { hour: '2-digit' };
+      increment = (date) => {
+        const newDate = new Date(date);
+        newDate.setHours(newDate.getHours() + 1);
+        return newDate;
+      };
+      break;
+    case 'week':
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 6);
+      startDate.setHours(0, 0, 0, 0);
+      dateFormat = { weekday: 'short' };
+      increment = (date) => {
+        const newDate = new Date(date);
+        newDate.setDate(newDate.getDate() + 1);
+        return newDate;
+      };
+      break;
+    case 'month':
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 29);
+      startDate.setHours(0, 0, 0, 0);
+      dateFormat = { day: '2-digit', month: 'short' };
+      increment = (date) => {
+        const newDate = new Date(date);
+        newDate.setDate(newDate.getDate() + 1);
+        return newDate;
+      };
+      break;
+    case 'year':
+    default:
+      startDate = new Date(now);
+      startDate.setMonth(now.getMonth() - 11);
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
+      dateFormat = { month: 'short' };
+      increment = (date) => {
+        const newDate = new Date(date);
+        newDate.setMonth(newDate.getMonth() + 1);
+        return newDate;
+      };
+      break;
+  }
+  
+  // تهيئة الخريطة بجميع الفترات الزمنية
+  let currentDate = new Date(startDate);
+  const endDate = new Date(now);
+  endDate.setHours(23, 59, 59, 999);
+  
+  while (currentDate <= endDate) {
+    const dateKey = formatDateKey(currentDate, timeframe);
+    salesByDate.set(dateKey, { name: dateKey, sales: 0, revenue: 0 });
+    currentDate = increment(currentDate);
+  }
+  
+  // حساب المبيعات والإيرادات لكل فترة زمنية
+  orders.forEach(order => {
+    const orderDate = new Date(order.created_at);
+    if (orderDate >= startDate && orderDate <= endDate) {
+      const dateKey = formatDateKey(orderDate, timeframe);
+      if (salesByDate.has(dateKey)) {
+        const data = salesByDate.get(dateKey);
+        data.sales += 1;
+        data.revenue += Number(order.total_amount) || 0;
+        salesByDate.set(dateKey, data);
+      }
     }
+  });
+  
+  // تحويل الخريطة إلى مصفوفة للرسم البياني
+  return Array.from(salesByDate.values());
+};
 
-    // التحقق من وجود إعدادات بوابات الدفع ونوعها
-    if (!storeData?.payment_gateways || typeof storeData.payment_gateways === 'string') {
-      console.error('إعدادات بوابات الدفع غير موجودة أو بتنسيق غير صحيح');
-      return null;
-    }
-
-    const paymentGateways = storeData.payment_gateways as Record<string, any>;
-    
-    if (!paymentGateways.myfatoorah?.enabled) {
-      console.error('بوابة ماي فاتورة غير مفعلة');
-      return null;
-    }
-
-    const { api_key, test_mode, currency = 'KWD' } = paymentGateways.myfatoorah;
-    
-    if (!api_key) {
-      console.error('مفتاح API غير موجود لبوابة ماي فاتورة');
-      return null;
-    }
-
-    // تحديد رابط API حسب وضع الاختبار
-    const apiBaseUrl = test_mode 
-      ? 'https://apitest.myfatoorah.com' 
-      : 'https://api.myfatoorah.com';
-
-    // إنشاء طلب فاتورة جديدة
-    const response = await fetch(`${apiBaseUrl}/v2/SendPayment`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${api_key}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        CustomerName: customerData.name,
-        CustomerEmail: customerData.email,
-        CustomerMobile: customerData.phone || '',
-        InvoiceValue: amount,
-        CallBackUrl: `${window.location.origin}/payment/callback`,
-        ErrorUrl: `${window.location.origin}/payment/error`,
-        Language: 'ar',
-        CustomerReference: orderId,
-        DisplayCurrencyIso: currency
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('خطأ من ماي فاتورة:', errorData);
-      return null;
-    }
-
-    const data = await response.json();
-
-    if (!data.IsSuccess) {
-      console.error('فشل إنشاء رابط الدفع:', data.Message);
-      return null;
-    }
-
-    // تسجيل معاملة الدفع في قاعدة البيانات
-    await supabase.from('payment_transactions').insert({
-      store_id: storeId,
-      order_id: orderId,
-      gateway: 'myfatoorah',
-      transaction_id: data.Data.InvoiceId,
-      amount: amount,
-      currency: currency,
-      status: 'pending',
-      payment_method: 'online',
-      payment_data: data.Data
-    });
-
-    return {
-      paymentUrl: data.Data.InvoiceURL,
-      invoiceId: data.Data.InvoiceId
-    };
-  } catch (error) {
-    console.error('خطأ في معالجة الدفع مع ماي فاتورة:', error);
-    return null;
+/**
+ * تنسيق مفتاح التاريخ بناءً على الإطار الزمني
+ * @param date التاريخ
+ * @param timeframe الإطار الزمني
+ * @returns مفتاح التاريخ المنسق
+ */
+const formatDateKey = (date: Date, timeframe: string): string => {
+  switch (timeframe) {
+    case 'day':
+      return `${date.getHours()}:00`;
+    case 'week':
+      return new Intl.DateTimeFormat('ar', { weekday: 'short' }).format(date);
+    case 'month':
+      return `${date.getDate()}`;
+    case 'year':
+      return new Intl.DateTimeFormat('ar', { month: 'short' }).format(date);
+    default:
+      return date.toISOString().split('T')[0];
   }
 };
 
 /**
- * معالجة الدفع باستخدام بوابة تاب
- * 
- * @param storeId معرف المتجر
- * @param orderId معرف الطلب
- * @param amount المبلغ
- * @param customerData بيانات العميل
- * @returns رابط صفحة الدفع والمعرف الخاص بالعملية
+ * إنشاء بيانات مبيعات فارغة للإطار الزمني المحدد
+ * @param timeframe الإطار الزمني
+ * @returns بيانات مبيعات فارغة
  */
-export const processTapPayment = async (
-  storeId: string,
-  orderId: string,
-  amount: number,
-  customerData: {
-    name: string;
-    email: string;
-    phone?: string;
-  }
-): Promise<{ paymentUrl: string; chargeId: string } | null> => {
-  try {
-    // الحصول على إعدادات المتجر وبوابة الدفع
-    const { data: storeData, error: storeError } = await supabase
-      .from('stores')
-      .select('payment_gateways, currency, name')
-      .eq('id', storeId)
-      .single();
-
-    if (storeError) {
-      console.error('خطأ في الحصول على إعدادات المتجر:', storeError);
-      return null;
-    }
-
-    // التحقق من وجود إعدادات بوابات الدفع ونوعها
-    if (!storeData?.payment_gateways || typeof storeData.payment_gateways === 'string') {
-      console.error('إعدادات بوابات الدفع غير موجودة أو بتنسيق غير صحيح');
-      return null;
-    }
-
-    const paymentGateways = storeData.payment_gateways as Record<string, any>;
-    
-    if (!paymentGateways.tap?.enabled) {
-      console.error('بوابة تاب غير مفعلة');
-      return null;
-    }
-
-    const { secret_key, test_mode, currency = 'KWD' } = paymentGateways.tap;
-    
-    if (!secret_key) {
-      console.error('المفتاح السري غير موجود لبوابة تاب');
-      return null;
-    }
-
-    // تحديد رابط API حسب وضع الاختبار
-    const apiBaseUrl = test_mode 
-      ? 'https://api.tap.company/v2/test' 
-      : 'https://api.tap.company/v2';
-
-    // إنشاء طلب دفع جديد
-    const response = await fetch(`${apiBaseUrl}/charges`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${secret_key}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        amount: amount,
-        currency: currency,
-        customer: {
-          first_name: customerData.name.split(' ')[0],
-          last_name: customerData.name.split(' ').slice(1).join(' ') || '-',
-          email: customerData.email,
-          phone: {
-            country_code: '+965',
-            number: customerData.phone || '00000000'
-          }
-        },
-        source: { id: 'src_all' },
-        redirect: {
-          url: `${window.location.origin}/payment/callback?gateway=tap`
-        },
-        post: {
-          url: `${window.location.origin}/api/payment-webhook`
-        },
-        reference: {
-          order: orderId
-        },
-        description: `طلب #${orderId} من ${storeData.name || 'المتجر'}`
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('خطأ من تاب:', errorData);
-      return null;
-    }
-
-    const data = await response.json();
-
-    // تسجيل معاملة الدفع في قاعدة البيانات
-    await supabase.from('payment_transactions').insert({
-      store_id: storeId,
-      order_id: orderId,
-      gateway: 'tap',
-      transaction_id: data.id,
-      amount: amount,
-      currency: currency,
-      status: 'pending',
-      payment_method: 'online',
-      payment_data: data
-    });
-
-    return {
-      paymentUrl: data.transaction.url,
-      chargeId: data.id
-    };
-  } catch (error) {
-    console.error('خطأ في معالجة الدفع مع تاب:', error);
-    return null;
+const getEmptySalesData = (timeframe: string) => {
+  switch (timeframe) {
+    case 'day':
+      return Array.from({ length: 24 }, (_, i) => ({
+        name: `${i}:00`,
+        sales: 0,
+        revenue: 0
+      }));
+    case 'week':
+      const weekdays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      return weekdays.map(day => ({
+        name: day,
+        sales: 0,
+        revenue: 0
+      }));
+    case 'month':
+      return Array.from({ length: 30 }, (_, i) => ({
+        name: `${i + 1}`,
+        sales: 0,
+        revenue: 0
+      }));
+    case 'year':
+      const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+      return months.map(month => ({
+        name: month,
+        sales: 0,
+        revenue: 0
+      }));
+    default:
+      return [];
   }
 };

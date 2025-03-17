@@ -62,7 +62,6 @@ export const useDashboardData = (storeId: string) => {
       onError: (error: any) => {
         console.error("Error loading dashboard stats:", error);
         toast({
-          variant: "destructive",
           title: "فشل تحميل الإحصائيات",
           description: "حدث خطأ أثناء تحميل إحصائيات لوحة التحكم، يرجى المحاولة مرة أخرى.",
         });
@@ -79,7 +78,8 @@ export const useDashboardData = (storeId: string) => {
   // Optimize other React Query calls
   const { 
     data: topProducts = [], 
-    isLoading: topProductsLoading 
+    isLoading: topProductsLoading,
+    refetch: refetchTopProducts
   } = useQuery({
     queryKey: ['top-products', storeId, timeframe],
     queryFn: () => getTopSellingProducts(storeId),
@@ -137,7 +137,8 @@ export const useDashboardData = (storeId: string) => {
   // Optimize order status query
   const { 
     data: orderStatusData = [], 
-    isLoading: orderStatusLoading 
+    isLoading: orderStatusLoading,
+    refetch: refetchOrderStatus
   } = useQuery({
     queryKey: ['order-status', storeId, timeframe],
     queryFn: () => getOrderStatusStats(storeId),
@@ -154,6 +155,8 @@ export const useDashboardData = (storeId: string) => {
       // إعادة تحميل البيانات عند وصول طلب جديد
       refetchRecentOrders();
       refetchStats();
+      refetchTopProducts();
+      refetchOrderStatus();
     }
   });
 
@@ -200,7 +203,21 @@ export const useDashboardData = (storeId: string) => {
   const loadDashboardData = useCallback(() => {
     refetchStats();
     refetchRecentOrders();
-  }, [refetchStats, refetchRecentOrders]);
+    refetchTopProducts();
+    refetchOrderStatus();
+  }, [refetchStats, refetchRecentOrders, refetchTopProducts, refetchOrderStatus]);
+
+  useEffect(() => {
+    // تحميل البيانات عند بدء التشغيل
+    loadDashboardData();
+    
+    // إعادة التحميل كل 2 دقيقة لضمان تحديث البيانات
+    const interval = setInterval(() => {
+      loadDashboardData();
+    }, 2 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [loadDashboardData, storeId]);
 
   return {
     timeframe,
