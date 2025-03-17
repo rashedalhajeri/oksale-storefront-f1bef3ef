@@ -60,7 +60,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onViewOrder, getStatusIcon
               </div>
             )}
           </div>
-          <h3 className="text-gray-400 text-xs ltr-text mt-1.5 font-medium">
+          <h3 className="text-gray-500 text-xs ltr-text mt-1.5 font-bold">
             {order.id}
           </h3>
         </div>

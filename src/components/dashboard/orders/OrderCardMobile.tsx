@@ -42,7 +42,7 @@ const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, g
             
             <h3 className="text-gray-400 text-xs mt-2 font-medium flex items-center gap-1">
               <Package className="h-3 w-3 flex-shrink-0 text-gray-400" />
-              <span dir="ltr" className="inline-block truncate max-w-[150px]">{order.id}</span>
+              <span dir="ltr" className="inline-block font-bold">{order.id}</span>
             </h3>
           </div>
           <span className="font-bold text-sm text-oksale-700 whitespace-nowrap pr-1 rtl:ml-0 rtl:mr-2" dir="ltr">

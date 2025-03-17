@@ -18,11 +18,11 @@ export const formatOrderId = (orderId: string, storeId?: string): string => {
     storePrefix = storeId.substring(0, 2);
   }
   
-  // Take the last 6 characters of the order ID
-  const shortId = orderId.substring(Math.max(0, orderId.length - 6));
+  // Take the last 4 characters of the order ID for a more compact display
+  const shortId = orderId.substring(Math.max(0, orderId.length - 4));
   
-  // Return formatted ID with OK- prefix
-  return `OK-${storePrefix}${shortId}`;
+  // Return formatted ID with OK- prefix in lowercase to match the example
+  return `ok-${storePrefix}${shortId}`;
 };
 
 // Format orders for display with better memoization support
