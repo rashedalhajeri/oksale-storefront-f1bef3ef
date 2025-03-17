@@ -1,5 +1,4 @@
 
-// This is the same file that was previously at src/pages/public/ForgotPassword.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -15,9 +14,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Check } from 'lucide-react';
+import { ArrowRight, Mail, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -70,56 +68,94 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">نسيت كلمة المرور</CardTitle>
-          <CardDescription>
-            أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isSubmitted ? (
-            <Alert className="bg-green-50 border-green-200">
-              <Check className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-800">تم إرسال رابط إعادة تعيين كلمة المرور</AlertTitle>
-              <AlertDescription className="text-green-700">
-                يرجى التحقق من بريدك الإلكتروني للحصول على رابط إعادة تعيين كلمة المرور. قد يستغرق وصول البريد بضع دقائق.
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+      <div className="w-full max-w-md px-6 py-12">
+        <div className="relative h-40 mb-6 overflow-hidden rounded-xl">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ 
+              backgroundImage: "url('/lovable-uploads/46d958e9-880d-4522-8850-0a5dfa8e95bc.png')",
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 p-6 text-white">
+            <h2 className="text-2xl font-bold mb-1">استعادة كلمة المرور</h2>
+            <p className="text-sm text-gray-200">سنرسل لك رابط لإعادة تعيين كلمة المرور</p>
+          </div>
+        </div>
+
+        <h1 className="text-2xl font-bold mb-6 text-center">نسيت كلمة المرور</h1>
+
+        {isSubmitted ? (
+          <div className="space-y-6">
+            <Alert className="bg-emerald-50 border-emerald-200">
+              <Check className="h-5 w-5 text-emerald-600" />
+              <AlertTitle className="text-emerald-800 mb-2">تم إرسال رابط إعادة تعيين كلمة المرور</AlertTitle>
+              <AlertDescription className="text-emerald-700">
+                تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني. يرجى التحقق من البريد الوارد وقد تجد البريد في مجلد البريد الغير مرغوب.
               </AlertDescription>
             </Alert>
-          ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>البريد الإلكتروني</FormLabel>
-                      <FormControl>
-                        <Input placeholder="yourname@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'جارٍ الإرسال...' : 'إرسال رابط إعادة تعيين كلمة المرور'}
+            
+            <div className="flex justify-center">
+              <Link to="/signin">
+                <Button variant="outline" className="mt-4">
+                  العودة إلى تسجيل الدخول
                 </Button>
-              </form>
-            </Form>
-          )}
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <div className="text-center text-sm">
-            تذكرت كلمة المرور؟{' '}
-            <Link to="/signin" className="font-medium text-oksale-600 hover:text-oksale-500">
-              تسجيل الدخول
-            </Link>
+              </Link>
+            </div>
           </div>
-        </CardFooter>
-      </Card>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">البريد الإلكتروني</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Mail className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                        <Input 
+                          placeholder="your@email.com" 
+                          className="pl-10 bg-gray-50 border-gray-200" 
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-black hover:bg-gray-800 text-white"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                    جاري الإرسال...
+                  </>
+                ) : (
+                  <>
+                    إرسال رابط إعادة تعيين كلمة المرور
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+        )}
+
+        <p className="mt-8 text-center text-sm text-gray-600">
+          تذكرت كلمة المرور؟{' '}
+          <Link to="/signin" className="font-semibold text-indigo-600 hover:text-indigo-500">
+            تسجيل الدخول
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

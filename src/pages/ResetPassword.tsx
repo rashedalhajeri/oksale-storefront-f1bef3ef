@@ -1,5 +1,4 @@
 
-// This is the same file that was previously at src/pages/public/ResetPassword.tsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -15,9 +14,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { ArrowRight, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -94,75 +92,123 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">إعادة تعيين كلمة المرور</CardTitle>
-          <CardDescription>
-            أدخل كلمة المرور الجديدة
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {!isValidResetLink ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>رابط غير صالح</AlertTitle>
-              <AlertDescription>
-                رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية. يرجى طلب رابط جديد.
-              </AlertDescription>
-            </Alert>
-          ) : error ? (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>حدث خطأ</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          ) : null}
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>كلمة المرور الجديدة</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>تأكيد كلمة المرور</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <Button type="submit" className="w-full" disabled={isLoading || !isValidResetLink}>
-                {isLoading ? 'جارٍ التحديث...' : 'تحديث كلمة المرور'}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <div className="text-center text-sm">
-            <Link to="/signin" className="font-medium text-oksale-600 hover:text-oksale-500">
-              العودة إلى تسجيل الدخول
-            </Link>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+      <div className="w-full max-w-md px-6 py-12">
+        <div className="relative h-40 mb-6 overflow-hidden rounded-xl">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ 
+              backgroundImage: "url('/lovable-uploads/46d958e9-880d-4522-8850-0a5dfa8e95bc.png')",
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 p-6 text-white">
+            <h2 className="text-2xl font-bold mb-1">تعيين كلمة المرور</h2>
+            <p className="text-sm text-gray-200">أدخل كلمة المرور الجديدة الخاصة بك</p>
           </div>
-        </CardFooter>
-      </Card>
+        </div>
+
+        <h1 className="text-2xl font-bold mb-6 text-center">إعادة تعيين كلمة المرور</h1>
+
+        {!isValidResetLink ? (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-5 w-5" />
+            <AlertTitle className="mb-2">رابط غير صالح</AlertTitle>
+            <AlertDescription>
+              رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية. يرجى طلب رابط جديد.
+            </AlertDescription>
+            <div className="mt-4">
+              <Link to="/forgot-password">
+                <Button variant="outline" className="w-full">
+                  طلب رابط جديد
+                </Button>
+              </Link>
+            </div>
+          </Alert>
+        ) : (
+          <>
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-5 w-5" />
+                <AlertTitle>حدث خطأ</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700">كلمة المرور الجديدة</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                          <Input 
+                            type="password" 
+                            placeholder="••••••••" 
+                            className="pl-10 bg-gray-50 border-gray-200" 
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700">تأكيد كلمة المرور</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                          <Input 
+                            type="password" 
+                            placeholder="••••••••" 
+                            className="pl-10 bg-gray-50 border-gray-200" 
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-black hover:bg-gray-800 text-white"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                      جاري التحديث...
+                    </>
+                  ) : (
+                    <>
+                      تحديث كلمة المرور
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </>
+        )}
+
+        <p className="mt-8 text-center text-sm text-gray-600">
+          <Link to="/signin" className="font-semibold text-indigo-600 hover:text-indigo-500">
+            العودة إلى تسجيل الدخول
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };
