@@ -69,7 +69,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
 
   if (loading) {
     return (
-      <div className="dashboard-stats-grid mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <Card key={index} className="stats-card">
             <div className="flex justify-between items-start">
@@ -86,7 +86,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
   }
 
   return (
-    <div className="dashboard-stats-grid mb-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
       {statistics.map((item, index) => (
         <Card key={index} className="stats-card">
           <div className="flex items-center justify-between gap-1 mb-2">
