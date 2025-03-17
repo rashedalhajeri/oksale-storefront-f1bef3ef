@@ -34,10 +34,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   useEffect(() => {
     document.documentElement.classList.add('dashboard', 'rtl-dashboard');
     document.body.style.overflowX = 'hidden'; // Prevent horizontal scrolling
+    document.documentElement.style.overflowX = 'hidden'; // Added this line
     
     return () => {
       document.documentElement.classList.remove('dashboard', 'rtl-dashboard');
       document.body.style.overflowX = '';
+      document.documentElement.style.overflowX = ''; // Added this line
     };
   }, []);
 
@@ -54,7 +56,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-row-reverse rtl-dashboard will-change-transform overflow-hidden">
+    <div className="min-h-screen flex flex-row-reverse rtl-dashboard will-change-transform overflow-hidden max-w-full">
       {/* Sidebar - always visible on desktop, conditionally visible on mobile, placed on the right in RTL mode */}
       <div className={cn(
         "transition-transform duration-300 transform z-40 will-change-transform", 
@@ -69,8 +71,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
 
       {/* Main content - in the RTL layout, this is on the left side */}
       <div className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 transition-all will-change-transform overflow-hidden">
-        <div className="w-full max-w-7xl mx-auto relative z-10">
-          <div className="bg-white shadow-sm rounded-2xl p-4 md:p-6 dark:bg-gray-800 animate-in fade-in duration-300">
+        <div className="w-full max-w-7xl mx-auto relative z-10 overflow-hidden">
+          <div className="bg-white shadow-sm rounded-2xl p-4 md:p-6 dark:bg-gray-800 animate-in fade-in duration-300 overflow-hidden">
             {children}
           </div>
         </div>
