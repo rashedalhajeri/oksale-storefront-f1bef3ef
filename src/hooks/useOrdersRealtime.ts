@@ -70,7 +70,9 @@ export const useOrdersRealtime = ({
     // إنشاء الاشتراكات بالوقت الحقيقي
     const cleanup = setupRealtimeSubscriptions(storeId, {
       onNewOrder: handleNewOrder,
-      onOrderUpdate: handleOrderUpdate
+      onOrderUpdate: handleOrderUpdate,
+      onOrderDelete: undefined,
+      onOrderItemUpdate: undefined
     });
     
     // طلب إذن الإشعارات إذا لم يكن موجودًا بالفعل
