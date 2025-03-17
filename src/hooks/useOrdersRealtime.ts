@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useCallback } from 'react';
-import { setupRealtimeSubscriptions } from '@/utils/dashboard/realtimeUtils.tsx';
+import { setupRealtimeSubscriptions } from '@/utils/dashboard/realtime';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseOrdersRealtimeProps {
@@ -72,16 +73,6 @@ export const useOrdersRealtime = ({
       onOrderDelete: undefined,
       onOrderItemUpdate: undefined
     });
-    
-    // طلب إذن الإشعارات إذا لم يكن موجودًا بالفعل
-    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-      // تأخير قليل قبل طلب الإذن للسماح بتحميل الصفحة أولاً
-      setTimeout(() => {
-        Notification.requestPermission().then(permission => {
-          console.log(`[Notifications] Permission ${permission}`);
-        });
-      }, 2000);
-    }
     
     // تنظيف الاشتراكات عند تفكيك المكون
     return cleanup;
