@@ -79,17 +79,17 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
   });
   const isMobile = useIsMobile();
 
-  // Format dates and relative times
+  // Format dates and relative times - Updated to be more compact with just numbers
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+      year: '2-digit',
+      month: '2-digit',
+      day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
-    });
+    }).replace(/\//g, '-');
   };
 
   // Reset filters
@@ -241,7 +241,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   };
 
-  // Get status text for display
+  // Get status text for display - Made more concise
   const getStatusText = (status: string) => {
     switch (status) {
       case 'completed':
@@ -249,7 +249,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       case 'processing':
         return 'قيد التجهيز';
       case 'pending':
-        return 'قيد الانتظار';
+        return 'انتظار';
       case 'cancelled':
         return 'ملغي';
       default:
@@ -257,15 +257,15 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
     }
   };
 
-  // Get status badge for display
+  // Get status badge for display - Made more concise
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
         return <Badge className="bg-green-100 text-green-800">مكتمل</Badge>;
       case 'processing':
-        return <Badge className="bg-blue-100 text-blue-800">قيد التجهيز</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800">تجهيز</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">قيد الانتظار</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800">انتظار</Badge>;
       case 'cancelled':
         return <Badge className="bg-red-100 text-red-800">ملغي</Badge>;
       default:
@@ -323,7 +323,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 <TableCell className="font-semibold">{order.amount}</TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-sm">{formatDate(order.created_at)}</span>
+                    <span className="text-sm font-mono">{formatDate(order.created_at)}</span>
                     <span className={`text-xs ${order.timeColor}`}>{order.relativeTime}</span>
                   </div>
                 </TableCell>
@@ -336,7 +336,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                     className="hover:bg-gray-100"
                   >
                     <FileText className="h-4 w-4 ml-1" />
-                    عرض التفاصيل
+                    عرض
                   </Button>
                 </TableCell>
               </TableRow>
