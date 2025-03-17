@@ -48,6 +48,7 @@ import {
 } from '@/utils/dashboard/orders';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from "@/lib/utils";
+import { formatOrderId, getCachedFormattedOrders } from '@/utils/dashboard/orderFormatters';
 
 // Import refactored components
 import OrderFilterSheet from './orders/OrderFilterSheet';
@@ -139,23 +140,8 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
       
       const result = await getOrders(storeData.id, options);
       
-      // Format orders with relative time
-      const formattedOrders = result.orders.map((order: any) => {
-        const relativeTime = formatRelativeTime(order.created_at);
-        const timeColor = getTimeColor(order.created_at, order.status);
-        
-        return {
-          ...order,
-          customer: order.customer_name || 'عميل',
-          relativeTime,
-          timeColor,
-          amount: formatCurrency(Number(order.total_amount), storeData.currency || 'SAR'),
-          rawAmount: Number(order.total_amount),
-          currency: storeData.currency || 'SAR',
-          email: order.customer_email,
-          phone: order.customer_phone
-        };
-      });
+      // Use the new formatter to process orders
+      const formattedOrders = getCachedFormattedOrders(result.orders, storeData.currency || 'SAR');
       
       if (formattedOrders.length === 0 && !searchTerm && tabValue === 'all' && pagination.page === 1) {
         const mockData = generateMockOrders(storeData.id);
@@ -331,7 +317,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4 text-gray-500" />
-                    {order.id}
+                    <span className="text-sm text-gray-700">{order.id}</span>
                   </div>
                 </TableCell>
                 <TableCell>{order.customer}</TableCell>

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock3, Phone } from 'lucide-react';
+import { Clock3, Phone, Package } from 'lucide-react';
 import { Order } from '@/utils/dashboard/orderTypes';
 
 interface OrderCardMobileProps {
@@ -40,7 +40,8 @@ const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, g
               </div>
             )}
             
-            <h3 className="text-gray-400 text-xs mt-2 font-medium">
+            <h3 className="text-gray-400 text-xs mt-2 font-medium flex items-center gap-1">
+              <Package className="h-3 w-3 flex-shrink-0 text-gray-400" />
               <span dir="ltr" className="inline-block truncate max-w-[150px]">{order.id}</span>
             </h3>
           </div>

@@ -1,7 +1,29 @@
+
 import { Order } from './orderTypes';
 import { formatCurrencyWithSettings } from './dashboardUtils';
 import { getOrderStatusText, getOrderStatusColors } from './orderStatus';
 import { formatRelativeTime, getTimeColor } from './dashboardUtils';
+
+// Format order ID to a shorter, more readable format with OK- prefix
+export const formatOrderId = (orderId: string, storeId?: string): string => {
+  // If it already starts with OK-, return as is
+  if (orderId.startsWith('OK-')) {
+    return orderId;
+  }
+  
+  // Generate a unique hash based on storeId to ensure different stores have different order formats
+  let storePrefix = '';
+  if (storeId) {
+    // Take first 2 characters of the storeId to make it unique per store
+    storePrefix = storeId.substring(0, 2);
+  }
+  
+  // Take the last 6 characters of the order ID
+  const shortId = orderId.substring(Math.max(0, orderId.length - 6));
+  
+  // Return formatted ID with OK- prefix
+  return `OK-${storePrefix}${shortId}`;
+};
 
 // Format orders for display with better memoization support
 export const formatOrders = (orders: any[], currency: string): Order[] => {
@@ -14,7 +36,7 @@ export const formatOrders = (orders: any[], currency: string): Order[] => {
     const timeColor = getTimeColor(order.created_at, order.status);
     
     return {
-      id: order.id,
+      id: formatOrderId(order.id, order.store_id),
       rawId: order.id, // Store original ID for database operations
       customer: order.customer_name || 'عميل',
       amount: formatCurrencyWithSettings(Number(order.total_amount), currency),
