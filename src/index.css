@@ -23,4 +23,31 @@
     direction: rtl;
     display: inline-block;
   }
+  
+  /* ID and number styling for RTL context */
+  .rtl-number {
+    font-family: monospace;
+    direction: ltr;
+    display: inline-block;
+  }
+  
+  /* Order cards */
+  .order-card {
+    @apply border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  
+  .order-card-status {
+    @apply text-xs px-2 py-0.5 rounded-full inline-flex items-center;
+  }
+  
+  /* Table RTL fixes */
+  [dir="rtl"] th,
+  [dir="rtl"] td {
+    text-align: right;
+  }
+  
+  [dir="rtl"] .table-numeric {
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+  }
 }

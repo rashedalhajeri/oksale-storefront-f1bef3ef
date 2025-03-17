@@ -91,7 +91,8 @@ export const useDashboardData = (storeId: string) => {
   // Optimize recent orders query with improved caching
   const { 
     data: recentOrdersResponse,
-    isLoading: recentOrdersLoading 
+    isLoading: recentOrdersLoading,
+    refetch: refetchRecentOrders
   } = useQuery({
     queryKey: ['recent-orders', storeId],
     queryFn: () => getRecentOrders(storeId, 10),
@@ -145,6 +146,46 @@ export const useDashboardData = (storeId: string) => {
     refetchOnWindowFocus: false,
   });
 
+  // Setup Realtime subscription for new orders
+  useEffect(() => {
+    if (!storeId) return;
+
+    // Subscribe to realtime updates for orders table
+    const channel = supabase
+      .channel('order-changes')
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'orders',
+          filter: `store_id=eq.${storeId}`
+        },
+        (payload) => {
+          console.log('Realtime order update received:', payload);
+          
+          // Toast notification for new orders
+          if (payload.eventType === 'INSERT') {
+            toast({
+              title: "طلب جديد!",
+              description: `تم استلام طلب جديد برقم ${payload.new.id}`,
+              variant: "default",
+            });
+          }
+          
+          // Refetch the orders and stats to update the UI
+          refetchRecentOrders();
+          refetchStats();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription when component unmounts
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [storeId, toast, refetchRecentOrders, refetchStats]);
+
   // Optimize statistics with useMemo
   const statistics = useMemo(() => [
     {
@@ -180,7 +221,8 @@ export const useDashboardData = (storeId: string) => {
   // Optimize data loading function
   const loadDashboardData = useCallback(() => {
     refetchStats();
-  }, [refetchStats]);
+    refetchRecentOrders();
+  }, [refetchStats, refetchRecentOrders]);
 
   return {
     timeframe,

@@ -14,7 +14,7 @@ interface OrderCardMobileProps {
 const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, getStatusBadge }) => {
   return (
     <Card 
-      className="border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+      className="border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer"
       onClick={() => onViewOrder(order)}
       style={{ 
         borderRadius: '12px',
@@ -24,14 +24,14 @@ const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, g
       <CardContent className="p-4">
         <div className="flex justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
               {getStatusBadge(order.status)}
               <div className={`text-xs ${order.timeColor || 'text-gray-500'} flex items-center gap-1`}>
                 <Clock3 className="h-3 w-3 flex-shrink-0" />
                 <span className="truncate max-w-[120px]">{order.relativeTime}</span>
               </div>
             </div>
-            <p className="font-medium text-gray-800 text-sm mb-1 truncate">{order.customer}</p>
+            <p className="font-medium text-gray-800 text-sm mb-2 truncate">{order.customer}</p>
             
             {order.phone && (
               <div className="flex items-center gap-1 text-xs text-gray-500 mt-1.5">
@@ -40,7 +40,7 @@ const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, g
               </div>
             )}
             
-            <h3 className="text-gray-400 text-xs mt-2 font-medium flex items-center gap-1">
+            <h3 className="text-gray-400 text-xs mt-3 font-medium flex items-center gap-1">
               <Package className="h-3 w-3 flex-shrink-0 text-gray-400" />
               <span dir="ltr" className="inline-block font-bold font-mono">{order.id}</span>
             </h3>

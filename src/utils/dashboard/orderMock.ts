@@ -18,7 +18,17 @@ const arabicNames = [
   'هيا المطيري',
   'خالد السديس',
   'منيرة الحربي',
-  'وليد الغامدي'
+  'وليد الغامدي',
+  'علي المالكي',
+  'عهود الرشيدي',
+  'بدر الجهني',
+  'أريج العوفي',
+  'ناصر البقمي',
+  'سمية الزامل',
+  'فيصل العقيل',
+  'جواهر الصيعري',
+  'مشعل التميمي',
+  'أفنان الشنقيطي'
 ];
 
 // Add mock orders generation for the front-end 
@@ -26,7 +36,7 @@ export const generateMockOrders = (storeId: string): Order[] => {
   const statuses = ['pending', 'processing', 'completed', 'cancelled'];
   const mockOrders = [];
   
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 8; i++) {
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     const createdAt = new Date();
     createdAt.setDate(createdAt.getDate() - Math.floor(Math.random() * 30));
