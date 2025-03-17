@@ -4,22 +4,21 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import NotFound from "./pages/NotFound";
-import StorePage from "./pages/StorePage";
-import StoreSetup from "./pages/StoreSetup"; 
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { AuthProvider } from './features/authentication/providers/AuthProvider';
 
 // Import pages from the correct locations based on the new structure
-import Index from "./pages/Index";
+import NewIndex from "./pages/Index"; // Our completely redesigned homepage
 import StoreDiscovery from "./pages/StoreDiscovery";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
+import StorePage from "./pages/StorePage";
+import StoreSetup from "./pages/StoreSetup"; 
 
 // Import dashboard component wrappers
 import {
@@ -75,7 +74,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-6 h-6 border-2 border-oksale-700 border-t-transparent rounded-full"></div>
+        <div className="animate-spin w-6 h-6 border-2 border-indigo-700 border-t-transparent rounded-full"></div>
       </div>
     );
   }
@@ -113,9 +112,8 @@ const AppRoutes = () => {
   
   return (
     <>
-      {!shouldHideNavbar && <Navbar />}
       <Routes>
-        <Route path="/" element={<Index />} />
+        <Route path="/" element={<NewIndex />} />
         <Route path="/explore" element={<StoreDiscovery />} />
         <Route path="/:handle" element={<StorePage />} />
         <Route path="/signin" element={<SignIn />} />

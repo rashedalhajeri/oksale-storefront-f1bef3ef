@@ -1,6 +1,16 @@
 
 import React from 'react';
-import { getSocialIcon, getSocialUrl, type SocialMediaType } from '@/utils/socialMediaUtils';
+import { 
+  Instagram, 
+  Twitter, 
+  Facebook, 
+  Globe, 
+  Snapchat, 
+  MessageCircle,
+  TikTok
+} from 'lucide-react';
+
+export type SocialMediaType = 'instagram' | 'twitter' | 'facebook' | 'website' | 'snapchat' | 'tiktok' | 'whatsapp';
 
 interface SocialLinksProps {
   links: Array<[SocialMediaType, string]>;
@@ -9,26 +19,45 @@ interface SocialLinksProps {
 }
 
 const SocialLinks: React.FC<SocialLinksProps> = ({ 
-  links, 
-  useCustomColors = false, 
-  customColor = '' 
+  links,
+  useCustomColors,
+  customColor
 }) => {
   if (links.length === 0) return null;
   
+  const getIconForType = (type: SocialMediaType) => {
+    switch (type) {
+      case 'instagram':
+        return <Instagram className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+      case 'twitter':
+        return <Twitter className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+      case 'facebook':
+        return <Facebook className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+      case 'website':
+        return <Globe className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+      case 'snapchat':
+        return <Snapchat className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+      case 'tiktok':
+        return <TikTok className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+      case 'whatsapp':
+        return <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4" />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="flex items-center gap-3 md:gap-4 mt-2">
-      {links.map(([type, value]) => (
+    <div className="flex items-center gap-2 mt-2 flex-wrap">
+      {links.map(([type, url]) => (
         <a 
           key={type}
-          href={getSocialUrl(type, value)} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-white hover:opacity-80 transition-colors"
-          title={type.charAt(0).toUpperCase() + type.slice(1)}
+          href={type === 'whatsapp' ? `https://wa.me/${url}` : url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-shadow"
+          style={useCustomColors && customColor ? { backgroundColor: `${customColor}40` } : {}}
         >
-          <span className="flex items-center justify-center bg-black/20 rounded-full p-1.5 backdrop-blur-sm">
-            {getSocialIcon(type, "w-3.5 h-3.5 md:w-4 md:h-4", useCustomColors, customColor)}
-          </span>
+          {getIconForType(type)}
         </a>
       ))}
     </div>

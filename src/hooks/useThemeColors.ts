@@ -1,113 +1,63 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
-export const useThemeColors = (storeId?: string) => {
-  const [useCustomColors, setUseCustomColors] = useState<boolean>(false);
-  const [customColor, setCustomColor] = useState<string>("#5A55CA"); // تغيير اللون الافتراضي إلى بنفسجي أزرق جميل
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+// Helper function to convert hex to RGBA
+const hexToRgba = (hex: string, alpha = 1) => {
+  // Remove the hash if it exists
+  hex = hex.replace('#', '');
   
+  // Parse the hex values
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  // Return the rgba value
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+export const useThemeColors = () => {
+  const [customColor, setCustomColor] = useState<string>('#6366f1'); // Default indigo color
+  const [colors, setColors] = useState({
+    primary: '#6366f1',
+    primaryDark: '#4f46e5',
+    primaryLight: '#a5b4fc',
+    primaryRgba: 'rgba(99, 102, 241, 0.2)',
+    secondaryRgba: 'rgba(168, 85, 247, 0.2)',
+  });
+
   useEffect(() => {
-    const fetchThemeSettings = async () => {
-      if (!storeId) return;
-      
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('stores')
-          .select('use_custom_colors, custom_color')
-          .eq('id', storeId)
-          .single();
-          
-        if (error) throw error;
-        
-        if (data) {
-          setUseCustomColors(data.use_custom_colors || false);
-          setCustomColor(data.custom_color || "#5A55CA");
-        }
-      } catch (error) {
-        console.error('Error fetching theme settings:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // This could be used to load the custom color from settings or localStorage
+    // For now we'll just use the default
     
-    fetchThemeSettings();
-  }, [storeId]);
-  
-  const updateThemeColors = async (useCustom: boolean, color: string) => {
-    if (!storeId) return;
+    // Update all color variants when customColor changes
+    setColors({
+      primary: customColor,
+      primaryDark: adjustColor(customColor, -20),
+      primaryLight: adjustColor(customColor, 20),
+      primaryRgba: hexToRgba(customColor, 0.2),
+      secondaryRgba: hexToRgba(adjustColor(customColor, 40), 0.2),
+    });
     
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('stores')
-        .update({
-          use_custom_colors: useCustom,
-          custom_color: color
-        })
-        .eq('id', storeId);
-        
-      if (error) throw error;
-      
-      setUseCustomColors(useCustom);
-      setCustomColor(color);
-      
-      // تطبيق التغييرات على CSS المتغيرات
-      document.documentElement.style.setProperty('--custom-primary', color);
-      document.documentElement.style.setProperty('--custom-primary-hover', adjustColorBrightness(color, -15));
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Error updating theme settings:', error);
-      return { success: false, error };
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Apply CSS custom properties for global usage
+    document.documentElement.style.setProperty('--color-primary', customColor);
+    document.documentElement.style.setProperty('--color-primary-dark', colors.primaryDark);
+    document.documentElement.style.setProperty('--color-primary-light', colors.primaryLight);
+    document.documentElement.style.setProperty('--color-primary-rgba', colors.primaryRgba);
+  }, [customColor]);
 
-  // مساعدة لتعديل سطوع اللون
-  const adjustColorBrightness = (hex: string, percent: number) => {
-    // تحويل الـ hex إلى rgb
-    let r = parseInt(hex.substring(1, 3), 16);
-    let g = parseInt(hex.substring(3, 5), 16);
-    let b = parseInt(hex.substring(5, 7), 16);
+  // Function to adjust color brightness
+  function adjustColor(color: string, amount: number): string {
+    return '#' + color.replace(/^#/, '').replace(/../g, (color) => 
+      ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2)
+    );
+  }
 
-    // تعديل القيم بنسبة مئوية
-    r = Math.min(255, Math.max(0, r + (percent / 100) * 255));
-    g = Math.min(255, Math.max(0, g + (percent / 100) * 255));
-    b = Math.min(255, Math.max(0, b + (percent / 100) * 255));
-
-    // تحويل قيم RGB إلى سداسي عشري
-    const rHex = Math.round(r).toString(16).padStart(2, '0');
-    const gHex = Math.round(g).toString(16).padStart(2, '0');
-    const bHex = Math.round(b).toString(16).padStart(2, '0');
-
-    return `#${rHex}${gHex}${bHex}`;
-  };
-  
-  // إضافة المزيد من الألوان المخصصة للتصميم الجديد
-  const appColors = {
-    primary: "#5A55CA", // اللون الأساسي البنفسجي
-    secondary: "#E83274", // وردي أو أحمر للتباين
-    accent: "#00C4CC", // لون زبروجة للتأكيد
-    dark: "#1A1A2E", // أسود مائل للزرقة للخلفيات
-    light: "#FFFFFF", // أبيض للنصوص
-    lightGray: "#F8F9FA", // رمادي فاتح للخلفيات
-    darkGray: "#343A40", // رمادي داكن للنصوص الثانوية
-    success: "#38B2AC", // أخضر للنجاح
-    warning: "#F6AD55", // برتقالي للتحذير
-    error: "#F56565", // أحمر للخطأ
-    inactive: "#A0AEC0", // رمادي للعناصر غير النشطة
-  };
-  
   return { 
-    useCustomColors, 
     customColor, 
-    isLoading, 
-    updateThemeColors, 
-    setUseCustomColors, 
-    setCustomColor,
-    appColors
+    setCustomColor, 
+    colors,
+    // Utility function to create gradients
+    createGradient: (startColor = customColor, endColor = adjustColor(customColor, 40)) => 
+      `linear-gradient(to right, ${startColor}, ${endColor})`
   };
 };
