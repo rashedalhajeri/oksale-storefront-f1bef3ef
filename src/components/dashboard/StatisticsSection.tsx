@@ -9,12 +9,13 @@ import {
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Updated interface to match MainDashboard's Statistic interface
 interface StatisticItem {
   name: string;
-  value: string;
+  value: string | number; // Changed from 'string' to 'string | number'
   icon: string;
   description: string;
-  trendUp: boolean;
+  trendUp?: boolean; // Made optional with ?
 }
 
 interface StatisticsSectionProps {
