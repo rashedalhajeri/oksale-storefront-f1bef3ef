@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 /**
  * دالة إنشاء اشتراك بالوقت الحقيقي للطلبات
@@ -145,10 +146,14 @@ export const showNewOrderNotification = (order: any) => {
       description: `تم استلام طلب جديد من ${order.customer_name} بقيمة ${order.total_amount}`,
       variant: "default",
       duration: 10000,
-      action: {
-        label: "عرض الطلب",
-        onClick: () => window.location.href = `/dashboard/orders/${order.id}`
-      }
+      action: (
+        <ToastAction 
+          altText="عرض الطلب"
+          onClick={() => window.location.href = `/dashboard/orders/${order.id}`}
+        >
+          عرض الطلب
+        </ToastAction>
+      )
     });
     
     // إذا كان API الإشعارات مدعومًا، أظهر إشعارًا في نظام التشغيل
