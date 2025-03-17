@@ -146,14 +146,9 @@ export const showNewOrderNotification = (order: any) => {
       description: `تم استلام طلب جديد من ${order.customer_name} بقيمة ${order.total_amount}`,
       variant: "default",
       duration: 10000,
-      action: (
-        <ToastAction 
-          altText="عرض الطلب"
-          onClick={() => window.location.href = `/dashboard/orders/${order.id}`}
-        >
-          عرض الطلب
-        </ToastAction>
-      )
+      action: <ToastAction altText="عرض الطلب" onClick={() => window.location.href = `/dashboard/orders/${order.id}`}>
+        عرض الطلب
+      </ToastAction>
     });
     
     // إذا كان API الإشعارات مدعومًا، أظهر إشعارًا في نظام التشغيل
