@@ -82,11 +82,11 @@ const StoreHeader = ({
       {/* Store info container with improved positioning */}
       <div className="absolute bottom-0 left-0 right-0 pb-5 md:pb-8 flex items-end text-white">
         <div className="w-full max-w-5xl mx-auto px-3 md:px-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             {/* Store logo and info */}
-            <div className="flex items-center gap-3 md:gap-6">
+            <div className="flex items-center gap-3 md:gap-4">
               {/* Logo with increased size and rounded corners */}
-              <div className="w-16 h-16 md:w-28 md:h-28 rounded-2xl overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white flex-shrink-0">
+              <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white flex-shrink-0">
                 {store.logo ? (
                   <img 
                     src={store.logo} 
@@ -104,28 +104,28 @@ const StoreHeader = ({
                 )}
               </div>
               
-              {/* Store details with rounded corners and improved glass effect */}
-              <div className="glass-morphism px-4 py-3 rounded-2xl min-h-[4.5rem] md:min-h-[6.5rem] flex flex-col justify-center backdrop-blur-md bg-black/20">
-                <div className="flex items-center justify-center gap-1 md:gap-1.5 mb-2">
-                  <h1 className="text-base md:text-xl font-bold truncate text-shadow text-center">{store.name}</h1>
+              {/* Store details with height matched to logo and improved glass effect */}
+              <div className="glass-morphism px-3 py-2 rounded-2xl h-16 md:h-24 flex flex-col justify-center backdrop-blur-md bg-black/20">
+                <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
+                  <h1 className="text-base md:text-lg font-bold truncate text-shadow">{store.name}</h1>
                   {store.featured && (
-                    <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
-                      <CheckCircle2 className="w-2 h-2 md:w-3 md:h-3" />
+                    <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-4.5 md:w-4.5 flex-shrink-0">
+                      <CheckCircle2 className="w-2 h-2 md:w-2.5 md:h-2.5" />
                     </Badge>
                   )}
                 </div>
                 
-                {/* Display address if available */}
+                {/* Condensed address if available */}
                 {store.address && (
-                  <div className="flex items-center justify-center gap-1 text-white text-xs md:text-sm mb-3 text-shadow">
-                    <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                    <span className="truncate">{store.address}</span>
+                  <div className="flex items-center gap-1 text-white text-xs truncate text-shadow">
+                    <MapPin className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate text-xs">{store.address}</span>
                   </div>
                 )}
                 
-                {/* Social links - centered at the same level and size as logo */}
+                {/* Social links - same level as logo with proper alignment */}
                 {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
-                  <div className="flex items-center justify-center flex-wrap gap-4 mt-1">
+                  <div className="flex items-center flex-wrap gap-2 mt-1">
                     {getSocialLinks().map(([type, username]) => {
                       if (!username) return null;
                       
@@ -138,7 +138,7 @@ const StoreHeader = ({
                           className="text-white hover:text-blue-200 transition-colors flex items-center rounded-full bg-black/30 p-1.5 shadow-sm"
                           title={type}
                         >
-                          {getSocialIcon(type as SocialMediaType, "w-5 h-5 md:w-6 md:h-6")}
+                          {getSocialIcon(type as SocialMediaType, "w-4 h-4 md:w-5 md:h-5")}
                         </a>
                       );
                     })}
