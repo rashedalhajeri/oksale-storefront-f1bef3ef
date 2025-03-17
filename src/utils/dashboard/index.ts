@@ -27,3 +27,5 @@ export {
   formatRelativeTime as orderStatusFormatRelativeTime
 } from './orderStatus';
 export * from './paymentUtils';
+// Export the orders API module which contains getRecentOrders
+export * from './ordersApi';

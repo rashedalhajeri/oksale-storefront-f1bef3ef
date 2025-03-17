@@ -234,6 +234,6 @@ export const useDashboardData = (storeId: string) => {
     orderStatusLoading,
     loadDashboardData,
     currency: dashboardStats.currency,
-    lastUpdateTime // إضافة lastUpdateTime إلى القيم المعادة
+    lastUpdateTime
   };
 };
