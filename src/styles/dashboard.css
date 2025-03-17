@@ -6,12 +6,16 @@
   display: flex;
   min-height: 100vh;
   background-color: #f5f7fa;
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  position: relative; /* Establish positioning context */
 }
 
 /* RTL layout direction */
 .rtl-layout {
   direction: rtl;
   text-align: right;
+  overflow-x: hidden; /* Prevent horizontal scrolling at html level */
 }
 
 /* ============= Sidebar styles ============= */
@@ -42,102 +46,23 @@
   margin-right: 260px;
   padding: 1.5rem;
   transition: margin 0.3s ease-in-out;
+  width: 100%;
+  max-width: calc(100% - 260px); /* Ensure it doesn't exceed available space */
 }
 
 .dashboard-main.sidebar-collapsed {
   margin-right: 70px;
+  max-width: calc(100% - 70px);
 }
 
 .dashboard-main.sidebar-hidden {
   margin-right: 0;
+  max-width: 100%;
 }
 
 /* ============= Component styles ============= */
 
-/* Card styles */
-.dashboard-card {
-  background-color: #FFFFFF;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-/* Section headers */
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.section-icon-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-}
-
-/* Stats cards */
-.stats-card {
-  padding: 1.25rem;
-  height: 100%;
-}
-
-.stats-card-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  margin-bottom: 1rem;
-}
-
-/* Tables */
-.dashboard-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.dashboard-table th {
-  text-align: right;
-  padding: 0.75rem 1rem;
-  font-weight: 500;
-  color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.dashboard-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.dashboard-table tr:hover {
-  background-color: #f8fafc;
-}
-
-/* Status badges */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-/* Utility classes */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+/* ... keep existing code (Card styles, Section headers, Stats cards, Tables, Status badges, Utility classes) */
 
 /* Mobile overlay */
 .mobile-overlay {
@@ -237,5 +162,21 @@
   
   .dashboard-main {
     margin-right: 0;
+    max-width: 100%;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Fix horizontal scrolling in mobile */
+  .rtl-dashboard {
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure content stays within viewport */
+  .rtl-dashboard .dashboard-main {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }

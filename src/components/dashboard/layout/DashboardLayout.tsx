@@ -18,10 +18,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   useEffect(() => {
     document.documentElement.classList.add('rtl-layout');
     document.body.classList.add('rtl-dashboard');
+    // Prevent horizontal scrolling
+    document.body.style.overflowX = 'hidden';
     
     return () => {
       document.documentElement.classList.remove('rtl-layout');
       document.body.classList.remove('rtl-dashboard');
+      document.body.style.overflowX = '';
     };
   }, []);
 
@@ -39,7 +42,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
   };
 
   return (
-    <div className="dashboard-container rtl-dashboard">
+    <div className="dashboard-container rtl-dashboard overflow-hidden">
       {/* Sidebar */}
       <aside className={`dashboard-sidebar ${!sidebarVisible ? 'mobile-hidden' : ''}`}>
         <Sidebar storeData={storeData} />
