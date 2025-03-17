@@ -1,69 +1,34 @@
-
-import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, Shield, Star, Zap, ShoppingBag, Users, CreditCard, Smartphone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from 'react';
 import Hero from '@/components/Hero';
-import { useToast } from '@/components/ui/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { motion } from 'framer-motion';
 
 const Index = () => {
-  const { toast } = useToast();
-  const featuresRef = useRef<HTMLDivElement>(null);
-  const storesRef = useRef<HTMLDivElement>(null);
-  const testimonialsRef = useRef<HTMLDivElement>(null);
-  const pricingRef = useRef<HTMLDivElement>(null);
-  
-  const [activeTab, setActiveTab] = useState('entrepreneurs');
-  
-  // Animation on scroll for features
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('opacity-100', 'translate-y-0');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const animatedElements = document.querySelectorAll('.animate-on-scroll');
-    animatedElements.forEach((element) => {
-      observer.observe(element);
-    });
-
-    return () => {
-      animatedElements.forEach((element) => {
-        observer.unobserve(element);
-      });
-    };
-  }, []);
-
   return (
     <div className="min-h-screen bg-white overflow-hidden">
-      {/* Hero Section */}
-      <Hero />
-
+      {/* القسم الرئيسي Hero */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Hero />
+      </motion.div>
+      
       {/* Stores Count Banner */}
       <section className="bg-gradient-to-r from-indigo-600 to-purple-600 py-5 text-white">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
           <p className="text-lg md:text-xl font-medium mb-3 md:mb-0">أكثر من 10,000 متجر يثقون بمنصتنا</p>
-          <Link to="/explore">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-0">
               استكشف المتاجر
               <ArrowRight className="mr-2 h-4 w-4" />
             </Button>
-          </Link>
+          </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-24 px-6 bg-gradient-to-b from-white to-gray-50" ref={featuresRef}>
+      <section className="py-24 px-6 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-10 transition-all duration-700">
             <Badge className="bg-indigo-100 text-indigo-800 hover:bg-indigo-200 mb-4">مميزات المنصة</Badge>
@@ -146,7 +111,7 @@ const Index = () => {
       </section>
       
       {/* Who Is It For Section */}
-      <section className="py-24 px-6 bg-gray-900 text-white" ref={storesRef}>
+      <section className="py-24 px-6 bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-10 transition-all duration-700">
             <Badge className="bg-indigo-800 text-indigo-100 hover:bg-indigo-700 mb-4">منصة للجميع</Badge>
@@ -259,7 +224,7 @@ const Index = () => {
       </section>
       
       {/* Testimonials */}
-      <section className="py-24 px-6 bg-white" ref={testimonialsRef}>
+      <section className="py-24 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-10 transition-all duration-700">
             <Badge className="bg-green-100 text-green-800 hover:bg-green-200 mb-4">قصص نجاح</Badge>
@@ -342,7 +307,7 @@ const Index = () => {
       </section>
       
       {/* Pricing Section */}
-      <section className="py-24 px-6 bg-gray-50" ref={pricingRef}>
+      <section className="py-24 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-10 transition-all duration-700">
             <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 mb-4">باقات الاشتراك</Badge>

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const useThemeColors = (storeId?: string) => {
   const [useCustomColors, setUseCustomColors] = useState<boolean>(false);
-  const [customColor, setCustomColor] = useState<string>("#4B5CF6"); // تغيير اللون الافتراضي إلى أزرق أكثر حيوية
+  const [customColor, setCustomColor] = useState<string>("#5A55CA"); // تغيير اللون الافتراضي إلى بنفسجي أزرق جميل
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
   useEffect(() => {
@@ -23,7 +23,7 @@ export const useThemeColors = (storeId?: string) => {
         
         if (data) {
           setUseCustomColors(data.use_custom_colors || false);
-          setCustomColor(data.custom_color || "#4B5CF6");
+          setCustomColor(data.custom_color || "#5A55CA");
         }
       } catch (error) {
         console.error('Error fetching theme settings:', error);
@@ -86,12 +86,28 @@ export const useThemeColors = (storeId?: string) => {
     return `#${rHex}${gHex}${bHex}`;
   };
   
+  // إضافة المزيد من الألوان المخصصة للتصميم الجديد
+  const appColors = {
+    primary: "#5A55CA", // اللون الأساسي البنفسجي
+    secondary: "#E83274", // وردي أو أحمر للتباين
+    accent: "#00C4CC", // لون زبروجة للتأكيد
+    dark: "#1A1A2E", // أسود مائل للزرقة للخلفيات
+    light: "#FFFFFF", // أبيض للنصوص
+    lightGray: "#F8F9FA", // رمادي فاتح للخلفيات
+    darkGray: "#343A40", // رمادي داكن للنصوص الثانوية
+    success: "#38B2AC", // أخضر للنجاح
+    warning: "#F6AD55", // برتقالي للتحذير
+    error: "#F56565", // أحمر للخطأ
+    inactive: "#A0AEC0", // رمادي للعناصر غير النشطة
+  };
+  
   return { 
     useCustomColors, 
     customColor, 
     isLoading, 
     updateThemeColors, 
     setUseCustomColors, 
-    setCustomColor 
+    setCustomColor,
+    appColors
   };
 };

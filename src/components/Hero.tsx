@@ -1,93 +1,116 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import TechLogos from '@/components/TechLogos';
+import { motion } from 'framer-motion';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const Hero = () => {
-  const textRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const { customColor } = useThemeColors();
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (textRef.current) {
-      const elements = textRef.current.querySelectorAll('.text-reveal');
-      elements.forEach((el) => observer.observe(el));
+    const videoElement = videoRef.current;
+    if (videoElement) {
+      videoElement.addEventListener('loadeddata', () => {
+        setIsVideoLoaded(true);
+      });
     }
 
     return () => {
-      if (textRef.current) {
-        const elements = textRef.current.querySelectorAll('.text-reveal');
-        elements.forEach((el) => observer.unobserve(el));
+      if (videoElement) {
+        videoElement.removeEventListener('loadeddata', () => {
+          setIsVideoLoaded(true);
+        });
       }
     };
   }, []);
 
+  const fadeInUpVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
   return (
-    <section className="py-24 px-6 md:px-10 relative overflow-hidden bg-white">
-      {/* Decorative elements */}
-      <div className="absolute top-20 right-[10%] w-64 h-64 rounded-full bg-bluesky-100/50 blur-3xl opacity-60 animate-floating"></div>
-      <div className="absolute bottom-20 left-[5%] w-72 h-72 rounded-full bg-purple-200/50 blur-3xl opacity-50 animate-floating"></div>
-      
-      {/* Main content */}
-      <div ref={textRef} className="max-w-7xl mx-auto">
-        <div className="text-center relative z-10 mb-16">
-          {/* Announcement button */}
-          <div className="mb-8 flex justify-center">
-            <Link to="/explore" className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow transition">
-              <Sparkles className="h-4 w-4 ml-2 text-bluesky-500" />
-              <span>استكشف منتجاتنا الجديدة</span>
-              <ArrowRight className="h-4 w-4 mr-2" />
-            </Link>
-          </div>
+    <section className="relative h-screen w-full overflow-hidden">
+      {/* فيديو الخلفية */}
+      <div className="absolute inset-0 w-full h-full">
+        <video 
+          ref={videoRef}
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className={`object-cover w-full h-full transition-opacity duration-1000 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          src="/lovable-uploads/7063f1cc-73a8-44f5-a501-42c58367d966.png" // سيتم استبداله بفيديو لاحقًا
+          poster="/lovable-uploads/7063f1cc-73a8-44f5-a501-42c58367d966.png"
+        >
+          <source src="/video-background.mp4" type="video/mp4" />
+        </video>
+        
+        {/* طبقة التغطية السوداء الشفافة */}
+        <div className="absolute inset-0 bg-black/50"></div>
+      </div>
+
+      {/* محتوى المقدمة */}
+      <div className="relative z-10 container mx-auto h-full flex flex-col justify-center items-end px-6 md:px-12">
+        <div className="text-right max-w-2xl ml-auto">
+          {/* شارة صغيرة */}
+          <motion.div 
+            initial="hidden" 
+            animate="visible" 
+            variants={fadeInUpVariants} 
+            className="mb-6 inline-block"
+          >
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg py-2 px-4 text-white text-sm">
+              ابدأ تجارتك بـ 9 د.ك
+            </div>
+          </motion.div>
           
-          {/* Main heading */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-8 leading-tight">
-            <span className="block text-reveal" style={{ transitionDelay: '0.1s' }}>أنشئ </span>
-            <span className="block text-reveal" style={{ transitionDelay: '0.2s' }}>
-              <span className="text-[#e91e63]">م</span>
-              <span className="text-[#f44336]">ت</span>
-              <span className="text-[#ff9800]">ج</span>
-              <span className="text-[#4caf50]">ر</span>
-              <span className="text-[#2196f3]">ك </span>
-              <span className="text-[#3f51b5]">ا</span>
-              <span className="text-[#9c27b0]">ل</span>
-              <span className="text-[#e91e63]">ج</span>
-              <span className="text-[#f44336]">م</span>
-              <span className="text-[#ff9800]">ي</span>
-              <span className="text-[#4caf50]">ل</span>
-            </span>
-            <span className="block mt-2 text-reveal" style={{ transitionDelay: '0.3s' }}>في <span className="italic font-black">دقيقة</span> واحدة</span>
-          </h1>
-
-          {/* Description */}
-          <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto text-reveal" style={{ transitionDelay: '0.4s' }}>
-            أكثر من 50 قالب وتصميم مبني على React و TypeScript و Tailwind CSS. 
-            وفر ساعات من الوقت وأنشئ متجرك الإلكتروني بسهولة.
-          </p>
-
-          {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 text-reveal" style={{ transitionDelay: '0.5s' }}>
-            <Button className="bg-black text-white hover:bg-gray-800 px-8 py-6 text-lg rounded-xl w-full sm:w-auto">
-              البدء مجاناً <ArrowRight className="mr-2 h-5 w-5" />
-            </Button>
-            <Button variant="outline" className="border-gray-300 px-8 py-6 text-lg rounded-xl hover:bg-gray-50 w-full sm:w-auto">
-              استعراض القوالب
-            </Button>
-          </div>
-
-          {/* Tech Logos */}
-          <TechLogos />
+          {/* العنوان الرئيسي */}
+          <motion.h1 
+            initial="hidden" 
+            animate="visible" 
+            variants={fadeInUpVariants} 
+            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6"
+          >
+            <span className="block">المنصة الموثوقة</span>
+            <span className="block">والمتكاملة للتجارة</span>
+            <span className="block">الإلكترونية</span>
+          </motion.h1>
+          
+          {/* الوصف */}
+          <motion.p 
+            initial="hidden" 
+            animate="visible" 
+            variants={fadeInUpVariants}
+            className="text-lg text-white/90 mb-8 leading-relaxed"
+          >
+            نساعدك تبني وتوسع وتنمي متجرك الإلكتروني بكل سهولة مع حلول دفع آمنة، 
+            شحن عالمي، تمويل مرن، وتسويق فعال، كل اللي تحتاجه عشان تصير العلامة 
+            التجارية الرائدة في السوق.
+          </motion.p>
+          
+          {/* الأزرار */}
+          <motion.div 
+            initial="hidden" 
+            animate="visible" 
+            variants={fadeInUpVariants}
+            className="flex flex-wrap gap-4 justify-end"
+          >
+            <Link to="/signup">
+              <Button 
+                className="bg-white text-black hover:bg-white/90 rounded-full py-6 px-8 text-lg font-medium"
+              >
+                ابدأ تجربتك الآن
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </div>
     </section>
