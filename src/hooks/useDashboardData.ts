@@ -3,15 +3,15 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency } from '@/utils/dashboard/currencyUtils';
-import { formatCurrencyWithSettings, formatNumber } from '@/utils/dashboard/dashboardUtils';
+import { formatCurrencyWithSettings, formatNumber } from '@/utils/dashboard';
 import { useQuery } from '@tanstack/react-query';
 
 import { 
-  fetchStoreStatistics, 
-  generateSalesData, 
+  getStoreStatistics, 
+  getSalesData, 
   getTopSellingProducts, 
   getRecentOrders,
-  getOrderStatusStats
+  getStatusStats
 } from '@/utils/dashboard';
 
 import { formatOrders } from '@/utils/dashboard/orderFormatters';
@@ -42,7 +42,7 @@ export const useDashboardData = (storeId: string) => {
     refetch: refetchStats
   } = useQuery({
     queryKey: ['dashboard-stats', storeId, timeframe],
-    queryFn: () => fetchStoreStatistics(storeId),
+    queryFn: () => getStoreStatistics(storeId),
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000, // Increase stale time to 5 minutes
     gcTime: 10 * 60 * 1000, // Increase GC time to 10 minutes
@@ -72,7 +72,7 @@ export const useDashboardData = (storeId: string) => {
   // Optimize useMemo to avoid unnecessary recalculations
   const salesData = useMemo(() => {
     if (!statsData?.orders?.length) return [];
-    return generateSalesData(statsData.orders, timeframe);
+    return getSalesData(statsData.orders, timeframe);
   }, [statsData?.orders, timeframe]);
   
   // Optimize other React Query calls
@@ -141,7 +141,7 @@ export const useDashboardData = (storeId: string) => {
     refetch: refetchOrderStatus
   } = useQuery({
     queryKey: ['order-status', storeId, timeframe],
-    queryFn: () => getOrderStatusStats(storeId),
+    queryFn: () => getStatusStats(storeId),
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000,
     gcTime: 7 * 60 * 1000,
