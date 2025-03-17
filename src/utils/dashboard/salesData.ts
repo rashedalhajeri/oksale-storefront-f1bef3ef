@@ -78,7 +78,7 @@ export const generateSalesData = (orders: any[], timeframe: string) => {
 };
 
 // وظيفة مساعدة لتوليد بيانات فارغة
-const generateEmptyData = (timeframe: string) => {
+export const generateEmptyData = (timeframe: string) => {
   const now = new Date();
   const result = [];
   
@@ -130,7 +130,7 @@ const generateEmptyData = (timeframe: string) => {
 };
 
 // وظيفة مساعدة لملء الفجوات في البيانات
-const fillDataGaps = (groupedOrders: any, timeframe: string, format: (date: Date) => string, now: Date) => {
+export const fillDataGaps = (groupedOrders: any, timeframe: string, format: (date: Date) => string, now: Date) => {
   const result = [];
   
   if (timeframe === 'day') {
