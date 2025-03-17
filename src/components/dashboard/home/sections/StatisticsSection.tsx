@@ -78,7 +78,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ statistics, loadi
             <span className="font-medium text-sm truncate">{item.name}</span>
             <div className={cn(
               "stats-card-icon flex items-center justify-center w-10 h-10 rounded-full shadow-sm relative overflow-hidden",
-              "bg-gradient-to-br from-bluesky-800 to-bluesky-700",
+              "bg-gradient-to-br from-purple-800 to-indigo-900",
               "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
             )}>
               {getIcon(item.icon)}

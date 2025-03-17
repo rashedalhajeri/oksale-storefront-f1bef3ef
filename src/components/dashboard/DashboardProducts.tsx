@@ -327,7 +327,7 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
         <div className="flex items-center gap-3">
           <div className={cn(
             "flex items-center justify-center w-11 h-11 rounded-xl shadow-sm relative overflow-hidden",
-            "bg-gradient-to-br from-indigo-900 to-blue-800",
+            "bg-gradient-to-br from-purple-800 to-indigo-900",
             "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
           )}>
             <Package className="h-5 w-5 text-white" />
@@ -338,8 +338,9 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
           </div>
         </div>
         <Button onClick={handleProductOpen} className={cn(
-          "relative overflow-hidden bg-gradient-to-br from-indigo-800 to-blue-700 hover:from-indigo-700 hover:to-blue-600",
-          "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/10 before:rounded-t-full"
+          "relative overflow-hidden bg-gradient-to-br from-purple-700 to-indigo-800 hover:from-purple-600 hover:to-indigo-700",
+          "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/10 before:rounded-t-full",
+          "transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20"
         )}>
           <Plus className="h-4 w-4 mr-2" />
           إضافة منتج
@@ -358,10 +359,10 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button variant="outline" className="flex items-center gap-2 relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200">
+            <Button variant="outline" className="flex items-center gap-2 relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200 hover:border-gray-300 transition-all duration-300">
               <div className={cn(
                 "flex items-center justify-center w-5 h-5 rounded-full shadow-sm relative overflow-hidden",
-                "bg-gradient-to-br from-indigo-900 to-blue-800",
+                "bg-gradient-to-br from-purple-800 to-indigo-900",
                 "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
               )}>
                 <Filter className="h-3 w-3 text-white" />
@@ -386,7 +387,7 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
           ))
         ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-all duration-200">
+            <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-all duration-200 hover:shadow-purple-500/10">
               <div className="relative h-48 bg-gray-100 flex items-center justify-center">
                 {product.image_url ? (
                   <img 
@@ -398,7 +399,7 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
                   <Package className="h-12 w-12 text-gray-400" />
                 )}
                 <div className="absolute top-2 right-2">
-                  <Badge variant={product.in_stock ? "default" : "secondary"}>
+                  <Badge variant={product.in_stock ? "default" : "secondary"} className={product.in_stock ? "bg-gradient-to-r from-purple-700 to-indigo-800" : ""}>
                     {product.in_stock ? "متوفر" : "غير متوفر"}
                   </Badge>
                 </div>
@@ -409,19 +410,21 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
                   <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
                 )}
                 <div className="flex items-center justify-between mt-2">
-                  <span className="font-bold text-oksale-700">{product.price} ر.س</span>
+                  <span className="font-bold text-purple-700">{product.price} ر.س</span>
                   <div className="flex gap-1">
                     <Button 
                       variant="ghost" 
                       size="icon"
                       onClick={() => handleEditProduct(product)}
+                      className="hover:bg-purple-50"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-4 w-4 text-purple-700" />
                     </Button>
                     <Button 
                       variant="ghost" 
                       size="icon"
                       onClick={() => handleDeleteProduct(product)}
+                      className="hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
@@ -547,7 +550,7 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
           <DrawerFooter>
             <Button 
               onClick={isEditing ? handleUpdateProduct : handleCreateProduct}
-              className="w-full"
+              className="w-full bg-gradient-to-r from-purple-700 to-indigo-800 hover:from-purple-600 hover:to-indigo-700"
             >
               <Check className="h-4 w-4 mr-2" />
               {isEditing ? 'تحديث المنتج' : 'إضافة المنتج'}
