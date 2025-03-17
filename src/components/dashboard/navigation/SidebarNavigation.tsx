@@ -9,7 +9,7 @@ import {
   BarChart, 
   Settings,
   ChevronDown,
-  ChevronLeft,
+  ChevronRight,
   Megaphone
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -86,7 +86,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
               to={item.path}
               end={item.path === '/dashboard'} // Only exact match for dashboard home
               className={({ isActive }) => cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all",
+                "flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all rtl-dashboard",
                 isActive
                   ? "bg-[#1A2747] text-white"
                   : "text-white/80 hover:text-white hover:bg-[#1A2747]/50"
@@ -117,7 +117,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = React.memo(({ storeD
               </div>
               {isSettingsOpen ? 
                 <ChevronDown className="h-4 w-4" /> : 
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
               }
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-1 space-y-1">

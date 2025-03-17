@@ -83,7 +83,7 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rtl-dashboard">
       {/* Dashboard Header */}
       <DashboardHeader />
 

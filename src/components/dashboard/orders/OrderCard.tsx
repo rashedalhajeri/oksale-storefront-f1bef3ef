@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Clock3, Phone, ChevronDown } from 'lucide-react';
+import { Clock3, Phone, ChevronLeft } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +31,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onViewOrder, getStatusIcon
 
   return (
     <Card 
-      className="border-none shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+      className="border-none shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer rtl-dashboard"
       onClick={() => onViewOrder(order)}
     >
       <CardContent className="p-3">
@@ -56,17 +56,17 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onViewOrder, getStatusIcon
             {order.phone && (
               <div className="flex items-center gap-1">
                 <Phone className="h-3 w-3" />
-                <span className="ltr">{order.phone}</span>
+                <span className="ltr-text">{order.phone}</span>
               </div>
             )}
           </div>
-          <h3 className="text-gray-400 text-xs ltr mt-1.5 font-medium">
+          <h3 className="text-gray-400 text-xs ltr-text mt-1.5 font-medium">
             {order.id}
           </h3>
         </div>
         
         <div className="flex items-center justify-between mt-2">
-          <span className="font-bold text-oksale-700 text-sm ltr">
+          <span className="font-bold text-oksale-700 text-sm ltr-text">
             {order.amount}
           </span>
           <Button 
@@ -75,7 +75,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onViewOrder, getStatusIcon
             className="flex items-center gap-1 text-xs"
           >
             عرض التفاصيل
-            <ChevronDown className="h-3 w-3" />
+            <ChevronLeft className="h-3 w-3" />
           </Button>
         </div>
       </CardContent>

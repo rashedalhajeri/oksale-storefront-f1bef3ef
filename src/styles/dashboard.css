@@ -46,10 +46,6 @@
   transition: all 100ms ease;
 }
 
-.menu-item:hover {
-  transform: translateX(2px);
-}
-
 /* Card hover optimizations */
 .card-hover {
   transition: transform 150ms ease, box-shadow 150ms ease;
@@ -87,6 +83,23 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
+/* RTL-specific styles */
+/* These help ensure proper layout in RTL context */
+
+/* Dashboard RTL layout - properly flips the entire layout */
+.rtl-dashboard {
+  direction: rtl;
+}
+
+/* Menu hover effects - based on text direction */
+.rtl-dashboard .menu-item:hover {
+  transform: translateX(-2px);
+}
+
+.ltr-dashboard .menu-item:hover {
+  transform: translateX(2px);
+}
+
 /* Improve table formatting for RTL support */
 .rtl-table th,
 .rtl-table td {
@@ -112,16 +125,46 @@
 }
 
 /* Enhanced RTL for dashboard */
-.dashboard-rtl .header-content {
+.rtl-dashboard .header-content {
   flex-direction: row-reverse;
 }
 
-.dashboard-rtl .store-header {
+.rtl-dashboard .store-header {
   display: flex;
   flex-direction: row-reverse;
 }
 
-/* Right sidebar specific styles */
-.right-sidebar .menu-item:hover {
-  transform: translateX(-2px);
+/* Icon alignment for RTL/LTR layouts */
+.rtl-dashboard .icon-label {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+.ltr-dashboard .icon-label {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+/* Sidebar positioning */
+.rtl-dashboard .sidebar {
+  right: 0;
+  left: auto;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+}
+
+.ltr-dashboard .sidebar {
+  left: 0;
+  right: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: none;
+}
+
+/* Adjust card layout for RTL */
+.rtl-dashboard .card-header {
+  flex-direction: row-reverse;
+}
+
+.rtl-dashboard .card-actions {
+  justify-content: flex-start;
 }
