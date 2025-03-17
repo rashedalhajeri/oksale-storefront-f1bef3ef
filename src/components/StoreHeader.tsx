@@ -62,8 +62,8 @@ const StoreHeader = ({
 
   return (
     <div className="relative">
-      {/* Cover image container with fixed height */}
-      <div className="h-[30vh] md:h-[45vh] overflow-hidden">
+      {/* Cover image container with fixed height and curved bottom edge */}
+      <div className="h-[30vh] md:h-[45vh] overflow-hidden relative">
         {/* Always show an image - either the store's cover or the default one */}
         <img 
           src={hasCover ? store.coverImage : DEFAULT_COVER_IMAGE} 
@@ -74,19 +74,22 @@ const StoreHeader = ({
           )} 
           onLoad={() => setCoverLoaded(true)} 
         />
+        
+        {/* Curved edge overlay for the bottom of the cover image */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent" style={{ borderRadius: '50% 50% 0 0 / 10% 10% 0 0' }} />
       </div>
       
       {/* Dark gradient overlay for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
       
-      {/* Store info container with improved positioning */}
-      <div className="absolute bottom-0 left-0 right-0 pb-5 md:pb-8 flex items-end text-white">
+      {/* Store info container with improved positioning and curved edges */}
+      <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center text-white">
         <div className="w-full max-w-5xl mx-auto px-3 md:px-8">
-          <div className="flex items-center justify-between">
-            {/* Store logo and info */}
-            <div className="flex items-center gap-3 md:gap-6">
-              {/* Logo with increased size */}
-              <div className="w-16 h-16 md:w-28 md:h-28 rounded-lg overflow-hidden border-2 md:border-3 border-white shadow-lg bg-white flex-shrink-0">
+          <div className="flex flex-col items-center justify-center">
+            {/* Store logo and info - centered with improved spacing */}
+            <div className="flex flex-col items-center gap-4">
+              {/* Logo with increased size and stronger shadow */}
+              <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl overflow-hidden border-2 md:border-3 border-white shadow-xl bg-white flex-shrink-0 transform -translate-y-6">
                 {store.logo ? (
                   <img 
                     src={store.logo} 
@@ -99,33 +102,33 @@ const StoreHeader = ({
                   />
                 ) : (
                   <div className="w-full h-full bg-neutral-100 flex items-center justify-center">
-                    <ShoppingBag className="w-6 h-6 md:w-8 md:h-8 text-neutral-500" />
+                    <ShoppingBag className="w-8 h-8 md:w-10 md:h-10 text-neutral-500" />
                   </div>
                 )}
               </div>
               
-              {/* Store details with fixed height container - Improved glass effect and content positioning */}
-              <div className="glass-morphism px-4 py-3 rounded-lg min-h-[4.5rem] md:min-h-[6.5rem] flex flex-col justify-center backdrop-blur-md bg-black/20">
-                <div className="flex items-center justify-center gap-1 md:gap-1.5 mb-2">
-                  <h1 className="text-base md:text-xl font-bold truncate text-shadow text-center">{store.name}</h1>
+              {/* Store details with improved glass effect and curved edges */}
+              <div className="glass-morphism px-6 py-4 rounded-xl shadow-lg min-w-[260px] md:min-w-[320px] flex flex-col items-center backdrop-blur-lg bg-black/20 border border-white/20 transform translate-y-2">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <h1 className="text-lg md:text-2xl font-bold text-shadow text-center">{store.name}</h1>
                   {store.featured && (
-                    <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-3.5 w-3.5 md:h-5 md:w-5 flex-shrink-0">
-                      <CheckCircle2 className="w-2 h-2 md:w-3 md:h-3" />
+                    <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center p-0.5 md:p-1 rounded-full border border-blue-400 h-4 w-4 md:h-5 md:w-5 flex-shrink-0">
+                      <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3" />
                     </Badge>
                   )}
                 </div>
                 
-                {/* Display address if available instead of handle */}
+                {/* Address - if available */}
                 {store.address && (
-                  <div className="flex items-center justify-center gap-1 text-white text-xs md:text-sm mb-3 text-shadow">
-                    <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                  <div className="flex items-center justify-center gap-1.5 text-white text-xs md:text-sm mb-3 text-shadow">
+                    <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
                     <span className="truncate">{store.address}</span>
                   </div>
                 )}
                 
-                {/* Social links - centered under store name with better spacing */}
+                {/* Social links - centered below the store name with better spacing */}
                 {store.socialLinks && Object.entries(store.socialLinks).some(([_, value]) => !!value) && (
-                  <div className="flex items-center justify-center flex-wrap gap-4 mt-1">
+                  <div className="flex items-center justify-center flex-wrap gap-5 mt-2">
                     {getSocialLinks().map(([type, username]) => {
                       if (!username) return null;
                       
@@ -135,7 +138,7 @@ const StoreHeader = ({
                           href={getSocialUrl(type as SocialMediaType, username)} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="text-white hover:text-blue-200 transition-colors flex items-center"
+                          className="text-white hover:text-blue-200 transition-colors flex items-center hover:scale-110 transition-transform"
                           title={type}
                         >
                           {getSocialIcon(type as SocialMediaType, "w-5 h-5 md:w-6 md:h-6")}
