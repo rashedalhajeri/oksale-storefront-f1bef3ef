@@ -24,7 +24,7 @@ export const formatCurrency = (amount: number, currency: string = 'SAR'): string
   const format = currencyFormats[currency] || currencyFormats['SAR'];
   
   // تنسيق المبلغ برقمين عشريين
-  const formattedAmount = amount.toFixed(2);
+  const formattedAmount = typeof amount === 'number' ? amount.toFixed(2) : '0.00';
   
   // إضافة رمز العملة حسب موقعه (قبل أو بعد المبلغ)
   return format.position === 'before' 
@@ -52,4 +52,33 @@ export const getCurrencySymbol = (currency: string = 'SAR'): string => {
   };
 
   return symbols[currency] || 'ر.س';
+};
+
+/**
+ * تنسيق المبلغ للعرض في واجهة المستخدم مع إضافة مسافات للآلاف
+ * @param amount المبلغ المالي
+ * @param currency رمز العملة
+ * @returns النص المنسق للمبلغ مع رمز العملة ومسافات الآلاف
+ */
+export const formatCurrencyDisplay = (amount: number, currency: string = 'SAR'): string => {
+  // تقريب المبلغ إلى رقمين عشريين
+  const roundedAmount = Math.round(amount * 100) / 100;
+  
+  // تنسيق الرقم بإضافة فواصل للآلاف
+  const formattedNumber = roundedAmount.toLocaleString('ar-SA', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+  
+  // إضافة رمز العملة
+  const currencySymbol = getCurrencySymbol(currency);
+  
+  // تحديد موضع رمز العملة
+  const currenciesWithSymbolBefore = ['USD', 'EUR', 'GBP'];
+  
+  if (currenciesWithSymbolBefore.includes(currency)) {
+    return `${currencySymbol} ${formattedNumber}`;
+  } else {
+    return `${formattedNumber} ${currencySymbol}`;
+  }
 };

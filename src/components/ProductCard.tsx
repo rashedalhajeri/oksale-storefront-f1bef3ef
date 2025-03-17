@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag } from 'lucide-react';
+import { formatCurrencyDisplay } from '@/utils/dashboard/currencyUtils';
 
 interface ProductCardProps {
   product: {
@@ -16,18 +17,11 @@ interface ProductCardProps {
   currency?: string;
 }
 
-const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
+const ProductCard = ({ product, currency = 'SAR' }: ProductCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   
-  // Format price based on the provided currency but using English locale
-  const formattedPrice = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
-  }).format(product.price);
-
-  console.log(`Formatting price ${product.price} with currency ${currency}: ${formattedPrice}`);
+  // Format price using our Arab-friendly currency utility
+  const formattedPrice = formatCurrencyDisplay(product.price, currency);
 
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
@@ -46,7 +40,7 @@ const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
         {!product.inStock && (
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
             <span className="bg-white text-neutral-800 px-3 py-1 rounded-md font-medium text-xs">
-              Out of Stock
+              نفذت الكمية
             </span>
           </div>
         )}
@@ -59,8 +53,8 @@ const ProductCard = ({ product, currency = 'USD' }: ProductCardProps) => {
             className="bg-white hover:bg-neutral-50 text-neutral-700"
             disabled={!product.inStock}
           >
-            <ShoppingBag className="h-4 w-4 mr-1" />
-            Add to Cart
+            <ShoppingBag className="h-4 w-4 ml-1" />
+            إضافة للسلة
           </Button>
         </div>
       </div>

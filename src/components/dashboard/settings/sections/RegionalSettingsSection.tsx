@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlobeIcon } from 'lucide-react';
+import { getCurrencySymbol } from '@/utils/dashboard/currencyUtils';
 
 interface RegionalSettingsSectionProps {
   storeInfo: {
@@ -27,9 +28,9 @@ const RegionalSettingsSection: React.FC<RegionalSettingsSectionProps> = ({
       <CardHeader className="border-b">
         <CardTitle className="text-lg flex items-center">
           <GlobeIcon className="h-5 w-5 ml-2" />
-          Regional Settings
+          إعدادات المنطقة واللغة
         </CardTitle>
-        <CardDescription>Language, currency and country settings</CardDescription>
+        <CardDescription>إعدادات اللغة والعملة والدولة</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -62,11 +63,14 @@ const RegionalSettingsSection: React.FC<RegionalSettingsSectionProps> = ({
               <SelectContent>
                 {currencies.map((currency) => (
                   <SelectItem key={currency.value} value={currency.value}>
-                    {currency.label}
+                    {currency.label} ({getCurrencySymbol(currency.value)})
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-gray-500 mt-1">
+              تؤثر العملة على طريقة عرض الأسعار والمبالغ في متجرك وتقاريره
+            </p>
           </div>
           
           <div className="space-y-2">

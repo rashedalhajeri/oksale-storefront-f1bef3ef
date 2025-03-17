@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock3, Phone } from 'lucide-react';
 import { Order } from '@/utils/dashboard/orderTypes';
+import { formatCurrency } from '@/utils/dashboard/currencyUtils';
 
 interface OrderCardMobileProps {
   order: Order;
@@ -14,13 +15,13 @@ interface OrderCardMobileProps {
 const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, getStatusBadge }) => {
   return (
     <Card 
-      className="border-none shadow-sm"
+      className="border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200"
       onClick={() => onViewOrder(order)}
     >
       <CardContent className="p-3">
         <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex-1">
+            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
               {getStatusBadge(order.status)}
               <div className={`text-xs ${order.timeColor || 'text-gray-500'} flex items-center gap-1 mr-2`}>
                 <Clock3 className="h-3 w-3" />
@@ -40,7 +41,7 @@ const OrderCardMobile: React.FC<OrderCardMobileProps> = ({ order, onViewOrder, g
               {order.id}
             </h3>
           </div>
-          <span className="font-bold text-sm text-oksale-700 ltr">
+          <span className="font-bold text-sm text-oksale-700 ltr whitespace-nowrap pr-1">
             {order.amount}
           </span>
         </div>
