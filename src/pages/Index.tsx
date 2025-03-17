@@ -1,8 +1,27 @@
-import React from 'react';
-import Hero from '@/components/Hero';
+
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Hero from '@/components/Hero';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { 
+  ArrowRight, 
+  CheckCircle2, 
+  Shield, 
+  Zap, 
+  Users, 
+  ShoppingBag, 
+  CreditCard,
+  Star
+} from 'lucide-react';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState('entrepreneurs');
+
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       {/* القسم الرئيسي Hero */}
@@ -326,8 +345,8 @@ const Index = () => {
                 <h3 className="text-xl font-bold mb-2">الباقة الأساسية</h3>
                 <p className="text-gray-600 mb-6">مثالية للمبتدئين وأصحاب المتاجر الصغيرة</p>
                 <div className="flex items-baseline mb-6">
-                  <span className="text-4xl font-bold">99</span>
-                  <span className="text-xl ml-1">ريال</span>
+                  <span className="text-4xl font-bold">9</span>
+                  <span className="text-xl ml-1">د.ك</span>
                   <span className="text-gray-500 mr-2">/شهرياً</span>
                 </div>
                 
@@ -361,8 +380,8 @@ const Index = () => {
                 <h3 className="text-xl font-bold mb-2">الباقة الاحترافية</h3>
                 <p className="text-gray-600 mb-6">مثالية للمتاجر المتوسطة والنامية</p>
                 <div className="flex items-baseline mb-6">
-                  <span className="text-4xl font-bold">299</span>
-                  <span className="text-xl ml-1">ريال</span>
+                  <span className="text-4xl font-bold">29</span>
+                  <span className="text-xl ml-1">د.ك</span>
                   <span className="text-gray-500 mr-2">/شهرياً</span>
                 </div>
                 
@@ -399,8 +418,8 @@ const Index = () => {
                 <h3 className="text-xl font-bold mb-2">باقة الشركات</h3>
                 <p className="text-gray-600 mb-6">مثالية للشركات الكبيرة والمتاجر المتطورة</p>
                 <div className="flex items-baseline mb-6">
-                  <span className="text-4xl font-bold">999</span>
-                  <span className="text-xl ml-1">ريال</span>
+                  <span className="text-4xl font-bold">99</span>
+                  <span className="text-xl ml-1">د.ك</span>
                   <span className="text-gray-500 mr-2">/شهرياً</span>
                 </div>
                 
