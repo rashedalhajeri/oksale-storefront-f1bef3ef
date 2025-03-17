@@ -219,8 +219,7 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         const formattedOrders = getCachedFormattedOrders(ordersData, storeData.currency || 'SAR');
         setOrders(formattedOrders);
       } else {
-        const mockOrders = generateMockOrders(storeData.id);
-        setOrders(mockOrders);
+        setOrders([]);
       }
     } catch (error) {
       console.error("Failed to fetch orders:", error);
@@ -230,13 +229,12 @@ const DashboardOrders: React.FC<DashboardOrdersProps> = ({ storeData }) => {
         description: "حدث خطأ أثناء تحميل الطلبات، يرجى المحاولة مرة أخرى.",
       });
       
-      const mockData = generateMockOrders(storeData.id);
-      setOrders(mockData);
+      setOrders([]);
       setPagination({
-        total: mockData.length,
+        total: 0,
         page: 1,
         limit: pagination.limit,
-        totalPages: Math.ceil(mockData.length / pagination.limit)
+        totalPages: 1
       });
     } finally {
       setLoading(false);

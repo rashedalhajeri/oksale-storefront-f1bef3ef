@@ -1,6 +1,5 @@
 
 import { Order } from './orderTypes';
-import { formatDate } from './dashboardUtils';
 
 /**
  * Format date for display
@@ -17,4 +16,39 @@ export const formatTableDate = (dateString: string) => {
     minute: '2-digit',
     hour12: false
   }).replace(/\//g, '-');
+};
+
+/**
+ * Export orders to CSV format
+ * @param orders List of orders to export
+ * @param currency Currency symbol
+ * @returns CSV content as a string
+ */
+export const exportOrdersToCSV = (orders: Order[], currency: string) => {
+  const headers = [
+    'رقم الطلب',
+    'العميل',
+    'البريد الإلكتروني',
+    'الهاتف',
+    'المبلغ',
+    'التاريخ',
+    'الحالة'
+  ];
+
+  const rows = orders.map(order => [
+    order.id,
+    order.customer_name || order.customer,
+    order.customer_email || order.email || '-',
+    order.customer_phone || order.phone || '-',
+    `${order.total_amount || order.rawAmount} ${currency}`,
+    formatTableDate(order.created_at),
+    order.statusText || order.status
+  ]);
+
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+  ].join('\n');
+
+  return csvContent;
 };
