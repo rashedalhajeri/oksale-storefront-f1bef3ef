@@ -62,7 +62,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
           backgroundColor: '#0f1642',
           boxShadow: '-5px 0 20px rgba(0, 0, 0, 0.1)',
           transform: isMobile && !sidebarVisible ? 'translateX(100%)' : 'translateX(0)',
-          zIndex: 1000
+          zIndex: 40 // Reduced z-index to prevent overlapping with notifications
         }}
       >
         <Sidebar storeData={storeData} collapsed={sidebarCollapsed} />
@@ -80,12 +80,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
       </aside>
 
       {/* Main content */}
-      <main className={`dashboard-main ${!sidebarVisible ? 'sidebar-hidden' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <div className="mx-auto fade-in overflow-hidden" style={{ 
+      <main 
+        className={`dashboard-main ${!sidebarVisible ? 'sidebar-hidden' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`} 
+        style={{ position: 'relative' }} // Add position relative to contain absolute elements
+      >
+        <div className="mx-auto fade-in overflow-visible" style={{ 
           maxWidth: '100%',
           borderRadius: '16px',
           backgroundColor: '#f7f9fc',
-          padding: '16px'
+          padding: '16px',
+          position: 'relative', // Added position relative
+          zIndex: 10 // Lower z-index for content
         }}>
           {children}
         </div>
@@ -103,7 +108,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
             position: 'fixed',
             top: '16px',
             right: '16px',
-            zIndex: 1100,
+            zIndex: 50, // Higher z-index for the toggle button
             width: '40px',
             height: '40px',
             borderRadius: '50%',
@@ -126,7 +131,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
             position: 'fixed',
             inset: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 900,
+            zIndex: 39, // Lower than sidebar but higher than content
             opacity: sidebarVisible ? 1 : 0,
             pointerEvents: sidebarVisible ? 'auto' : 'none',
             transition: 'opacity 0.3s ease'
