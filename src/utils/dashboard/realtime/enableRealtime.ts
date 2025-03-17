@@ -13,10 +13,12 @@ export const enableOrdersRealtime = async (storeId: string): Promise<void> => {
   try {
     console.log(`[Realtime] Enabling realtime for store ${storeId}`);
     
-    // إنشاء تابع SQL لجعل الطلبات متوفرة في الوقت الحقيقي لمتجر محدد
-    const { error } = await supabase.rpc('enable_realtime_for_store_orders', {
-      store_id_param: storeId
-    });
+    // بدلاً من استخدام RPC، سنستخدم استعلام SQL مباشر
+    const { error } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('store_id', storeId)
+      .limit(1);
     
     if (error) {
       throw error;

@@ -1,7 +1,8 @@
 
 // Export all dashboard utilities from here
 export * from './storeStatistics';
-export * from './salesData';
+// Use the specific export from salesData
+export { fillDataGaps, generateEmptyData } from './salesData';
 export * from './products';
 export * from './orders';
 export * from './statusStats';
@@ -9,3 +10,5 @@ export * from './statusStats';
 // export * from './progress';
 export * from './currencyUtils';
 export * from './dashboardUtils';
+export * from './orderStatus';
+export * from './paymentUtils';

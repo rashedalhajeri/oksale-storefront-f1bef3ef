@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ArrowUpRight, Clock3 } from 'lucide-react';
-import { formatRelativeTime, getOrderStatusColor } from '@/utils/dashboard/dashboardUtils';
+import { formatRelativeTime, getOrderStatusColors } from '@/utils/dashboard/orderStatus';
 
 interface RecentOrdersCardProps {
   recentOrders: any[];

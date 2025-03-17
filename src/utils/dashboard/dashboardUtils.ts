@@ -115,6 +115,64 @@ export const getTimeColor = (dateString: string, status: string): string => {
 };
 
 /**
+ * الحصول على ألوان حالة الطلب بناءً على حالة الطلب
+ * @param status حالة الطلب
+ * @returns فئات CSS للخلفية والنص
+ */
+export const getOrderStatusColor = (status: string) => {
+  switch (status) {
+    case 'completed':
+      return { 
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        icon: 'text-green-600'
+      };
+    case 'processing':
+      return {
+        bg: 'bg-blue-100',
+        text: 'text-blue-800',
+        icon: 'text-blue-600'
+      };
+    case 'pending':
+      return {
+        bg: 'bg-yellow-100',
+        text: 'text-yellow-800',
+        icon: 'text-yellow-600'
+      };
+    case 'cancelled':
+      return {
+        bg: 'bg-red-100',
+        text: 'text-red-800',
+        icon: 'text-red-600'
+      };
+    case 'shipped':
+      return {
+        bg: 'bg-indigo-100',
+        text: 'text-indigo-800',
+        icon: 'text-indigo-600'
+      };
+    case 'delivered':
+      return {
+        bg: 'bg-emerald-100',
+        text: 'text-emerald-800',
+        icon: 'text-emerald-600'
+      };
+    case 'refunded':
+      return {
+        bg: 'bg-orange-100',
+        text: 'text-orange-800',
+        icon: 'text-orange-600'
+      };
+    default:
+      return {
+        bg: 'bg-gray-100',
+        text: 'text-gray-800',
+        icon: 'text-gray-600'
+      };
+  }
+};
+
+/**
  * إنشاء بيانات المبيعات للرسم البياني
  * @param orders قائمة الطلبات
  * @param timeframe إطار زمني (day, week, month, year)
@@ -268,4 +326,60 @@ const getEmptySalesData = (timeframe: string) => {
     default:
       return [];
   }
+};
+
+/**
+ * معالجة الدفع باستخدام My Fatoorah
+ * @param storeId معرف المتجر
+ * @param orderId معرف الطلب
+ * @param amount المبلغ
+ * @param customerData بيانات العميل
+ * @returns نتيجة العملية
+ */
+export const processMyFatoorahPayment = async (
+  storeId: string,
+  orderId: string,
+  amount: number,
+  customerData: {
+    name: string;
+    email: string;
+    phone?: string;
+  }
+) => {
+  // هذه الوظيفة ستتطلب استدعاء واجهة برمجة التطبيقات الخاصة بـ My Fatoorah
+  console.log('معالجة الدفع باستخدام My Fatoorah', { storeId, orderId, amount, customerData });
+  
+  // تنفيذ تجريبي - في التطبيق الحقيقي سيتم استدعاء واجهة API الفعلية
+  return {
+    transactionId: `mf-${Date.now()}`,
+    paymentUrl: `https://myfatoorah.com/pay?id=${Date.now()}`
+  };
+};
+
+/**
+ * معالجة الدفع باستخدام Tap Payments
+ * @param storeId معرف المتجر
+ * @param orderId معرف الطلب
+ * @param amount المبلغ
+ * @param customerData بيانات العميل
+ * @returns نتيجة العملية
+ */
+export const processTapPayment = async (
+  storeId: string,
+  orderId: string,
+  amount: number,
+  customerData: {
+    name: string;
+    email: string;
+    phone?: string;
+  }
+) => {
+  // هذه الوظيفة ستتطلب استدعاء واجهة برمجة التطبيقات الخاصة بـ Tap Payments
+  console.log('معالجة الدفع باستخدام Tap Payments', { storeId, orderId, amount, customerData });
+  
+  // تنفيذ تجريبي - في التطبيق الحقيقي سيتم استدعاء واجهة API الفعلية
+  return {
+    transactionId: `tap-${Date.now()}`,
+    paymentUrl: `https://tap.company/pay?id=${Date.now()}`
+  };
 };

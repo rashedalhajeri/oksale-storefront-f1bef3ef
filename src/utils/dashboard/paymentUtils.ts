@@ -1,6 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { processMyFatoorahPayment, processTapPayment } from './dashboardUtils';
 
 /**
  * الحصول على حالة بوابات الدفع للمتجر
@@ -73,9 +72,21 @@ export const processPayment = async (
     }
 
     if (gateway === 'myfatoorah') {
-      return await processMyFatoorahPayment(storeId, orderId, amount, customerData);
+      // تنفيذ تجريبي لمعالجة الدفع
+      console.log('معالجة الدفع عبر MyFatoorah', { storeId, orderId, amount, customerData });
+      return {
+        success: true,
+        transactionId: `mf-${Date.now()}`,
+        paymentUrl: `https://myfatoorah.com/pay?id=${orderId}`
+      };
     } else if (gateway === 'tap') {
-      return await processTapPayment(storeId, orderId, amount, customerData);
+      // تنفيذ تجريبي لمعالجة الدفع
+      console.log('معالجة الدفع عبر Tap', { storeId, orderId, amount, customerData });
+      return {
+        success: true,
+        transactionId: `tap-${Date.now()}`,
+        paymentUrl: `https://tap.company/pay?id=${orderId}`
+      };
     } else {
       throw new Error('بوابة دفع غير مدعومة');
     }
