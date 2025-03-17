@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Package, 
@@ -31,6 +30,7 @@ import {
 } from "@/components/ui/drawer";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from "@/lib/utils";
 
 interface Product {
   id: string;
@@ -158,7 +158,6 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
     try {
       let imageUrl = null;
       
-      // Upload image if provided
       if (imageFile) {
         const fileName = `${Date.now()}_${imageFile.name}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -235,7 +234,6 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
     try {
       let imageUrl = selectedProduct.image_url;
       
-      // Upload image if provided
       if (imageFile) {
         const fileName = `${Date.now()}_${imageFile.name}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -326,11 +324,23 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold mb-1">إدارة المنتجات</h1>
-          <p className="text-gray-600">إدارة منتجات متجرك ({products.length})</p>
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            "flex items-center justify-center w-11 h-11 rounded-xl shadow-sm relative overflow-hidden",
+            "bg-gradient-to-br from-indigo-900 to-blue-800",
+            "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
+          )}>
+            <Package className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold mb-1">إدارة المنتجات</h1>
+            <p className="text-gray-600">إدارة منتجات متجرك ({products.length})</p>
+          </div>
         </div>
-        <Button onClick={handleProductOpen}>
+        <Button onClick={handleProductOpen} className={cn(
+          "relative overflow-hidden bg-gradient-to-br from-indigo-800 to-blue-700 hover:from-indigo-700 hover:to-blue-600",
+          "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/10 before:rounded-t-full"
+        )}>
           <Plus className="h-4 w-4 mr-2" />
           إضافة منتج
         </Button>
@@ -348,8 +358,14 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
+            <Button variant="outline" className="flex items-center gap-2 relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 border-gray-200">
+              <div className={cn(
+                "flex items-center justify-center w-5 h-5 rounded-full shadow-sm relative overflow-hidden",
+                "bg-gradient-to-br from-indigo-900 to-blue-800",
+                "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1/2 before:bg-white/20 before:rounded-t-full"
+              )}>
+                <Filter className="h-3 w-3 text-white" />
+              </div>
               تصفية
             </Button>
           </div>
@@ -426,7 +442,6 @@ const DashboardProducts: React.FC<DashboardProductsProps> = ({ storeData }) => {
         )}
       </div>
 
-      {/* Product Drawer */}
       <Drawer open={isProductOpen} onOpenChange={setIsProductOpen}>
         <DrawerContent className="h-[85%]">
           <DrawerHeader>
