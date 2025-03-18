@@ -9,6 +9,7 @@ import MatajerPayments from './MatajerPayments';
 import StoreExamples from './StoreExamples';
 import MatajerPricing from './MatajerPricing';
 import MerchantAppPromotion from './MerchantAppPromotion';
+import MatajerFooter from './MatajerFooter';
 
 const MatajerLayout = () => {
   return (
@@ -23,6 +24,7 @@ const MatajerLayout = () => {
         <MatajerPricing />
         <MerchantAppPromotion />
       </main>
+      <MatajerFooter />
     </div>
   );
 };
