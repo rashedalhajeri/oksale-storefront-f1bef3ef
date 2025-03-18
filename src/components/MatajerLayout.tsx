@@ -12,7 +12,7 @@ import MatajerFooter from './MatajerFooter';
 
 const MatajerLayout = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" dir="rtl">
       <OKsaleHeader />
       <main className="pt-16">
         <MatajerHero />
