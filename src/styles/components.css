@@ -1,0 +1,102 @@
+
+/* Component-specific styles */
+.card {
+  padding: 2rem;
+  border-radius: 16px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.glass-morphism {
+  @apply bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.matajer-card {
+  @apply rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300;
+}
+
+.matajer-section-title {
+  @apply text-3xl font-bold text-gray-900 mb-4;
+}
+
+.matajer-section-title::after {
+  content: '';
+  @apply block w-16 h-1 bg-matajer-600 mt-3;
+}
+
+.glow-button {
+  position: relative;
+}
+
+.glow-button::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(90deg, var(--matajer-primary), var(--purple-500));
+  filter: blur(15px);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  border-radius: 20px;
+}
+
+.glow-button:hover::after {
+  opacity: 0.4;
+}
+
+.glow-card {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.glow-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #3182ce, #805ad5, #4299e1, #667eea);
+  z-index: -1;
+  animation: glow-border 5s linear infinite;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-card:hover::before {
+  opacity: 1;
+}
+
+.focus-ring {
+  @apply ring-0 transition-all duration-300;
+}
+
+.focus-ring:focus-visible {
+  @apply ring-2 ring-primary/40 ring-offset-2 outline-none;
+}
+
+/* Order cards */
+.order-card {
+  @apply border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+}
+
+.order-card-status {
+  @apply text-xs px-2 py-0.5 rounded-full inline-flex items-center;
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

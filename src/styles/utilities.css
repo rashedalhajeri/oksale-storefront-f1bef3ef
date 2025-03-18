@@ -1,0 +1,81 @@
+
+/* Utility classes for transformations and effects */
+.hover-lift {
+  transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-matajer-600 to-matajer-900;
+}
+
+.text-shadow {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.matajer-gradient-bg {
+  @apply bg-gradient-to-r from-matajer-600 to-matajer-800;
+}
+
+.scale-on-hover {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.scale-on-hover:hover {
+  transform: scale(1.05);
+}
+
+.magnetic-button {
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.perspective-card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.5s ease;
+}
+
+.perspective-card:hover {
+  transform: rotateY(5deg) rotateX(5deg);
+}
+
+.liquid-button {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.liquid-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
+  transform: translateX(-100%);
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  z-index: -1;
+}
+
+.liquid-button:hover::before {
+  transform: translateX(0);
+}
+
+.blur-up {
+  filter: blur(5px);
+  transition: filter 0.3s ease-out;
+}
+
+.blur-up.loaded {
+  filter: blur(0);
+}
+
+/* Improve text readability */
+.read-the-docs {
+  color: #555;
+}

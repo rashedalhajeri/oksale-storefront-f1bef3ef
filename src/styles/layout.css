@@ -1,0 +1,64 @@
+
+/* Layout and positioning */
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: right;
+}
+
+/* Support for RTL languages */
+html {
+  direction: rtl;
+}
+
+/* RTL specific utilities */
+.dir-ltr {
+  direction: ltr;
+  display: inline-block;
+}
+
+.dir-rtl {
+  direction: rtl;
+  display: inline-block;
+}
+
+/* ID and number styling for RTL context */
+.rtl-number {
+  font-family: monospace;
+  direction: ltr;
+  display: inline-block;
+}
+
+/* Table RTL fixes */
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+[dir="rtl"] .table-numeric {
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Responsive container for all sections */
+.container-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Fix for RTL buttons and icons */
+button svg,
+a svg {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+/* Grid pattern with RTL direction */
+.bg-grid-pattern {
+  background-image: linear-gradient(to left, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                    linear-gradient(to top, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: right top;
+}
