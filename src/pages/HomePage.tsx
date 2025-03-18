@@ -68,7 +68,7 @@ const HomePage = () => {
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-200 rounded-full opacity-20 blur-3xl"></div>
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+          <div className="flex flex-col lg:flex-row-reverse items-center justify-between gap-12">
             <div className="w-full lg:w-1/2 text-right">
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
