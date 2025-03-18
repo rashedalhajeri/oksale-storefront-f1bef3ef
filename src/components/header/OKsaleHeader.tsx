@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -81,14 +80,9 @@ const OKsaleHeader = () => {
             </div>
           </Link>
           
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Empty div since we're removing all navigation links */}
           <div className="hidden md:flex items-center space-x-6 space-x-reverse">
-            <NavLink to="/" label="الرئيسية" />
-            <NavLink to="/features" label="المميزات" />
-            <NavLink to="/pricing" label="الأسعار" />
-            <NavLink to="/partners" label="الشركاء" />
-            <NavLink to="/examples" label="أمثلة المتاجر" />
-            <NavLink to="/blog" label="المدونة" />
+            {/* Navigation links removed */}
           </div>
           
           {/* Auth Buttons */}
@@ -158,12 +152,7 @@ const OKsaleHeader = () => {
           >
             <div className="container mx-auto px-4 py-5">
               <div className="flex flex-col space-y-4">
-                <MobileNavLink to="/" label="الرئيسية" onClick={() => setMobileMenuOpen(false)} />
-                <MobileNavLink to="/features" label="المميزات" onClick={() => setMobileMenuOpen(false)} />
-                <MobileNavLink to="/pricing" label="الأسعار" onClick={() => setMobileMenuOpen(false)} />
-                <MobileNavLink to="/partners" label="الشركاء" onClick={() => setMobileMenuOpen(false)} />
-                <MobileNavLink to="/examples" label="أمثلة المتاجر" onClick={() => setMobileMenuOpen(false)} />
-                <MobileNavLink to="/blog" label="المدونة" onClick={() => setMobileMenuOpen(false)} />
+                
                 
                 {/* Auth Buttons */}
                 <div className="border-t border-gray-100 pt-4 mt-2 space-y-3">
