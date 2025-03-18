@@ -11,11 +11,11 @@
 
 @layer base {
   :root {
-    --primary: 250 96% 62%;
+    --primary: 231 100% 59%;
     --primary-foreground: 0 0% 100%;
     
-    --matajer-primary: 250 100% 62%;
-    --matajer-primary-foreground: 0 0% 100%;
+    --oksale-primary: 231 100% 59%;
+    --oksale-primary-foreground: 0 0% 100%;
   }
   
   body {

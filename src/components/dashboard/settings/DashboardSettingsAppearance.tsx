@@ -200,7 +200,7 @@ const DashboardSettingsAppearance: React.FC<DashboardSettingsAppearanceProps> = 
         </Card>
 
         <div className="flex justify-end">
-          <Button onClick={handleSaveChanges} disabled={loading}>
+          <Button onClick={handleSaveChanges} disabled={loading} className="bg-oksale-600 hover:bg-oksale-700">
             {loading ? 'جارِ الحفظ...' : 'حفظ التغييرات'}
           </Button>
         </div>

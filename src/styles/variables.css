@@ -1,22 +1,22 @@
 
 /* CSS Variables */
 :root {
-  --primary: 250 96% 62%;
+  --primary: 231 100% 59%;
   --primary-foreground: 0 0% 100%;
   
-  --matajer-primary: 250 100% 62%;
-  --matajer-primary-foreground: 0 0% 100%;
+  --oksale-primary: 231 100% 59%;
+  --oksale-primary-foreground: 0 0% 100%;
   
-  --matajer-50: #F2F3FF;
-  --matajer-100: #E6E7FF;
-  --matajer-200: #C9CBFF;
-  --matajer-300: #A9ACFF;
-  --matajer-400: #8387FF;
-  --matajer-500: #5F63FF;
-  --matajer-600: #484CDF;
-  --matajer-700: #383CBF;
-  --matajer-800: #2F329F;
-  --matajer-900: #1F2173;
+  --oksale-50: #EEF2FF;
+  --oksale-100: #E0E7FF;
+  --oksale-200: #C7D2FE;
+  --oksale-300: #A5B4FC;
+  --oksale-400: #818CF8;
+  --oksale-500: #6366F1;
+  --oksale-600: #4F46E5;
+  --oksale-700: #4338CA;
+  --oksale-800: #3730A3;
+  --oksale-900: #312E81;
 }
 
 body {

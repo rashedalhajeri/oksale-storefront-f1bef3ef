@@ -12,17 +12,17 @@
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
-.matajer-card {
+.oksale-card {
   @apply rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300;
 }
 
-.matajer-section-title {
+.oksale-section-title {
   @apply text-3xl font-bold text-gray-900 mb-4;
 }
 
-.matajer-section-title::after {
+.oksale-section-title::after {
   content: '';
-  @apply block w-16 h-1 bg-matajer-600 mt-3;
+  @apply block w-16 h-1 bg-oksale-600 mt-3;
 }
 
 .glow-button {
@@ -36,7 +36,7 @@
   left: -10px;
   right: -10px;
   bottom: -10px;
-  background: linear-gradient(90deg, var(--matajer-primary), var(--purple-500));
+  background: linear-gradient(90deg, var(--oksale-primary), var(--purple-500));
   filter: blur(15px);
   opacity: 0;
   z-index: -1;

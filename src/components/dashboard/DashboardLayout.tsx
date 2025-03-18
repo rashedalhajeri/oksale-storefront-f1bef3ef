@@ -109,8 +109,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
             aria-label={sidebarOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             {sidebarOpen ? 
-              <X className="h-5 w-5 text-indigo-700 dark:text-white" /> : 
-              <Menu className="h-5 w-5 text-indigo-700 dark:text-white" />
+              <X className="h-5 w-5 text-oksale-600 dark:text-white" /> : 
+              <Menu className="h-5 w-5 text-oksale-600 dark:text-white" />
             }
           </button>
         </div>

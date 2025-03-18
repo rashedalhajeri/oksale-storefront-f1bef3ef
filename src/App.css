@@ -7,21 +7,21 @@
   text-align: right;
 }
 
-/* Adding Matajer specific colors */
+/* Adding OKsale specific colors */
 :root {
-  --matajer-50: #F2F3FF;
-  --matajer-100: #E6E7FF;
-  --matajer-200: #C9CBFF;
-  --matajer-300: #A9ACFF;
-  --matajer-400: #8387FF;
-  --matajer-500: #5F63FF;
-  --matajer-600: #484CDF;
-  --matajer-700: #383CBF;
-  --matajer-800: #2F329F;
-  --matajer-900: #1F2173;
+  --oksale-50: #EEF2FF;
+  --oksale-100: #E0E7FF;
+  --oksale-200: #C7D2FE;
+  --oksale-300: #A5B4FC;
+  --oksale-400: #818CF8;
+  --oksale-500: #6366F1;
+  --oksale-600: #4F46E5;
+  --oksale-700: #4338CA;
+  --oksale-800: #3730A3;
+  --oksale-900: #312E81;
 }
 
-/* Card styling for the Matajer design */
+/* Card styling for the OKsale design */
 .card {
   padding: 2rem;
   border-radius: 16px;
@@ -67,4 +67,43 @@ button svg,
 a svg {
   margin-right: 0;
   margin-left: 0.5rem;
+}
+
+/* OKsale specific styling */
+.oksale-gradient {
+  background: linear-gradient(135deg, var(--oksale-600), var(--oksale-800));
+}
+
+.oksale-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.oksale-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+}
+
+.oksale-button {
+  background-color: var(--oksale-600);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.oksale-button:hover {
+  background-color: var(--oksale-700);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
 }
