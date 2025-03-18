@@ -23,6 +23,7 @@ const MatajerLayout = () => {
         <StoreExamples />
         <MatajerPricing />
         <MerchantAppPromotion />
+        <Outlet />
       </main>
       <MatajerFooter />
     </div>

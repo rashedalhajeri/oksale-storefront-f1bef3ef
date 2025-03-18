@@ -9,7 +9,7 @@ import { supabase } from "./integrations/supabase/client";
 import { AuthProvider } from './features/authentication/providers/AuthProvider';
 
 // Import pages from the correct locations based on the new structure
-import MatajerLayout from "./components/MatajerLayout"; // Changed to MatajerLayout as main homepage
+import MatajerLayout from "./components/MatajerLayout"; 
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
