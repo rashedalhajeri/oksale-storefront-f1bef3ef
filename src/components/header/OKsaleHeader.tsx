@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,15 +9,16 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 
 // Language context for managing app-wide language state
 const OKsaleHeader = () => {
   const [user, setUser] = useState<any>(null);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [language, setLanguage] = useState<'ar' | 'en'>('ar'); // Default to Arabic
   const location = useLocation();
   const { toast } = useToast();
+  const { language, setLanguage, isRTL } = useLanguage();
   
   useEffect(() => {
     const checkAuth = async () => {
@@ -33,12 +33,6 @@ const OKsaleHeader = () => {
         setUser(session?.user || null);
       }
     );
-    
-    // Check stored language preference
-    const storedLang = localStorage.getItem('app-language');
-    if (storedLang === 'en' || storedLang === 'ar') {
-      setLanguage(storedLang);
-    }
     
     return () => {
       authListener?.subscription.unsubscribe();
@@ -58,20 +52,9 @@ const OKsaleHeader = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  useEffect(() => {
-    // Set document direction based on language
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = language;
-    localStorage.setItem('app-language', language);
-  }, [language]);
-  
   const toggleLanguage = () => {
     const newLang = language === 'ar' ? 'en' : 'ar';
     setLanguage(newLang);
-    toast({
-      title: language === 'ar' ? 'Switched to English' : 'تم التغيير إلى العربية',
-      duration: 2000,
-    });
   };
   
   const handleLogout = async () => {
@@ -95,7 +78,6 @@ const OKsaleHeader = () => {
     )}>
       <div className="container mx-auto px-4 md:px-6">
         <nav className="flex items-center justify-between">
-          {/* Logo */}
           <Link to="/" className="relative flex items-center group">
             <div className="relative rounded-full flex items-center">
               <div className="w-10 h-10 rounded-full bg-oksale-600 flex items-center justify-center shadow-md group-hover:shadow-oksale-300/50 transition-all duration-300">
@@ -105,12 +87,9 @@ const OKsaleHeader = () => {
             </div>
           </Link>
           
-          {/* Desktop Navigation - Empty div since we're removing all navigation links */}
           <div className="hidden md:flex items-center space-x-6 space-x-reverse">
-            {/* Navigation links removed */}
           </div>
           
-          {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-3 space-x-reverse">
             <button 
               onClick={toggleLanguage}
@@ -157,7 +136,6 @@ const OKsaleHeader = () => {
             )}
           </div>
           
-          {/* Mobile Menu Button */}
           <button 
             className="md:hidden p-2 rounded-full bg-white/90 shadow-sm hover:shadow-md transition-all duration-300"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -171,7 +149,6 @@ const OKsaleHeader = () => {
         </nav>
       </div>
       
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -183,7 +160,6 @@ const OKsaleHeader = () => {
           >
             <div className="container mx-auto px-4 py-5">
               <div className="flex flex-col space-y-4">
-                {/* Language Toggle */}
                 <button 
                   onClick={toggleLanguage}
                   className="flex items-center justify-center border border-gray-200 rounded-lg py-2 hover:bg-gray-50"
@@ -194,7 +170,6 @@ const OKsaleHeader = () => {
                   </span>
                 </button>
                 
-                {/* Auth Buttons */}
                 <div className="border-t border-gray-100 pt-4 mt-2 space-y-3">
                   {user ? (
                     <>

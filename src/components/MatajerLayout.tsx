@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Outlet } from 'react-router-dom';
 import OKsaleHeader from './header/OKsaleHeader';
 import MatajerHero from './MatajerHero';
@@ -10,38 +10,13 @@ import MatajerPricing from './MatajerPricing';
 import MerchantAppPromotion from './MerchantAppPromotion';
 import MatajerFooter from './MatajerFooter';
 import TopBanner from './TopBanner';
+import { useLanguage } from '@/context/LanguageContext';
 
 const MatajerLayout = () => {
-  const [direction, setDirection] = useState<'rtl' | 'ltr'>('rtl');
-
-  useEffect(() => {
-    // Check stored language preference
-    const storedLang = localStorage.getItem('app-language');
-    if (storedLang === 'en') {
-      setDirection('ltr');
-    } else {
-      setDirection('rtl');
-    }
-
-    // Add listener for language changes
-    const handleStorageChange = () => {
-      const currentLang = localStorage.getItem('app-language');
-      setDirection(currentLang === 'en' ? 'ltr' : 'rtl');
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Additional listener for same-window changes
-    document.addEventListener('languageChange', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      document.removeEventListener('languageChange', handleStorageChange);
-    };
-  }, []);
+  const { isRTL } = useLanguage();
 
   return (
-    <div className={`min-h-screen bg-white`} dir={direction}>
+    <div className={`min-h-screen bg-white`} dir={isRTL ? 'rtl' : 'ltr'}>
       <OKsaleHeader />
       <main className="pt-16">
         <MatajerHero />
