@@ -7,7 +7,7 @@ import { Sparkles, ShoppingBag, CreditCard, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const MatajerHero = () => {
-  const { language } = useLanguage();
+  const { language, isRTL } = useLanguage();
   const isEnglish = language === 'en';
 
   return (
@@ -19,16 +19,16 @@ const MatajerHero = () => {
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className={`flex flex-col-reverse ${isEnglish ? 'md:flex-row' : 'md:flex-row-reverse'} items-center justify-between gap-12`}>
+        <div className={`flex flex-col-reverse ${isRTL ? 'md:flex-row-reverse' : 'md:flex-row'} items-center justify-between gap-12`}>
           {/* Hero Content */}
           <motion.div 
-            className={`w-full md:w-1/2 ${isEnglish ? 'text-left' : 'text-right'}`}
+            className={`w-full md:w-1/2 ${isRTL ? 'text-right' : 'text-left'}`}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className={`inline-flex items-center bg-white/90 backdrop-blur-sm rounded-full py-1.5 px-3 border border-indigo-100 mb-6 shadow-sm ${isEnglish ? '' : 'flex-row-reverse'}`}>
-              <Sparkles className={`w-4 h-4 text-oksale-600 ${isEnglish ? 'mr-2' : 'ml-2'}`} />
+            <div className={`inline-flex items-center bg-white/90 backdrop-blur-sm rounded-full py-1.5 px-3 border border-indigo-100 mb-6 shadow-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <Sparkles className={`w-4 h-4 text-oksale-600 ${isRTL ? 'ml-2' : 'mr-2'}`} />
               <span className="text-sm font-medium text-oksale-800">
                 {isEnglish ? "Your online store easily and quickly" : "متجرك الإلكتروني بسهولة وسرعة"}
               </span>
@@ -46,13 +46,13 @@ const MatajerHero = () => {
               }
             </p>
             
-            <div className={`flex flex-wrap ${isEnglish ? 'justify-start' : 'justify-end'} gap-4`}>
+            <div className={`flex flex-wrap ${isRTL ? 'justify-end' : 'justify-start'} gap-4`}>
               <Link to="/signup">
                 <Button 
                   className="bg-oksale-600 hover:bg-oksale-700 text-white rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-oksale-400/20 transition-all duration-300 flex items-center"
                 >
                   <span>{isEnglish ? "Start Now" : "ابدأ الآن"}</span>
-                  <ShoppingBag className={`w-5 h-5 ${isEnglish ? 'ml-2' : 'mr-2'}`} />
+                  <ShoppingBag className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
                 </Button>
               </Link>
               <Link to="/pricing">
@@ -67,8 +67,8 @@ const MatajerHero = () => {
 
             <div className="mt-12 grid grid-cols-2 gap-5">
               <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className={`flex items-center ${isEnglish ? '' : 'flex-row-reverse'}`}>
-                  <div className={`p-2 bg-oksale-50 rounded-lg ${isEnglish ? 'mr-3' : 'ml-3'}`}>
+                <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className={`p-2 bg-oksale-50 rounded-lg ${isRTL ? 'ml-3' : 'mr-3'}`}>
                     <ShoppingBag className="w-5 h-5 text-oksale-600" />
                   </div>
                   <div>
@@ -78,8 +78,8 @@ const MatajerHero = () => {
                 </div>
               </div>
               <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className={`flex items-center ${isEnglish ? '' : 'flex-row-reverse'}`}>
-                  <div className={`p-2 bg-oksale-50 rounded-lg ${isEnglish ? 'mr-3' : 'ml-3'}`}>
+                <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className={`p-2 bg-oksale-50 rounded-lg ${isRTL ? 'ml-3' : 'mr-3'}`}>
                     <CreditCard className="w-5 h-5 text-oksale-600" />
                   </div>
                   <div>
@@ -94,7 +94,7 @@ const MatajerHero = () => {
           {/* Hero Image */}
           <motion.div 
             className="w-full md:w-1/2"
-            initial={{ opacity: 0, x: isEnglish ? 50 : -50 }}
+            initial={{ opacity: 0, x: isRTL ? -50 : 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
