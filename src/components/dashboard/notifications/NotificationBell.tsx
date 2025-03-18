@@ -86,7 +86,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ storeId }) => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0">
+      <DropdownMenuContent align="end" className="w-80 p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
         <div className="flex justify-between items-center p-3 border-b">
           <h2 className="font-semibold">الإشعارات</h2>
           {unreadCount > 0 && (
@@ -112,7 +112,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ storeId }) => {
                 key={notification.id}
                 className={cn(
                   "flex flex-col items-start p-3 space-y-1 border-b last:border-0 cursor-pointer",
-                  !notification.read && "bg-muted/30"
+                  !notification.read ? "bg-blue-50 dark:bg-blue-900/20" : "bg-white dark:bg-gray-800"
                 )}
                 onClick={() => markAsRead(notification.id)}
               >
@@ -127,7 +127,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ storeId }) => {
                     {formatRelativeTime(notification.timestamp)}
                   </span>
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   {notification.message}
                 </p>
               </DropdownMenuItem>

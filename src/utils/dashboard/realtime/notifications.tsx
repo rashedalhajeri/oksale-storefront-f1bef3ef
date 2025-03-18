@@ -45,7 +45,13 @@ export const showNewOrderNotification = (order: any) => {
       >
         عرض الطلب
       </ToastAction>
-    )
+    ),
+    style: {
+      backgroundColor: '#ffffff',
+      color: '#333333',
+      border: '1px solid rgba(0, 0, 0, 0.1)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+    }
   });
     
   // إذا كان API الإشعارات مدعومًا، أظهر إشعارًا في نظام التشغيل
@@ -87,7 +93,13 @@ export const showOrderStatusChangeNotification = (order: any, oldStatus: string)
       >
         عرض الطلب
       </ToastAction>
-    )
+    ),
+    style: {
+      backgroundColor: '#ffffff',
+      color: '#333333',
+      border: '1px solid rgba(0, 0, 0, 0.1)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+    }
   });
   
   // إذا كان API الإشعارات مدعومًا، أظهر إشعارًا في نظام التشغيل

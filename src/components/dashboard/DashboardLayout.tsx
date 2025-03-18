@@ -124,15 +124,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, storeData }
         />
       )}
       
-      {/* Custom Toaster with white background */}
+      {/* Custom Toaster with solid background */}
       <Toaster 
         position="top-right" 
         toastOptions={{
           style: {
             background: 'white',
             color: '#333',
-            border: '1px solid rgba(0,0,0,0.05)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(0,0,0,0.1)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            opacity: '1',
           },
         }}
       />
