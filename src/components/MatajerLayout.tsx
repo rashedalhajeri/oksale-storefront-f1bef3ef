@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import TopBanner from './TopBanner';
 import OKsaleHeader from './header/OKsaleHeader';
 import MatajerHero from './MatajerHero';
 import MatajerFeatures from './MatajerFeatures';
@@ -14,7 +13,6 @@ import MatajerFooter from './MatajerFooter';
 const MatajerLayout = () => {
   return (
     <div className="min-h-screen bg-white">
-      <TopBanner />
       <OKsaleHeader />
       <main className="pt-16">
         <MatajerHero />
