@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,17 +64,17 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				// تحديث الألوان لتتناسب مع الثيم الجديد
-				oksale: {
-					50: "#F0F7FF",
-					100: "#DBE9FF",
-					200: "#B8D4FF",
-					300: "#8BBDFF",
-					400: "#5296FF",
-					500: "#3366FF",
-					600: "#2952CC",
-					700: "#1F3F99",
-					800: "#152C66",
-					900: "#0A1433"
+				matajer: {
+					50: "#F2F3FF",
+					100: "#E6E7FF",
+					200: "#C9CBFF",
+					300: "#A9ACFF", 
+					400: "#8387FF",
+					500: "#5F63FF",
+					600: "#484CDF",
+					700: "#383CBF",
+					800: "#2F329F",
+					900: "#1F2173"
 				},
 				// ألوان الـ bluesky بناء على الصورة المرفقة
 				bluesky: {

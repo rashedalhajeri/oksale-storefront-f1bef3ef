@@ -1,7 +1,25 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: 250 96% 62%;
+    --primary-foreground: 0 0% 100%;
+    
+    --matajer-primary: 250 100% 62%;
+    --matajer-primary-foreground: 0 0% 100%;
+  }
+  
+  body {
+    @apply font-sans;
+  }
+  
+  /* RTL Direction */
+  html {
+    direction: rtl;
+  }
+}
 
 @layer components {
   .glass-morphism {
@@ -32,6 +50,16 @@
     background-position: right top;
   }
   
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
   /* ID and number styling for RTL context */
   .rtl-number {
     font-family: monospace;
@@ -57,6 +85,24 @@
   [dir="rtl"] .table-numeric {
     text-align: left;
     font-variant-numeric: tabular-nums;
+  }
+  
+  /* Matajer specific styles */
+  .matajer-gradient-bg {
+    @apply bg-gradient-to-r from-matajer-600 to-matajer-800;
+  }
+  
+  .matajer-card {
+    @apply rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300;
+  }
+  
+  .matajer-section-title {
+    @apply text-3xl font-bold text-gray-900 mb-4;
+  }
+  
+  .matajer-section-title::after {
+    content: '';
+    @apply block w-16 h-1 bg-matajer-600 mt-3;
   }
   
   /* Animation utilities */
@@ -87,7 +133,7 @@
     left: -10px;
     right: -10px;
     bottom: -10px;
-    background: linear-gradient(90deg, var(--bluesky-500), var(--purple-500));
+    background: linear-gradient(90deg, var(--matajer-primary), var(--purple-500));
     filter: blur(15px);
     opacity: 0;
     z-index: -1;
@@ -108,10 +154,10 @@
   }
   
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-bluesky-600 via-purple-600 to-bluesky-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-matajer-600 to-matajer-900;
   }
-  
-  /* تأثيرات متقدمة جديدة */
+
+  /* Additional animations */
   .float-animation {
     animation: float 4s ease-in-out infinite;
   }
