@@ -136,8 +136,8 @@ const HomePage = () => {
               <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                 <div className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
                 <img 
-                  src="/lovable-uploads/7063f1cc-73a8-44f5-a501-42c58367d966.png" 
-                  alt="لقطة شاشة لمتجر إلكتروني" 
+                  src="/placeholder.svg" 
+                  alt="صورة متجر إلكتروني" 
                   className="w-full h-auto rounded-b-2xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-2xl">

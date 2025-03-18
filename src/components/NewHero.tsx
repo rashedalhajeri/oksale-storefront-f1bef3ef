@@ -74,8 +74,8 @@ const NewHero = () => {
             "object-cover w-full h-full transition-opacity duration-1000",
             isVideoLoaded ? 'opacity-100' : 'opacity-0'
           )}
-          src="/lovable-uploads/7063f1cc-73a8-44f5-a501-42c58367d966.png" // سيتم استبداله بفيديو لاحقًا
-          poster="/lovable-uploads/7063f1cc-73a8-44f5-a501-42c58367d966.png"
+          src="/placeholder.svg" 
+          poster="/placeholder.svg"
         >
           <source src="/video-background.mp4" type="video/mp4" />
         </video>
