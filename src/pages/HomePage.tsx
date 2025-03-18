@@ -14,7 +14,9 @@ import {
   Users,
   Star,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Timer,
+  Code
 } from "lucide-react";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { cn } from "@/lib/utils";
@@ -138,7 +140,16 @@ const HomePage = () => {
                   alt="لقطة شاشة لمتجر إلكتروني" 
                   className="w-full h-auto rounded-b-2xl"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-2xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-2xl">
+                  <div className="absolute top-4 left-4 bg-white/95 p-3 rounded-full shadow-lg flex items-center justify-center">
+                    <div className="relative">
+                      <Code className="w-5 h-5 text-indigo-600 absolute opacity-75" style={{ transform: 'translate(-1px, 1px)' }} />
+                      <ShoppingBag className="w-5 h-5 text-purple-600 relative z-10" />
+                      <Timer className="w-4 h-4 text-green-500 absolute -top-1 -right-2" />
+                      <Zap className="w-3 h-3 text-yellow-500 absolute -bottom-1 -right-1" />
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="absolute -bottom-6 -right-6 w-12 h-12 bg-yellow-300 rounded-full blur-xl opacity-70"></div>
               <div className="absolute -top-10 -left-10 w-20 h-20 bg-indigo-300 rounded-full blur-xl opacity-70"></div>
