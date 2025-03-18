@@ -15,26 +15,8 @@ const MatajerHero = () => {
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-12">
-          {/* Hero Image */}
-          <motion.div 
-            className="w-full md:w-1/2"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <div className="relative">
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-oksale-100 rounded-full blur-xl opacity-80"></div>
-              <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-indigo-100 rounded-full blur-xl opacity-80"></div>
-              <img 
-                src="/lovable-uploads/fa6cefa9-d901-4a76-ac7c-76755b480198.png" 
-                alt="OKsale Platform" 
-                className="w-full h-auto object-cover rounded-2xl shadow-xl relative z-10"
-              />
-            </div>
-          </motion.div>
-
-          {/* Hero Content */}
+        <div className="flex flex-col-reverse md:flex-row-reverse items-center justify-between gap-12">
+          {/* Hero Content - Now on the right side in RTL */}
           <motion.div 
             className="w-full md:w-1/2 text-right"
             initial={{ opacity: 0, y: 30 }}
@@ -98,6 +80,24 @@ const MatajerHero = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+
+          {/* Hero Image - Now on the left side in RTL */}
+          <motion.div 
+            className="w-full md:w-1/2"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="relative">
+              <div className="absolute -top-6 -left-6 w-24 h-24 bg-oksale-100 rounded-full blur-xl opacity-80"></div>
+              <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-indigo-100 rounded-full blur-xl opacity-80"></div>
+              <img 
+                src="/lovable-uploads/fa6cefa9-d901-4a76-ac7c-76755b480198.png" 
+                alt="OKsale Platform" 
+                className="w-full h-auto object-cover rounded-2xl shadow-xl relative z-10"
+              />
             </div>
           </motion.div>
         </div>
