@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,10 +11,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 
+// Language context for managing app-wide language state
 const OKsaleHeader = () => {
   const [user, setUser] = useState<any>(null);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [language, setLanguage] = useState<'ar' | 'en'>('ar'); // Default to Arabic
   const location = useLocation();
   const { toast } = useToast();
   
@@ -30,6 +33,12 @@ const OKsaleHeader = () => {
         setUser(session?.user || null);
       }
     );
+    
+    // Check stored language preference
+    const storedLang = localStorage.getItem('app-language');
+    if (storedLang === 'en' || storedLang === 'ar') {
+      setLanguage(storedLang);
+    }
     
     return () => {
       authListener?.subscription.unsubscribe();
@@ -48,6 +57,22 @@ const OKsaleHeader = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  useEffect(() => {
+    // Set document direction based on language
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+    localStorage.setItem('app-language', language);
+  }, [language]);
+  
+  const toggleLanguage = () => {
+    const newLang = language === 'ar' ? 'en' : 'ar';
+    setLanguage(newLang);
+    toast({
+      title: language === 'ar' ? 'Switched to English' : 'تم التغيير إلى العربية',
+      duration: 2000,
+    });
+  };
   
   const handleLogout = async () => {
     try {
@@ -76,7 +101,7 @@ const OKsaleHeader = () => {
               <div className="w-10 h-10 rounded-full bg-oksale-600 flex items-center justify-center shadow-md group-hover:shadow-oksale-300/50 transition-all duration-300">
                 <span className="text-white font-bold text-xl">OK</span>
               </div>
-              <span className="mr-2 font-bold text-2xl bg-gradient-to-r from-oksale-700 to-oksale-500 bg-clip-text text-transparent">OKsale</span>
+              <span className={`${language === 'ar' ? 'mr-2' : 'ml-2'} font-bold text-2xl bg-gradient-to-r from-oksale-700 to-oksale-500 bg-clip-text text-transparent`}>OKsale</span>
             </div>
           </Link>
           
@@ -87,17 +112,23 @@ const OKsaleHeader = () => {
           
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-3 space-x-reverse">
-            <div className="flex items-center border border-gray-200 rounded-full py-1 px-2 mr-2 hover:border-oksale-200 transition-all duration-200">
+            <button 
+              onClick={toggleLanguage}
+              className="flex items-center border border-gray-200 rounded-full py-1 px-2 mr-2 hover:border-oksale-200 transition-all duration-200"
+              aria-label={language === 'ar' ? "Switch to English" : "التبديل إلى العربية"}
+            >
               <Globe className="h-4 w-4 text-gray-500" />
-              <span className="text-sm mr-1 font-medium text-gray-700">العربية</span>
-            </div>
+              <span className="text-sm mx-1 font-medium text-gray-700">
+                {language === 'ar' ? 'E' : 'ع'}
+              </span>
+            </button>
             
             {user ? (
               <div className="flex items-center gap-3">
                 <Link to="/dashboard">
                   <Button variant="outline" className="rounded-full border-oksale-200 hover:border-oksale-300 hover:bg-oksale-50 transition-all duration-300">
                     <ShoppingBag className="w-4 h-4 ml-2" />
-                    متجري
+                    {language === 'ar' ? 'متجري' : 'My Store'}
                   </Button>
                 </Link>
                 <Button 
@@ -113,13 +144,13 @@ const OKsaleHeader = () => {
                 <Link to="/signin">
                   <Button variant="ghost" className="hover:bg-oksale-50 text-gray-700 hover:text-oksale-700 rounded-full transition-all duration-300">
                     <LogIn className="w-4 h-4 ml-1" />
-                    تسجيل الدخول
+                    {language === 'ar' ? 'تسجيل الدخول' : 'Sign In'}
                   </Button>
                 </Link>
                 <Link to="/signup">
                   <Button className="bg-oksale-600 hover:bg-oksale-700 text-white rounded-full shadow-sm hover:shadow-oksale-200/50 transition-all duration-300">
                     <Plus className="w-4 h-4 ml-1" />
-                    ابدأ الآن
+                    {language === 'ar' ? 'ابدأ الآن' : 'Start Now'}
                   </Button>
                 </Link>
               </div>
@@ -130,7 +161,7 @@ const OKsaleHeader = () => {
           <button 
             className="md:hidden p-2 rounded-full bg-white/90 shadow-sm hover:shadow-md transition-all duration-300"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+            aria-label={mobileMenuOpen ? (language === 'ar' ? "إغلاق القائمة" : "Close Menu") : (language === 'ar' ? "فتح القائمة" : "Open Menu")}
           >
             {mobileMenuOpen ? 
               <X className="w-5 h-5 text-oksale-700" /> : 
@@ -152,7 +183,16 @@ const OKsaleHeader = () => {
           >
             <div className="container mx-auto px-4 py-5">
               <div className="flex flex-col space-y-4">
-                
+                {/* Language Toggle */}
+                <button 
+                  onClick={toggleLanguage}
+                  className="flex items-center justify-center border border-gray-200 rounded-lg py-2 hover:bg-gray-50"
+                >
+                  <Globe className="h-4 w-4 text-gray-500 mr-2" />
+                  <span className="text-sm font-medium text-gray-700">
+                    {language === 'ar' ? 'Switch to English (E)' : 'التبديل إلى العربية (ع)'}
+                  </span>
+                </button>
                 
                 {/* Auth Buttons */}
                 <div className="border-t border-gray-100 pt-4 mt-2 space-y-3">
@@ -164,7 +204,7 @@ const OKsaleHeader = () => {
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <ShoppingBag className="inline-block w-4 h-4 ml-1" />
-                        الذهاب إلى متجري
+                        {language === 'ar' ? 'الذهاب إلى متجري' : 'Go to My Store'}
                       </Link>
                       <button 
                         className="w-full px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg text-center"
@@ -174,7 +214,7 @@ const OKsaleHeader = () => {
                         }}
                       >
                         <UserCircle2 className="inline-block w-4 h-4 ml-1" />
-                        تسجيل الخروج
+                        {language === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
                       </button>
                     </>
                   ) : (
@@ -185,7 +225,7 @@ const OKsaleHeader = () => {
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <LogIn className="inline-block w-4 h-4 ml-1" />
-                        تسجيل الدخول
+                        {language === 'ar' ? 'تسجيل الدخول' : 'Sign In'}
                       </Link>
                       <Link 
                         to="/signup" 
@@ -193,7 +233,7 @@ const OKsaleHeader = () => {
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <Plus className="inline-block w-4 h-4 ml-1" />
-                        ابدأ الآن
+                        {language === 'ar' ? 'ابدأ الآن' : 'Start Now'}
                       </Link>
                     </>
                   )}
@@ -204,53 +244,6 @@ const OKsaleHeader = () => {
         )}
       </AnimatePresence>
     </header>
-  );
-};
-
-// Helper component for desktop navigation links
-const NavLink = ({ to, label }: { to: string, label: string }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-  
-  return (
-    <Link 
-      to={to} 
-      className={cn(
-        "relative text-gray-700 font-medium py-2 transition-colors",
-        isActive ? "text-oksale-700 font-semibold" : "hover:text-oksale-600"
-      )}
-    >
-      {label}
-      {isActive && (
-        <motion.div 
-          layoutId="navIndicator"
-          className="absolute -bottom-1 left-0 right-0 h-0.5 bg-oksale-600 rounded-full"
-          initial={false}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        />
-      )}
-    </Link>
-  );
-};
-
-// Helper component for mobile navigation links
-const MobileNavLink = ({ to, label, onClick }: { to: string, label: string, onClick: () => void }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-  
-  return (
-    <Link 
-      to={to} 
-      onClick={onClick}
-      className={cn(
-        "px-3 py-2 rounded-lg font-medium transition-all duration-200",
-        isActive 
-          ? "bg-oksale-50 text-oksale-700" 
-          : "text-gray-800 hover:bg-gray-50"
-      )}
-    >
-      {label}
-    </Link>
   );
 };
 

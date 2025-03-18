@@ -4,12 +4,20 @@
   max-width: 100%;
   margin: 0;
   padding: 0;
-  text-align: right;
 }
 
 /* Support for RTL languages */
-html {
-  direction: rtl;
+html[dir="rtl"] {
+  text-align: right;
+}
+
+html[dir="ltr"] {
+  text-align: left;
+}
+
+/* Transition for RTL/LTR switching */
+body * {
+  transition: all 0.3s ease;
 }
 
 /* RTL specific utilities */
@@ -36,6 +44,11 @@ html {
   text-align: right;
 }
 
+[dir="ltr"] th,
+[dir="ltr"] td {
+  text-align: left;
+}
+
 [dir="rtl"] .table-numeric {
   text-align: left;
   font-variant-numeric: tabular-nums;
@@ -49,10 +62,17 @@ html {
 }
 
 /* Fix for RTL buttons and icons */
-button svg,
-a svg {
+[dir="rtl"] button svg,
+[dir="rtl"] a svg {
   margin-right: 0;
   margin-left: 0.5rem;
+}
+
+/* Fix for LTR buttons and icons */
+[dir="ltr"] button svg,
+[dir="ltr"] a svg {
+  margin-left: 0;
+  margin-right: 0.5rem;
 }
 
 /* Grid pattern with RTL direction */
@@ -60,5 +80,53 @@ a svg {
   background-image: linear-gradient(to left, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
                     linear-gradient(to top, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
   background-size: 20px 20px;
+}
+
+[dir="rtl"] .bg-grid-pattern {
   background-position: right top;
+}
+
+[dir="ltr"] .bg-grid-pattern {
+  background-position: left top;
+}
+
+/* Language-specific spacing classes */
+[dir="rtl"] .space-x-reverse > * + * {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+[dir="ltr"] .space-x > * + * {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Flip content when language changes */
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+[dir="ltr"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+/* Transitions for language switching */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
 }

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from "rea
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { AuthProvider } from './features/authentication/providers/AuthProvider';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Import pages from the correct locations based on the new structure
 import MatajerLayout from "./components/MatajerLayout"; 
@@ -152,11 +152,13 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <LanguageProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </LanguageProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
