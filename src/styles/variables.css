@@ -17,6 +17,13 @@
   --oksale-700: #4338CA;
   --oksale-800: #3730A3;
   --oksale-900: #312E81;
+  
+  /* Additional branding colors for enhanced styling */
+  --oksale-accent-1: #EEF2FF;
+  --oksale-accent-2: #DBEAFE;
+  --oksale-accent-3: #BFDBFE;
+  --oksale-accent-4: #93C5FD;
+  --oksale-accent-5: #60A5FA;
 }
 
 body {
