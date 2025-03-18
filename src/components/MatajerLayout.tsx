@@ -6,9 +6,9 @@ import NewNavbar from './NewNavbar';
 import MatajerHero from './MatajerHero';
 import MatajerFeatures from './MatajerFeatures';
 import MatajerPayments from './MatajerPayments';
+import StoreExamples from './StoreExamples';
 import MatajerPricing from './MatajerPricing';
 import MerchantAppPromotion from './MerchantAppPromotion';
-import StoreExamples from './StoreExamples';
 
 const MatajerLayout = () => {
   return (
@@ -19,8 +19,8 @@ const MatajerLayout = () => {
         <MatajerHero />
         <MatajerFeatures />
         <MatajerPayments />
-        <MatajerPricing />
         <StoreExamples />
+        <MatajerPricing />
         <MerchantAppPromotion />
       </main>
     </div>

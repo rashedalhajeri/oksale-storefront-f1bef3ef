@@ -29,7 +29,7 @@ const StoreExamples = () => {
     },
     {
       id: "store3",
-      name: "شهد فت",
+      name: "شهد فيت",
       logo: "/placeholder.svg",
       hasWebsite: true,
       hasApp: true
