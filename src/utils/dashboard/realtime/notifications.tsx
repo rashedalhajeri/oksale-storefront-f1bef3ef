@@ -38,6 +38,7 @@ export const showNewOrderNotification = (order: any) => {
   toast.success("طلب جديد", {
     description: `تم استلام طلب جديد من ${order.customer_name} بقيمة ${order.total_amount}`,
     duration: 10000,
+    position: "bottom-right",
     action: (
       <ToastAction 
         altText="عرض الطلب" 
@@ -86,6 +87,7 @@ export const showOrderStatusChangeNotification = (order: any, oldStatus: string)
   toast.info("تحديث الطلب", {
     description: `تم تغيير حالة الطلب #${order.id} من "${oldStatus}" إلى "${order.status}"`,
     duration: 8000,
+    position: "bottom-right",
     action: (
       <ToastAction 
         altText="عرض الطلب" 
