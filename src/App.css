@@ -45,9 +45,15 @@
   }
 }
 
-/* Support for RTL languages */
-html {
+/* Support for dynamic direction based on language */
+html[dir="rtl"] {
   direction: rtl;
+  text-align: right;
+}
+
+html[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
 }
 
 /* Improve text readability */
@@ -62,11 +68,17 @@ html {
   padding: 0 1rem;
 }
 
-/* Fix for RTL buttons and icons */
-button svg,
-a svg {
+/* Fix for buttons and icons based on text direction */
+[dir="rtl"] button svg,
+[dir="rtl"] a svg {
   margin-right: 0;
   margin-left: 0.5rem;
+}
+
+[dir="ltr"] button svg,
+[dir="ltr"] a svg {
+  margin-left: 0;
+  margin-right: 0.5rem;
 }
 
 /* OKsale specific styling */
